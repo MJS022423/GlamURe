@@ -1,10 +1,11 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import Navigate from './Navigate'
+// src/main.jsx
+import React from "react";
+import ReactDOM from "react-dom/client";
+import Web from "./web.jsx";
+import "./index.css";
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <Navigate />
-  </StrictMode>,
-)
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <Web />
+  </React.StrictMode>
+);
