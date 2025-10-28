@@ -1,10 +1,24 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // 👈 import navigate
 import logo from "../assets/Webapp.svg"; // your logo image
 import "../style/login.css"; // your CSS file
 
-function Login() {
+function Login({ onLoginSuccess }) {
   // Track which form is active
   const [isRegister, setIsRegister] = useState(false);
+  const navigate = useNavigate(); // 👈 initialize navigation
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    onLoginSuccess(); // mark as logged in
+    navigate("/dashboard"); // 👈 go to dashboard
+  };
+
+  const handleRegister = (e) => {
+    e.preventDefault();
+    onLoginSuccess();
+    navigate("/dashboard"); // 👈 same for register
+  };
 
   return (
     <div className="float">
@@ -51,6 +65,7 @@ function Login() {
         
         {!isRegister?(<form
           id="logform"
+          onSubmit={handleLogin}
           className="inp"
           style={{
             position: "relative",
@@ -75,6 +90,7 @@ function Login() {
         
         (<form
           id="regform"
+          onSubmit={handleRegister}
           className="inp"
           style={{
             opacity: isRegister ? 1:0,
