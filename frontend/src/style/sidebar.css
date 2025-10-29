@@ -3,7 +3,7 @@
   background: black;
   transition: width 0.3s ease-in-out;
   overflow: hidden; /* hides long text when collapsed */
-  padding: 1rem 0;
+  padding: 1rem 1px;
   display: flex;
   justify-content: space-between;
   flex-direction: column;
@@ -27,7 +27,7 @@
 .sidebar ul {
   list-style: none;
   padding: 0;
-  margin: 5px;
+  margin: 6px;
   gap: 30px;
   flex: 1;
 }
@@ -47,7 +47,7 @@
   white-space: nowrap;
   outline: none;
   transition: background 0.2s ease, color 0.2s ease;
-  height: 75px;
+  height: 80px;
 }
 .sidebar-btn:hover,
 .sidebar-btn:focus {
@@ -62,7 +62,7 @@
   border-radius: 5px;
 }
 .sidebar-btn.expanded {
-  width: 110%;
+  width: 100%;
 }
 .profile-section {
   display: flex;
@@ -112,17 +112,25 @@
 .sidebar-btn.active .menu-icon {
   filter: none; /* restores original black icon */
 }
-.logout-section {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 15px 20px;
-  color: #e0e0e0;
-  font-size: 15px;
-  cursor: pointer;
-  transition: background 0.25s ease;
-}
 .logout-section:hover {
   background: #f4f4f49f;
   border-radius: 5px;
+}
+.logout-section{
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 20px 18px;
+  cursor: pointer;
+  color: #e0e0e0;
+  font-size: 20px;
+  font-weight: 700;
+  white-space: nowrap;
+  outline: none;
+  transition: background 0.2s ease, color 0.2s ease;
+  height: 80px;
 }
