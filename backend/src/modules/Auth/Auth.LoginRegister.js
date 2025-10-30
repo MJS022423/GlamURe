@@ -1,5 +1,5 @@
-import express, { json } from 'express';
-import { ConsoleLog, ConsoleError, Logger } from '../../utils/utils.logger.js';
+import express from 'express';
+import { ConsoleLog, ConsoleError } from '../../utils/utils.logger.js';
 import Database from '../modules.connection.js';
 import { userSchema } from '../Auth/Auth.Constructor.js';
 
