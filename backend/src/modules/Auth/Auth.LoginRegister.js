@@ -1,11 +1,15 @@
 import express from 'express';
 import { ConsoleLog, ConsoleError } from '../../utils/utils.logger.js';
 import Database from '../modules.connection.js';
-import { userSchema } from '../Auth/Auth.Constructor.js';
 
 const router = express.Router();
-const db = Database();
+const db = Database(true);
 const log = true;
+
+export async function userSchema(req) {
+  const { username, email, password } = req.body;
+  return { Username: `${username}`, Email: `${email}`, Password: `${password}` }
+};
 
 router.post('/Register', async (req, res) => {
 
