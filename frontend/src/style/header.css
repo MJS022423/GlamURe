@@ -1,0 +1,177 @@
+.dheader{
+    width: 100%;
+    height: auto;
+    min-height: 60px;
+    max-height: fit-content;
+    background-color: #ff4da6;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px  ;
+    position: sticky;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    gap: 10px;
+    top: 0;
+    z-index: 10;
+    flex-shrink: 0; /* prevents header from shrinking under zoom */
+}
+.appicon {
+  width: 15%;
+  height: auto;
+}
+.bellicon,
+.rankicon,
+.jobicon{
+    height: 50px;
+    width: 50px;
+}
+@media (max-width: 700px) {
+  .bellicon,
+  .rankicon,
+  .jobicon{
+      height: 30px;
+      width: 30px;
+  }
+}
+@media (min-width: 500px) {
+  .rankicon,
+  .jobicon{
+      height: 50px;
+      width: 50px;
+  }
+  .bellicon{
+      height: 60px;
+      width: 60px;
+  }
+}
+.rankicon:focus,
+.rankicon:hover,
+.bellicon:focus,
+.bellicon:hover,
+.jobicon:focus,
+.jobicon:hover{
+    cursor: pointer;
+    filter: brightness(0) invert(1);
+}
+.search {
+  position: relative;
+  width: 45%;
+  height: 50px;
+  min-width: 200px; /* prevents breaking on zoom-in */
+  max-width: 500px; /* prevents stretching too wide */
+  border: 1px solid black;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 10px;
+  overflow: hidden;
+  background-color: #f4f4f49f;
+}
+
+/* Search icon — start on the right */
+.searchicon {
+  height: 25px;
+  width: 25px;
+  position: absolute;
+  right: 15px;
+  transition: transform 0.6s ease, right 0.6s ease;
+  cursor: pointer;
+}
+.search.active {
+  border: 3px solid rgb(180, 40, 90);
+}
+/* When active, slide icon left smoothly */
+.search.active .searchicon {
+  transform: translateX(-440px);
+  filter: invert(20%) sepia(90%) saturate(4000%) hue-rotate(320deg) brightness(85%) contrast(90%);
+}
+.searchinput {
+  position: absolute;
+  left: 50px;
+  width: 0;
+  opacity: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color:rgb(180, 40, 90);
+  font-size: clamp(14px, 1.3vw, 20px); /* text stays readable under zoom */
+  font-size: 20px;
+  transition: width 0.6s ease, opacity 0.4s ease;
+}
+
+/* When active, show input */
+.searchinput.show {
+  width: 85%;
+  opacity: 1;
+}
+
+/* Close button (hidden initially) */
+.closebtn {
+  position: absolute;
+  right: 15px;
+  font-size: 22px;
+  background: none;
+  border: none;
+  color: black;
+  cursor: pointer;
+  opacity: 1;
+  transform: scale(0.8);
+  transition: opacity 0.4s ease, transform 0.3s ease;
+}
+
+/* Show and pop in smoothly when active */
+.search.active .closebtn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.closebtn:hover {
+  filter: invert(20%) sepia(90%) saturate(4000%) hue-rotate(320deg) brightness(85%) contrast(90%);
+  font-weight: bold;
+}
+@media (max-width: 700px) {
+  .search {
+    width: 80%;
+  }
+  .appicon {
+    width: auto;
+  }
+}
+.nav-item {
+  position: relative;       /* create positioning context for ::after */
+  display: inline-flex;     /* don't stretch to full width; size to content */
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;        /* give clickable area and room for underline */
+  border-bottom: 3px solid transparent;
+  transition: border-color 0.3s ease;
+  cursor: pointer;
+  z-index: 1;               /* keep the item above the pseudo-element if needed */
+}
+
+.nav-item:hover {
+  border-bottom: 3px solid #ffffff; /* whtie underline on hover */
+  transform: scale(1.1);
+}
+
+/* Active state for selected tab */
+.nav-item.active {
+  border-bottom: 3px solid rgb(180, 40, 90);
+}
+.nav-item::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  background: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.nav-item:hover::after {
+  width: 100%;
+  left: 0;
+}
