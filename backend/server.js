@@ -19,6 +19,11 @@ app.use('/Status', statusRouter);
 app.use('/auth', Authrouter);
 app.use('/product', Productrouter);
 
+app.get('/status', (req, res) => {
+  res.status(200).json({ status: 'ok', message: '[ EXPRESS SERVER IS RUNNING ]'});
+  console.log('[ EXPRESS SERVER IS RUNNING ]');
+});
+
 app.listen(3000,  () => {
   console.log("[ SERVER RUNNING IN PORT 3000 ]");
 });
