@@ -1,37 +1,30 @@
 import { MongoClient } from 'mongodb';
 import { ConsoleLog, ConsoleError, Logger } from '../utils/utils.logger';
+import dotenv from 'dotenv';
 
 @Logger
 class Database {
   constructor(online = true) {
 
-    this.connectionString = 'mongodb://localhost:27017/';
-    this.atlasconnectionString = 'mongodb+srv://szzsan8_db_user:XGg1MaZBy6ZmZOpM@cluster0.9pygfc3.mongodb.net/';
-    this.DBname = 'GlamURe';
+    this.config = JSON.parse(fs.readFileSync('./DatabaseKey.json', 'utf-8'));
+    this.localconnectionString = process.env.localhostUrl;
+    this.atlasconnectionString = process.env.AtlasUrl;
+    this.DBname = process.env.DBname;
     this.Log = true;
 
-    try {
-      if (online) {
-        this.client = new MongoClient(this.connectionString);
-        ConsoleLog(' [ CONNECTION STRING RECEIVE ] ', this.Log);
-      } else {
-        this.client = new MongoClient(this.atlasconnectionString);
-        ConsoleLog(' [ ATLAS CONNECTION STRING RECEIVE ] ', this.Log);
-      }
-    } catch (error) {
-      ConsoleError('[ FAILED TO RETRIEVE CONNECTION STRING ]');
-      throw error
-    }
+    const url = online ? this.atlasconnectionString : this.localconnectionString;
 
+    this.client = new MongoClient(url);
+    ConsoleLog(`[ USING ${online ? 'ATLAS' : 'LOCAL'} CONNECTION STRING ]`, this.Log);
 
   }
 
   async Connection() {
     try {
       await this.client.connect();
-      const db = db.Database(this.DBname);
+      const db = this.client.db(this.DBname);
       ConsoleLog('[ CONNECTION ESTABLISHED ]', this.Log);
-      return
+      return db
     } catch (error) {
       ConsoleError('[ CONNECTION FAILED TO ESTABLISHED ]', this.Log);
     }
@@ -40,7 +33,7 @@ class Database {
   async Collection(collection = null) {
     if (collection) {
       try {
-        const db = this.Connection();
+        const db = await this.Connection();
         const Collection = db.collection(collection);
         ConsoleLog('[ COLLECTION CONNECTION ESTABLISHED ]', this.Log);
         return Collection;
@@ -52,6 +45,15 @@ class Database {
       return null;
     }
   }
+
+  async Close() {
+    try {
+      await this.client.close();
+      ConsoleLog('[ CONNECTION CLOSED ]', this.Log);
+    } catch ( error ) {
+      ConsoleError('[ FAILED TO CLOSE CONNECTION ]', this.Log);
+    }
+  }
 }
 
-export default MongoConnection;
+export default Database;
