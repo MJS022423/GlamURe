@@ -1,5 +1,4 @@
 import React, {useState} from "react";
-import "../style/header.css";
 import '../style/header.css'; // your CSS file
 
 import icon from '../assets/file.svg'; // your icon image
