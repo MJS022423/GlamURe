@@ -1,7 +1,7 @@
 import { ConsoleLog, ConsoleError } from '../../utils/utils.logger.js';
 import Database from '../modules.connection.js';
 
-const db = new Database(true);
+const db = new Database();
 const log = true;
 
 
@@ -30,8 +30,8 @@ async function Login(req, res) {
     }
     return res.status(500).json({ error: "Internal Server Error"});
   } finally {
-    ConsoleLog('[ CLOSING LOGIN CONNECTION ]', log);
     await db.Close();
+    ConsoleLog('[ CLOSING LOGIN CONNECTION ]', log);
   }
 };
 
