@@ -1,53 +1,45 @@
-// src/component/dashboard.jsx
 import React, { useState } from "react";
 import Sidebar from "./sidebar";
-import Header from "./header";
-import "../style/dashboard.css";
 
 function Dashboard({ goLogout }) {
-  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
   return (
-    <div className="dashboard-container">
-      <Header />
-      <div className="main-layout">
-        <div className="leftside">
-          <Sidebar onLogout={() => setShowLogoutPopup(true)} />
-        </div>
+    <div className="h-screen w-full bg-gray-100 flex relative items-center justify-center">
+      <Sidebar
+        onLogout={goLogout}
+        onExpand={setIsSidebarExpanded}
+      />
 
-        <main>
-          {/* Place page content here */}
-          <h2>Welcome to your Dashboard!</h2>
-        </main>
-
-        <aside></aside>
-      </div>
-
-      {/* Logout Confirmation Popup */}
-      {showLogoutPopup && (
-        <div className="logout-popup">
-          <div className="popup-box">
-            <p>Are you sure you want to log out?</p>
-            <div className="popup-actions">
-              <button
-                onClick={() => {
-                  goLogout(); // clears login state in Web.jsx
-                  setShowLogoutPopup(false);
-                }}
-                className="confirm-btn"
-              >
-                Yes
-              </button>
-              <button
-                onClick={() => setShowLogoutPopup(false)}
-                className="cancel-btn"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <main
+        className={`
+          bg-red-900 border-2 border-dashed border-gray-300 rounded-2xl p-6 text-white
+          transition-all duration-300 ease-in-out overflow-auto no-scrollbar
+        `}
+        style={{
+          height: "95vh",
+          // ✅ keep consistent gap between sidebar and main (both collapsed & expanded)
+          marginLeft: isSidebarExpanded ? "20rem" : "8rem",
+          marginRight: "1.5rem",
+          // ✅ adjust width so it doesn’t overflow and keeps symmetry
+          width: isSidebarExpanded
+            ? "calc(100% - 21.5rem)"
+            : "calc(100% - 9.5rem)",
+        }}
+      >
+        <h1 className="text-2xl font-semibold">
+          Welcome to your Dashboard!
+        </h1>
+        <style jsx>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+      </main>
     </div>
   );
 }

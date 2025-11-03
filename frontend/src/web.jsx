@@ -16,8 +16,8 @@ export default function Web() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-      if (!isLoggedIn) navigate("/landing"); // 👈 after loading, go to landing page
-    }, 3000);
+      if (!isLoggedIn) navigate("/main"); // 👈 after loading, go to landing page
+    }, 8000);
 
     return () => clearTimeout(timer);
   }, [isLoggedIn, navigate]);
@@ -27,10 +27,10 @@ export default function Web() {
   return (
     <Routes>
       {/* Default route */}
-      <Route path="/" element={<Navigate to="/landing" />} />
+      <Route path="/" element={<Navigate to="/main" />} />
 
       {/* Start page (Landing) */}
-      <Route path="/landing" element={<Startpage />} />
+      <Route path="/main" element={<Startpage />} />
 
       {/* Login page */}
       <Route
@@ -57,7 +57,7 @@ export default function Web() {
       />
 
       {/* Catch-all invalid URLs */}
-      <Route path="*" element={<Navigate to="/landing" />} />
+      <Route path="*" element={<Navigate to="/main" />} />
     </Routes>
   );
 }
