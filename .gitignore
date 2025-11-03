@@ -1,5 +1,1 @@
-##########################
-#      Secret key        #
-##########################
-
-backend/src/modules/.env
+backend/config

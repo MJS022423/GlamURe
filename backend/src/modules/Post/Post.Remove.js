@@ -1,12 +1,12 @@
 import Database from "../modules.connection.js";
 import { ConsoleLog, ConsoleError } from "../../utils/utils.logger.js";
 
-const db = new Database(true);
+const db = new Database();
 const log = true;
 
-async function RemoveProduct(Product_name) {
+async function RemoveProduct(req, res) {
   try {
-
+    const { Product_name } = req.body;
     const collection = await db.Collection('Product');
     const result = await collection.deleteOne({ Product: Product_name});
 
