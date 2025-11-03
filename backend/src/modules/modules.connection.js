@@ -2,14 +2,15 @@ import { MongoClient } from 'mongodb';
 import { ConsoleLog, ConsoleError, Logger } from '../utils/utils.logger';
 import dotenv from 'dotenv';
 
+dotenv.config();
+
 @Logger
 class Database {
   constructor(online = true) {
 
-    this.config = JSON.parse(fs.readFileSync('./DatabaseKey.json', 'utf-8'));
     this.localconnectionString = process.env.localhostUrl;
     this.atlasconnectionString = process.env.AtlasUrl;
-    this.DBname = process.env.DBname;
+    this.DBname = process.env.DB_name;
     this.Log = true;
 
     const url = online ? this.atlasconnectionString : this.localconnectionString;
