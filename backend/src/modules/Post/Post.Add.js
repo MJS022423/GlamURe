@@ -1,22 +1,24 @@
 import { ConsoleLog, ConsoleError } from "../../utils/utils.logger.js";
 import Database from "../modules.connection.js";
 import crypto from 'crypto';
+import fs from 'fs';
 
-const db = new Database(true);
+const db = new Database();
 const log = true;
 
-async function aProductSchema(req) {
+async function ProductSchema(req) {
   const { image, Product_name } = req.body;
-  return { Image: image, Product: Product_name };
+  const imageHash = crypto.createHash('sha256').update(Product_name).digest('hex');
+  const imagebuffer = fs.readFileSync( image )
+  return { Image: imagebuffer, Product: Product_name, FileHash: imageHash};
 }
 
-async function AddProduct(req) {
+async function AddProduct(req, res) {
   try {
 
     const collection = await db.Collection('Product');
-    const doc = await ProductSchema(req)
-    const imageHash = crypto.createHash('sha256').update(doc.Image).digest('hex');
-    const existingfile = await collection.findOne(imageHash);
+    const doc = await ProductSchema(req);
+    const existingfile = await collection.findOne(doc.FileHash);
 
     if (existingfile) {
       ConsoleError('[ IMAGES IS DUPLICATE ]');
@@ -24,6 +26,7 @@ async function AddProduct(req) {
     }
 
     const result = await collection.insertOne(doc);
+    fs.unlink(doc.image);
 
     if (result) {
       ConsoleLog("[ PRODUCT SUCCESSFULLY ADDED ]", log);
