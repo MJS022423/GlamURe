@@ -1,12 +1,12 @@
 import { ConsoleLog, ConsoleError } from '../../utils/utils.logger.js';
 import Database from '../modules.connection.js';
 
-const db = new Database(true);
+const db = new Database();
 const log = true;
 
 async function userSchema(req) {
   const { username, email, password } = req.body;
-  return { Username: `${username}`, Email: `${email}`, Password: `${password}` }
+  return { Username: `${username}`, Email: `${email}`, Password: `${password}`, Bookmark: null, notification: null, Post: null};
 };
 
 async function Register(req, res) {
