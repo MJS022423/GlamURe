@@ -1,16 +1,17 @@
-html {
-  scroll-behavior: smooth;
-  overflow-x: hidden;
-}
-
-body {
+.app * {
+  box-sizing: border-box;
   margin: 0;
-  font-family: "Poppins", sans-serif;
-  background-color: #ffffff;
-  color: #111;
-  overflow-x: hidden;
+  padding: 0;
+}
+html, body {
+  height: 100%;
   width: 100%;
-  max-width: 100%;
+  background: gray;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: sans-serif;
+  overflow-x: hidden;
 }
 
 .app {
@@ -29,7 +30,7 @@ body {
   box-sizing: border-box;
 }
 
-.hero {
+#hero {
   padding: 4rem 3rem;
   width: 100vw;
   box-sizing: border-box;
@@ -89,7 +90,4 @@ main, section {
 }
 #hero{
   padding: 4rem 3rem;
-}
-#hero img{
-  
 }
