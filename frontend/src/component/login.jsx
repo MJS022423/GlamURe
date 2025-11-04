@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import logo from "../assets/Webapp.svg";
 import privacyPolicyText from "../dataprivacy";
 
+
 function Login({ onLoginSuccess }) {
   const [isRegister, setIsRegister] = useState(false);
   const [showPolicy, setShowPolicy] = useState(false); // 🔹 Modal state

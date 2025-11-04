@@ -13,7 +13,7 @@ function Dashboard({ goLogout }) {
 
       <main
         className={`
-          bg-red-900 border-2 border-dashed border-gray-300 rounded-2xl p-6 text-white
+          bg-transparent border-2 border-solid border-gray-900 rounded-2xl p-6 text-white
           transition-all duration-300 ease-in-out overflow-auto no-scrollbar
         `}
         style={{
