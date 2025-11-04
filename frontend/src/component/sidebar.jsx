@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import home from "../assets/home.svg";
 import bookmark from "../assets/bookmark.svg";
-import message from "../assets/message.svg";
 import profile from "../assets/profile.svg";
 import settings from "../assets/settings.svg";
 import info from "../assets/info.svg";
@@ -14,7 +13,6 @@ const Sidebar = ({ onLogout, onExpand = () => {} }) => {
   const menuItems = [
     { name: "Home", icon: home },
     { name: "Bookmark", icon: bookmark },
-    { name: "Message", icon: message },
     { name: "Profile", icon: profile },
     { name: "Settings", icon: settings },
     { name: "About Us", icon: info },
