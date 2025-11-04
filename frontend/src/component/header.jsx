@@ -21,7 +21,7 @@ const Header = () => {
         setSearchText("");
     };
     return(
-        <header className='dheader'>
+        <header className="dheader fixed top-0 flex flex-wrap z-50 relative justify-evenly ">
             <img src={icon} className="appicon" alt="" />
             <div id="searchbar" className={`search ${isSearchActive ? "active" : ""}`} 
                 onClick={handleActivateSearch}>

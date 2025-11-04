@@ -293,27 +293,42 @@ const Startpage = () => {
       <p className="mt-3">© 2025 Glamure — Designed for Designers.</p>
       <h2>Contact us</h2>
       <div className="w-half flex flex-row md:flex-row gap-10 mb-10">
-        <button className="bg-black-600 p-2 h-5 w-5 rounded-full hover:bg-blue-700 transition">
+        <a 
+          href="https://www.facebook.com/kimbenedick.anzures.9"  
+          target="_blank" 
+          rel="noopener noreferrer">
+          <button className="bg-black-600 p-2 h-5 w-5 rounded-full hover:bg-blue-700 transition">
           <img 
             src="https://www.svgrepo.com/show/503338/facebook.svg" 
             alt="Facebook.com" 
             className="w-5 h-5 filter invert"
           />
         </button>
-        <button className="bg-black-600 p-2 rounded-full w-5 h-5 hover:bg-gradient-to-r hover:from-yellow-400 hover:via-pink-500 hover:to-purple-600 transition">
+        </a>
+        <a 
+          href="https://www.instagram.com/beben_brsg/?fbclid=IwY2xjawN2w8NleHRuA2FlbQIxMABicmlkETExME9QWW9ZOWw1Z0V4QlFhAR4ac2uHxcHk_sRUaQAg_-59T2yQ1JGQW6oDtRtMW1-sdP1Ahvb7FXL2nfDCCA_aem_nRfMQTirdwNNSATvk9KZkQ#"  
+          target="_blank" 
+          rel="noopener noreferrer">
+          <button className="bg-black-600 p-2 rounded-full w-5 h-5 hover:bg-gradient-to-r hover:from-yellow-400 hover:via-pink-500 hover:to-purple-600 transition">
           <img 
             src="https://www.svgrepo.com/show/512399/instagram-167.svg" 
             alt="Instagram.com" 
             className="w-5 h-4 filter invert"
           />
         </button>
-        <button className="bg-black-600 p-2 rounded-full w-5 h-5 hover:bg-blue-700 transition">
+        </a>
+        <a 
+          href="https://discord.gg/zzx3JTmn"
+          target="_blank" 
+          rel="noopener noreferrer">
+          <button className="bg-black-600 p-2 rounded-full w-5 h-5 hover:bg-blue-700 transition">
           <img 
             src="https://www.svgrepo.com/show/506463/discord.svg"
             alt="Discord.com" 
             className="w-5 h-5 filter invert"
           />
         </button>
+        </a>
       </div>
     </footer> 
     </div>

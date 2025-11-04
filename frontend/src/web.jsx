@@ -10,19 +10,28 @@ const EXPRESS_API = import.meta.env.VITE_EXPRESS_API;
 
 export default function Web() {
   const [loading, setLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Set initial state to false
   const navigate = useNavigate();
   
-
-  // Simulate loading screen
+  // Handle initial loading screen only
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-      if (!isLoggedIn) navigate("/landing"); // 👈 after loading, go to landing page
-    }, 3000);
+    }, 3000); // Reduced to 3 seconds for better UX
 
     return () => clearTimeout(timer);
+<<<<<<< HEAD
   }, []);
+=======
+  }, []); // Only run once on component mount
+
+  // Separate effect for handling initial auth state
+  useEffect(() => {
+    if (!loading && !isLoggedIn && window.location.pathname === '/') {
+      navigate('/main');
+    }
+  }, [loading, isLoggedIn, navigate]);
+>>>>>>> 50dac15264a6c27c09d9a8503455026a48cc2506
 
   useEffect(() => {
     const checkServer = async () => {
@@ -45,10 +54,10 @@ export default function Web() {
   return (
     <Routes>
       {/* Default route */}
-      <Route path="/" element={<Navigate to="/landing" />} />
+      <Route path="/" element={<Navigate to="/main" />} />
 
       {/* Start page (Landing) */}
-      <Route path="/landing" element={<Startpage />} />
+      <Route path="/main" element={<Startpage />} />
 
       {/* Login page */}
       <Route
@@ -75,7 +84,7 @@ export default function Web() {
       />
 
       {/* Catch-all invalid URLs */}
-      <Route path="*" element={<Navigate to="/landing" />} />
+      <Route path="*" element={<Navigate to="/main" />} />
     </Routes>
   );
 }

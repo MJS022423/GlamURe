@@ -1,20 +1,4 @@
-/* Global Reset & Setup */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
 
-html, body {
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(to bottom, #ffffff, #f3d7e5, #eb8fb7, #ff6392);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: sans-serif;
-  overflow-x: hidden;
-}
 
 /* Floating container */
 .float {
@@ -35,7 +19,7 @@ html, body {
 
 /* Divider line */
 .divide {
-  height: 70%;
+  height: 30%;
   width: 2px;
   background: black;
 }
