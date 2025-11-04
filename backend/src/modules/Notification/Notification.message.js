@@ -3,4 +3,4 @@ const Message = {
  Remove_post: (user) => {return {message: `${user} remove his post`}}, 
 }
 
-export default message;
+export default Message;

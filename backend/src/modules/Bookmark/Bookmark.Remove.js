@@ -1,8 +1,8 @@
-import Database from "../modules.connection";
-import { ConsoleLog, ConsoleError } from "../../utils/utils.logger";
-import message from "../Notification/Notification.message";
+import Database from "../modules.connection.js";
+import { ConsoleLog, ConsoleError } from "../../utils/utils.logger.js";
+import message from "../Notification/Notification.message.js";
 
-const db = Database();
+const db = new Database();
 const log = true;
 
 async function RemoveSave(req, res) {

@@ -1,1 +1,8 @@
-backend/config
+backend/.env
+frontend/.env
+
+node_modules
+
+package-lock.json
+
+package.jsonw

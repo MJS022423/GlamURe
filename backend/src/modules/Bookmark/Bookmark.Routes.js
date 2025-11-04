@@ -1,6 +1,6 @@
 import express from 'express';
-import Save from "./Bookmark.Add";
-import RemoveSave from "./Bookmark.Remove";
+import Save from "./Bookmark.Add.js";
+import RemoveSave from "./Bookmark.Remove.js";
 
 const BookmarkRouter = express.Router();
 

@@ -35,5 +35,5 @@ async function Login(req, res) {
   }
 };
 
-export default Login
+export default Login;
 

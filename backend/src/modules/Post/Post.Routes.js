@@ -1,7 +1,7 @@
-import express from 'experss';
-import AddProduct from './Post.Add';
-import RemoveProduct from './Post.Remove';
-import DisplayProduct from './Post.Display';
+import express from 'express';
+import AddProduct from './Post.Add.js';
+import RemoveProduct from './Post.Remove.js';
+import DisplayProduct from './Post.Display.js';
 
 const Productrouter = express.Router();
 

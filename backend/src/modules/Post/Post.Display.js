@@ -1,5 +1,5 @@
-import Database from "../modules.connection";
-import { ConsoleLog, ConsoleError } from "../../utils/utils.logger";
+import Database from "../modules.connection.js";
+import { ConsoleLog, ConsoleError } from "../../utils/utils.logger.js";
 
 const db = Database();
 const log = true;
@@ -7,28 +7,37 @@ const page = 1;
 const limit = 30;
 const skip = (page - 1) * limit;
 
-function convertImage(doc) {
+function convertImage(base64Str) {
+  if (!base64Str) return null;
 
-}
+  const matches = base64Str.match(/^data:image\/(\w+);base64,(.+)$/);
+  if (!matches) return null;
 
-function shuffle(array) {
-  for(let i = array.length - 1; i > 0; --i) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array
+  const ext = matches[1]; // png, jpeg, etc.
+  const data = matches[2];
+  const buffer = Buffer.from(data, "base64");
+
+  return { buffer, ext };
 }
 
 async function DisplayProduct(req, res) {
-  
+
   try {
 
     const collection = await db.Collection('Product');
     const result = await collection.find({}).skip(skip).limit(limit).toArray();
-    
-    return res.status(200).json(result);
 
-  } catch ( error ) {
+    if (!product || !product.image) {
+      return res.status(404).send("Image not found");
+    }
+
+    const img = convertImage(product.image);
+    if (!img) return res.status(400).send("Invalid image format");
+
+    res.setHeader("Content-Type", `image/${img.ext}`);
+    res.send(img.buffer);
+
+  } catch (error) {
     ConsoleError(`[ FAILED TO RETRIEVE DATA ]: ${error.message}`, log);
   } finally {
     db.Close();

@@ -1,12 +1,11 @@
 import { MongoClient } from 'mongodb';
-import { ConsoleLog, ConsoleError, Logger } from '../utils/utils.logger';
+import { ConsoleLog, ConsoleError, Logger } from '../utils/utils.logger.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-@Logger
 class Database {
-  constructor(online = true) {
+  constructor(online = false) {
 
     this.localconnectionString = process.env.localhostUrl;
     this.atlasconnectionString = process.env.AtlasUrl;

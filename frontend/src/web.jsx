@@ -6,6 +6,8 @@ import Login from "./component/login";
 import Dashboard from "./component/dashboard";
 import Startpage from "./startup/startpage";
 
+const EXPRESS_API = import.meta.env.VITE_EXPRESS_API;
+
 export default function Web() {
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -20,8 +22,24 @@ export default function Web() {
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [isLoggedIn, navigate]);
+  }, []);
 
+  useEffect(() => {
+    const checkServer = async () => {
+      try {
+        const res = await fetch(`${EXPRESS_API}/status`);
+        if (res.ok) {
+          setLoading(false);
+        } else {
+          setTimeout(checkServer, 200); 
+        }
+      } catch {
+        setTimeout(checkServer, 200); 
+      }
+    };
+
+    checkServer();
+  }, []);
   if (loading) return <LoadingScreen />;
 
   return (

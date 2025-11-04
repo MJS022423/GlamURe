@@ -6,7 +6,27 @@ const log = true;
 
 async function userSchema(req) {
   const { username, email, password } = req.body;
-  return { Username: `${username}`, Email: `${email}`, Password: `${password}`, Bookmark: null, notification: null, Post: null};
+  return {
+    Username: `${username}`,
+    Email: `${email}`,
+    Password: `${password}`,
+    
+    Bookmark: {
+      Saved: [],
+      BookmarkLastupdate: new Date(),
+    },
+    notification: {
+      message: [],
+      NotifLastupdate: new Date(),
+    },
+
+    Post: {
+      created: [],
+      createdDate: new Date()
+    },
+    Role: null,
+    Createdat: new Date(),
+  }
 };
 
 async function Register(req, res) {

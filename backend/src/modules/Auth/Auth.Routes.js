@@ -1,6 +1,6 @@
 import express from 'express';
-import Register from './Auth.Register';
-import Login from './Auth.Login';
+import Login from './Auth.Login.js';
+import Register from './Auth.Register.js';
 
 const Authrouter = express.Router();
 

@@ -8,7 +8,7 @@ const log = true;
 
 async function ProductSchema(req) {
   const { image, Product_name } = req.body;
-  const imageHash = crypto.createHash('sha256').update(Product_name).digest('hex');
+  const imageHash = crypto.createHash('sha256').update(fs.readFileSync( image )).digest('hex');
   const imagebuffer = fs.readFileSync( image )
   return { Image: imagebuffer, Product: Product_name, FileHash: imageHash};
 }
