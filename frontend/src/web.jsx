@@ -8,19 +8,24 @@ import Startpage from "./startup/startpage";
 
 export default function Web() {
   const [loading, setLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Set initial state to false
   const navigate = useNavigate();
   
-
-  // Simulate loading screen
+  // Handle initial loading screen only
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-      if (!isLoggedIn) navigate("/main"); // 👈 after loading, go to landing page
-    }, 8000);
+    }, 3000); // Reduced to 3 seconds for better UX
 
     return () => clearTimeout(timer);
-  }, [isLoggedIn, navigate]);
+  }, []); // Only run once on component mount
+
+  // Separate effect for handling initial auth state
+  useEffect(() => {
+    if (!loading && !isLoggedIn && window.location.pathname === '/') {
+      navigate('/main');
+    }
+  }, [loading, isLoggedIn, navigate]);
 
   if (loading) return <LoadingScreen />;
 
