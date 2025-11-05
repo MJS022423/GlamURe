@@ -27,7 +27,7 @@ function Dashboard({ goLogout }) {
             : "calc(100% - 9.5rem)",
         }}
       >
-        <h1 className="text-2xl font-semibold">
+        <h1 className="text-red-800 text-2xl font-semibold">
           Welcome to your Dashboard!
         </h1>
         <style jsx>{`

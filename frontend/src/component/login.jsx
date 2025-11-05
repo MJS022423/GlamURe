@@ -3,89 +3,10 @@ import { useNavigate } from "react-router-dom";
 import logo from "../assets/Webapp.svg";
 import privacyPolicyText from "../dataprivacy";
 
-
 const EXPRESS_API = import.meta.env.VITE_EXPRESS_API;
 
 function Login({ onLoginSuccess }) {
   const [isRegister, setIsRegister] = useState(false);
-<<<<<<< HEAD
-  const [loginData, setLoginData] = useState({ username: "", password: "" });
-  const [registerData, setRegisterData] = useState({
-    username: "",
-    email: "",
-    password: "",
-  });
-  const navigate = useNavigate(); // 👈 initialize navigation
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch(`${EXPRESS_API}/auth/Login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(loginData)
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        onLoginSuccess(); // mark as logged in
-        navigate("/dashboard"); // 👈 go to dashboard
-      } else {
-        console.log(data.message || "Login Failed");
-      }
-
-    } catch (err) {
-      console.log("Error connecting to server");
-    }
-  };
-
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch(`${EXPRESS_API}/auth/Register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(registerData),
-      });
-
-      const data = await res.json();
-      if (data.ok) {
-        onLoginSuccess();
-        navigate("/dashboard"); // 👈 same for register
-      } else {
-        console.log(data.message || "Registration failed");
-      }
-
-    } catch (err) {
-      console.log("Error connecting to server");
-    }
-  };
-
-  return (
-    <div className="float">
-      <img src={logo} className="Applogo" alt="logo" />
-      <div className="divide"></div>
-
-      <div className="form">
-        <div className="btnb">
-          <div
-            id="btn"
-            style={{
-              left: isRegister ? "120px" : "0px",
-              transition: "left 0.5s",
-            }}
-          ></div>
-
-          <button
-            id="logbtn"
-            type="button"
-            className={`toggle ${!isRegister ? "active" : ""}`}
-            onClick={() => setIsRegister(false)}
-            style={{
-              color: isRegister ? "black" : "rgba(255, 255, 255, 1)",
-              fontWeight: "bold",
-            }}
-=======
   const [showPolicy, setShowPolicy] = useState(false); // 🔹 Modal state
   const navigate = useNavigate();
 
@@ -104,74 +25,72 @@ function Login({ onLoginSuccess }) {
   });
 
   const handleLogin = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!loginData.username || !loginData.password) return;
+    if (!loginData.username || !loginData.password) return;
 
-  try {
-    const response = await fetch("http://localhost:3000/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: loginData.username,
-        password: loginData.password,
-      }),
-    });
+    try {
+      const response = await fetch(`${EXPRESS_API}/auth/Login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: loginData.username,
+          password: loginData.password,
+        }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (response.ok) {
-      console.log("✅ Login success:", data);
-      onLoginSuccess();
-      navigate("/dashboard");
-    } else {
-      alert(data.message || "Invalid credentials");
+      if (response.ok) {
+        console.log("✅ Login success:", data);
+        onLoginSuccess();
+        navigate("/dashboard");
+      } else {
+        alert(data.message || "Invalid credentials");
+      }
+    } catch (error) {
+      console.error("❌ Login error:", error);
+      alert("Server error. Please try again later.");
     }
-  } catch (error) {
-    console.error("❌ Login error:", error);
-    alert("Server error. Please try again later.");
-  }
-};
-
+  };
 
   const handleRegister = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!registerData.agree) {
-    alert("Please agree to the Terms of Use and Privacy Policy before continuing.");
-    return;
-  }
-
-  try {
-    const response = await fetch("http://localhost:3000/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: registerData.username,
-        email: registerData.email,
-        password: registerData.password,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      console.log("✅ Registration success:", data);
-      onLoginSuccess();
-      navigate("/dashboard");
-    } else {
-      alert(data.message || "Registration failed");
+    if (!registerData.agree) {
+      alert("Please agree to the Terms of Use and Privacy Policy before continuing.");
+      return;
     }
-  } catch (error) {
-    console.error("❌ Register error:", error);
-    alert("Server error. Please try again later.");
-  }
-};
 
+    try {
+      const response = await fetch(`${EXPRESS_API}/auth/Register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: registerData.username,
+          email: registerData.email,
+          password: registerData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("✅ Registration success:", data);
+        onLoginSuccess();
+        navigate("/dashboard");
+      } else {
+        alert(data.message || "Registration failed");
+      }
+    } catch (error) {
+      console.error("❌ Register error:", error);
+      alert("Server error. Please try again later.");
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-white to-pink-300 relative">
@@ -189,7 +108,6 @@ function Login({ onLoginSuccess }) {
             strokeWidth={2}
             stroke="currentColor"
             className="w-5 h-5 mr-1"
->>>>>>> 50dac15264a6c27c09d9a8503455026a48cc2506
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
@@ -201,23 +119,6 @@ function Login({ onLoginSuccess }) {
           <img src={logo} alt="Logo" className="max-h-[200px]" />
         </div>
 
-<<<<<<< HEAD
-
-        {!isRegister ? (<form
-          id="logform"
-          onSubmit={handleLogin}
-          className="inp"
-          style={{
-            position: "relative",
-            left: isRegister ? "-400px" : "0px",
-            opacity: isRegister ? 0 : 1,
-            transition: "left 1.5s",
-          }}
-        >
-          <div className="input-wrap">
-            <input type="text" className="inpf" placeholder=" " required />
-            <div className="label">Username</div>
-=======
         {/* Divider */}
         <div className="w-px bg-gray-900 my-10"></div>
 
@@ -246,7 +147,6 @@ function Login({ onLoginSuccess }) {
             >
               Register
             </button>
->>>>>>> 50dac15264a6c27c09d9a8503455026a48cc2506
           </div>
 
           {/* LOGIN FORM */}
@@ -281,43 +181,6 @@ function Login({ onLoginSuccess }) {
                 </label>
               </div>
 
-<<<<<<< HEAD
-          <input type="submit" className="sub-btn" value="Login" />
-        </form>) :
-
-
-          (<form
-            id="regform"
-            onSubmit={handleRegister}
-            className="inp"
-            style={{
-              opacity: isRegister ? 1 : 0,
-              left: isRegister ? "0px" : "400px",
-              transition: "left 0.5s",
-              position: "relative",
-            }}
-          >
-            <div className="input-wrap">
-              <input type="text" className="inpf" placeholder=" " required />
-              <div className="label">Username</div>
-            </div>
-
-            <div className="input-wrap">
-              <input type="email" className="inpf" placeholder=" " required />
-              <div className="label">Email</div>
-            </div>
-
-            <div className="input-wrap">
-              <input type="password" className="inpf" placeholder=" " required />
-              <div className="label">Password</div>
-            </div>
-
-            <input type="submit" className="sub-btn" value="Register" />
-          </form>
-          )}
-      </div>
-
-=======
               {/* Password */}
               <div className="relative mb-6">
                 <input
@@ -475,43 +338,39 @@ function Login({ onLoginSuccess }) {
 
       {/* PRIVACY POLICY MODAL */}
       {showPolicy && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
-    {/* Floating Popup */}
-    <div className="bg-white p-6 rounded-2xl shadow-2xl w-[90%] max-w-lg max-h-[80vh] overflow-hidden relative animate-[fadeIn_0.3s_ease]">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
+          {/* Floating Popup */}
+          <div className="bg-white p-6 rounded-2xl shadow-2xl w-[90%] max-w-lg max-h-[80vh] overflow-hidden relative animate-[fadeIn_0.3s_ease]">
+            {/* HEADER (fixed position inside the modal) */}
+            <div className="sticky top-0 bg-white z-10 pb-2 border-b flex items-center justify-center">
+              <h2 className="text-2xl font-semibold text-center flex-1">
+                Privacy Policy
+              </h2>
+              <button
+                onClick={() => setShowPolicy(false)}
+                className="absolute right-4 text-gray-500 hover:text-black text-2xl font-bold"
+              >
+                ×
+              </button>
+            </div>
 
-      {/* HEADER (fixed position inside the modal) */}
-      <div className="sticky top-0 bg-white z-10 pb-2 border-b flex items-center justify-center">
-        <h2 className="text-2xl font-semibold text-center flex-1">
-          Privacy Policy
-        </h2>
-        <button
-          onClick={() => setShowPolicy(false)}
-          className="absolute right-4 text-gray-500 hover:text-black text-2xl font-bold"
-        >
-          ×
-        </button>
-      </div>
+            {/* SCROLLABLE TEXT AREA */}
+            <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap overflow-y-auto max-h-[70vh] no-scrollbar mt-2 pr-2">
+              {privacyPolicyText}
+            </div>
 
-      {/* SCROLLABLE TEXT AREA */}
-      <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap overflow-y-auto max-h-[70vh] no-scrollbar mt-2 pr-2">
-        {privacyPolicyText}
-      </div>
-
-      <style jsx>{`
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
-    </div>
-  </div>
-)}
-
-
->>>>>>> 50dac15264a6c27c09d9a8503455026a48cc2506
+            <style jsx>{`
+              .no-scrollbar::-webkit-scrollbar {
+                display: none;
+              }
+              .no-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+              }
+            `}</style>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
