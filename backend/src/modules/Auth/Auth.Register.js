@@ -10,7 +10,7 @@ async function userSchema(req) {
     Username: `${username}`,
     Email: `${email}`,
     Password: `${password}`,
-    
+
     Bookmark: {
       Saved: [],
       BookmarkLastupdate: new Date(),
@@ -30,6 +30,7 @@ async function userSchema(req) {
 };
 
 async function Register(req, res) {
+  ConsoleLog('[ REGISTER ROUTER ]', log);
 
   if (!req.body) {
     return res.status(400).json({ error: "Register Failed Parameter is Empty" });
@@ -41,7 +42,7 @@ async function Register(req, res) {
     const doc = await userSchema(req)
     await collection.insertOne(doc);
     ConsoleLog('[ USER REGISTERED SUCCESSFULLY ]', log);
-    return res.status(200).json({ message: 'Register Successful' });
+    return res.status(200).json({ success: true, message: 'Register Successful' });
 
   } catch (error) {
     if (error.code === 11000) {

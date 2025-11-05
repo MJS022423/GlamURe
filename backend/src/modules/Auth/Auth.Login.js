@@ -6,7 +6,7 @@ const log = true;
 
 
 async function Login(req, res) {
-
+  ConsoleLog('[ LOGIN ROUTER ]', log);
   if (!req.body) {
     return res.status(400).json({ error: "Login Request Failed Parameter is Empty" });
   }
