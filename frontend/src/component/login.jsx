@@ -149,7 +149,7 @@ function Login({ onLoginSuccess }) {
               }`}
               onClick={() => setIsRegister(false)}
             >
-              Login
+              Login 
             </button>
             <button
               className={`relative z-10 w-1/2 py-2 text-sm font-semibold rounded-full ${
