@@ -2,19 +2,26 @@ import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import Authrouter from './src/modules/Auth/Auth.Routes.js';
-// import Productrouter from './src/modules/Post/Post.routes.js';
-// import MessageRouter from './src/modules/Message/Message.Routes.js';
-// import BookmarkRouter from './src/modules/Bookmark/Bookmark.Routes.js';
 import dotenv from 'dotenv';
 
-
+// Load environment variables
 dotenv.config();
+
 const app = express();
-const limiter = rateLimit ({
+const PORT = process.env.PORT || 5000;
+
+// Configure CORS
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
+
+// Configure rate limiting
+const limiter = rateLimit({
   windowMs: 30 * 60 * 1000,
   limit: 100,
-  legacyHeaders: false,
-  ipv6Subnet: 60,
+  standardHeaders: true,
+  legacyHeaders: false
 });
 
 app.use(limiter);

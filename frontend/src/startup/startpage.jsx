@@ -204,33 +204,50 @@ const Startpage = () => {
 
   {/* Features Section */}
   <section
-    id="features"
-    className="min-h-screen snap-start flex flex-col justify-center items-center bg-blue-500 text-center scroll-mt-20 w-screen py-24 px-6"
-  >
-    <h2 className="text-3xl font-semibold text-white mb-8">
-      Platform Highlights
-    </h2>
+  id="features"
+  className="relative h-screen m-0" >
 
-    <div className="flex flex-col lg:flex-row flex-wrap justify-center gap-6 max-w-6xl mx-auto">
-      {[
-        { title: "🏆 Ranking / Leaderboard", text: "Discover top designs based on likes and track the top designers dominating the charts." },
-        { title: "💬 Messages", text: "Connect with other designers or recruiters through private messages." },
-        { title: "💼 Applying / Hiring", text: "Designers can apply to job posts, while recruiters can find and message talents directly." },
-        { title: "👗 Design Categories", text: "Explore designs by category: Men's or Women's Apparel." },
-        { title: "📌 Bookmark Design", text: "Save your favorite designs for future inspiration and reference." },
-      ].map((feature, idx) => (
-        <div
-          key={idx}
-          className="bg-white border border-gray-200 rounded-2xl p-6 w-full lg:w-[30%] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(255,99,146,0.2)]"
-        >
-          <h3 className="text-pink-500 text-xl font-semibold mb-3">
-            {feature.title}
-          </h3>
-          <p className="text-gray-700">{feature.text}</p>
-        </div>
-      ))}
-    </div>
-  </section>
+  {/* Title */}
+  <div className="absolute top-1/50 left-1/2 -translate-x-1/2 text-center z-10">
+    <h2 className="text-4xl font-bold text-black tracking-wide">Features</h2>
+  </div>
+
+  {/* 3-Stripe Background */}
+  <div className="absolute inset-0 flex">
+    <div className="flex-1 bg-[#FFF5F7]"></div> {/* Blush Pink */}
+    <div className="flex-1 bg-[#FFF0EB]"></div> {/* Cream */}
+    <div className="flex-1 bg-[#FFFFFF]"></div> {/* White */}
+  </div>
+
+  {/* Feature Cards */}
+  <div className="absolute top-1/3 left-0 w-full -translate-y-1/2 flex justify-center gap-40 px-10 z-10">
+    {[
+      {
+        title: "🏆 Ranking / Leaderboard",
+        text: "This feature showcases the most popular posted designs based on the number of likes they receive, creating a dynamic and competitive environment for designers. Users can explore the top-rated designs, discover trending styles, and gain inspiration from the community’s favorites. The leaderboard also highlights the top designers who consistently create engaging and well-loved works, motivating others to improve and showcase their creativity. It’s an exciting way to recognize talent, celebrate creativity, and encourage friendly competition within the design community.",
+      },
+      {
+        title: "👗 Design Categories",
+        text: "This feature lets users explore a wide range of fashion designs organized into clear and distinct categories, such as Men’s Apparel and Women’s Apparel. By separating designs into these sections, users can easily browse and find outfits that match their style preferences, whether they’re interested in casual wear, formal attire, or creative concept pieces. It enhances the browsing experience by making navigation more intuitive and enjoyable, allowing aspiring designers and fashion enthusiasts to quickly access the types of designs they love most. This feature also encourages designers to showcase their work in specific categories, helping their creations reach the right audience and gain more visibility within the community.",
+      },
+      {
+        title: "📌 Bookmark Design",
+        text: "This feature allows users to save their favorite designs for easy access and future inspiration. By bookmarking designs they admire, users can build their own personalized collection of creative ideas to revisit anytime. It’s perfect for designers looking to reference styles, color combinations, or layout inspirations later on. This feature encourages continuous learning and creativity by giving users a convenient way to organize and revisit the designs that inspire them most. Whether you’re planning your next project or just exploring, your saved designs will always be just a click away.",
+      },
+    ].map((feature, idx) => (
+      <div
+        key={idx}
+        className="w-1/4 rounded-2xl p-8 text-center
+                   shadow-md hover:-translate-y-2 hover:shadow-xl transition-transform duration-300"
+      >
+        <h3 className="text-pink-600 text-xl font-semibold mb-4 leading-relaxed">
+          {feature.title}
+        </h3>
+        <p className="text-gray-700 leading-loose tracking-wide">{feature.text}</p>
+      </div>
+    ))}
+  </div>
+</section>
 
   {/* Categories Section */}
   <section
