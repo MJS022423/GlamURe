@@ -1,6 +1,5 @@
 import React, { useState,useEffect } from "react";
 import { useNavigate} from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import file from "../assets/file.svg";
 import "./startpage.css";
 
@@ -88,13 +87,13 @@ const Startpage = () => {
   {/* Auth buttons (desktop) */}
   <div className="hidden md:flex gap-3">
     <button
-      onClick={() => navigate("/login")}
+      onClick={() => navigate("/login", { state: { register: false } })}
       className="border border-[#ff6392] text-[#ff6392] w-24 h-10 font-semibold rounded hover:opacity-90 transition"
     >
       Login
     </button>
     <button
-      onClick={() => navigate("/login")}
+      onClick={() => navigate("/login", { state: { register: true } })}
       className="bg-[#ff6392] text-black font-semibold w-24 h-10 rounded hover:opacity-90 transition"
     >
       Sign Up
@@ -144,13 +143,13 @@ const Startpage = () => {
       </button>
       <div className="flex gap-3 mt-2">
         <button
-          onClick={() => navigate('/login')}
+          onClick={() => navigate('/login', { state: { register: false } })}
           className="border border-[#ff6392] text-[#ff6392] px-4 py-2 rounded hover:opacity-90"
         >
           Login
         </button>
         <button
-          onClick={() => navigate('/login')}
+          onClick={() => navigate('/login', { state: { register: true } })}
           className="bg-[#ff6392] text-black px-4 py-2 rounded hover:opacity-90"
         >
           Sign Up
@@ -186,7 +185,7 @@ const Startpage = () => {
         </button>
         <button
           className="border-2 border-pink-600 w-35 text-pink-600 hover:bg-pink-50 font-semibold py-3 px-6 rounded-full shadow-md transition duration-300"
-          onClick={() => navigate("/login")}
+          onClick={() => navigate("/login", { state: { register: true } })}
         >
           Join as Designer
         </button>

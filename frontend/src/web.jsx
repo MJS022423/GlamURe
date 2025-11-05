@@ -10,29 +10,9 @@ const EXPRESS_API = import.meta.env.VITE_EXPRESS_API;
 
 export default function Web() {
   const [loading, setLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Set initial state to false
   const navigate = useNavigate();
   
-  // Handle initial loading screen only
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 3000); // Reduced to 3 seconds for better UX
-
-    return () => clearTimeout(timer);
-<<<<<<< HEAD
-  }, []);
-=======
-  }, []); // Only run once on component mount
-
-  // Separate effect for handling initial auth state
-  useEffect(() => {
-    if (!loading && !isLoggedIn && window.location.pathname === '/') {
-      navigate('/main');
-    }
-  }, [loading, isLoggedIn, navigate]);
->>>>>>> 50dac15264a6c27c09d9a8503455026a48cc2506
-
+  // Check server status on mount
   useEffect(() => {
     const checkServer = async () => {
       try {
@@ -49,6 +29,13 @@ export default function Web() {
 
     checkServer();
   }, []);
+
+  // Handle navigation when not logged in and on root path
+  useEffect(() => {
+    if (!loading && !isLoggedIn && window.location.pathname === '/') {
+      navigate('/main');
+    }
+  }, [loading, isLoggedIn, navigate]);
   if (loading) return <LoadingScreen />;
 
   return (
@@ -74,6 +61,16 @@ export default function Web() {
       {/* Dashboard (Protected Route) */}
       <Route
         path="/dashboard"
+        element={
+          isLoggedIn ? (
+            <Navigate to="/dashboard/home" replace />
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+      <Route
+        path="/dashboard/*"
         element={
           isLoggedIn ? (
             <Dashboard goLogout={() => setIsLoggedIn(false)} />

@@ -216,10 +216,10 @@ Your continued use of the Platform after changes constitutes acceptance of the u
 For questions, concerns, or requests regarding this Privacy Policy or your personal information, contact us at:
 Glamure Privacy Team
 Email: privacy@glamure.com
-Address: [Your Business Address]
-Phone: [Your Phone Number]
+Address: Marilao, Bulacan, Philippines
+Phone: 01234567890
 For data protection inquiries: dpo@glamure.com
-________________________________________
+_________________________________________________________________________________________________________________________________
 By using Glamure, you acknowledge that you have read and understood this Privacy Policy and agree to our collection, use, and disclosure of your information as described herein.
 `;
 

@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+
 import home from "../assets/home.svg";
 import bookmark from "../assets/bookmark.svg";
 import profile from "../assets/profile.svg";
@@ -7,16 +9,22 @@ import info from "../assets/info.svg";
 import logout from "../assets/logout.svg";
 
 const Sidebar = ({ onLogout, onExpand = () => {} }) => {
-  const [activeMenu, setActiveMenu] = useState("Home");
   const [isExpanded, setIsExpanded] = useState(false);
+  const location = useLocation();
 
   const menuItems = [
-    { name: "Home", icon: home },
-    { name: "Bookmark", icon: bookmark },
-    { name: "Profile", icon: profile },
-    { name: "Settings", icon: settings },
-    { name: "About Us", icon: info },
+    { name: "Home", icon: home, path: "/dashboard/home" },
+    { name: "Bookmark", icon: bookmark, path: "/dashboard/bookmark" },
+    { name: "Profile", icon: profile, path: "/dashboard/profile" },
+    { name: "Settings", icon: settings, path: "/dashboard/settings" },
+    { name: "About Us", icon: info, path: "/dashboard/about" },
   ];
+
+  // Check if current path matches a menu item (handle /dashboard as home)
+  const isActive = (path) => {
+    const currentPath = location.pathname;
+    return currentPath === path || (currentPath === "/dashboard" && path === "/dashboard/home");
+  };
 
   return (
     <aside
@@ -52,29 +60,35 @@ const Sidebar = ({ onLogout, onExpand = () => {} }) => {
       >
         {menuItems.map((item) => (
           <li key={item.name} className="w-full">
-            <button
-              onClick={() => setActiveMenu(item.name)}
-              className={`flex items-center w-full py-3 rounded-xl transition-all duration-200 ${
-                isExpanded ? "justify-start gap-4 px-2" : "justify-center"
-              } ${
-                activeMenu === item.name
-                  ? "bg-pink-500 text-black font-semibold"
-                  : "hover:bg-gray-700"
-              }`}
+            <NavLink
+              to={item.path}
+              className={({ isActive: isNavActive }) =>
+                `flex items-center w-full py-3 rounded-xl transition-all duration-200 ${
+                  isExpanded ? "justify-start gap-4 px-2" : "justify-center"
+                } ${
+                  isNavActive || isActive(item.path)
+                    ? "bg-pink-500 text-black font-semibold"
+                    : "hover:bg-gray-700"
+                }`
+              }
             >
-              <img
-                src={item.icon}
-                alt={item.name}
-                className={`w-6 h-6 ${
-                  activeMenu === item.name
-                    ? "filter-none"
-                    : "filter brightness-0 invert"
-                }`}
-              />
-              {isExpanded && (
-                <span className="text-base whitespace-nowrap">{item.name}</span>
+              {({ isActive: isNavActive }) => (
+                <>
+                  <img
+                    src={item.icon}
+                    alt={item.name}
+                    className={`w-6 h-6 ${
+                      isNavActive || isActive(item.path)
+                        ? "filter-none"
+                        : "filter brightness-0 invert"
+                    }`}
+                  />
+                  {isExpanded && (
+                    <span className="text-base whitespace-nowrap">{item.name}</span>
+                  )}
+                </>
               )}
-            </button>
+            </NavLink>
           </li>
         ))}
       </ul>
