@@ -10,7 +10,6 @@ const EXPRESS_API = import.meta.env.VITE_EXPRESS_API;
 
 export default function Web() {
   const [loading, setLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Set initial state to false
   const navigate = useNavigate();
   
   // Check server status on mount
@@ -62,6 +61,16 @@ export default function Web() {
       {/* Dashboard (Protected Route) */}
       <Route
         path="/dashboard"
+        element={
+          isLoggedIn ? (
+            <Navigate to="/dashboard/home" replace />
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+      <Route
+        path="/dashboard/*"
         element={
           isLoggedIn ? (
             <Dashboard goLogout={() => setIsLoggedIn(false)} />

@@ -1,5 +1,11 @@
 import React, { useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Sidebar from "./sidebar";
+import Homepage from "../dash-component/homepage";
+import Bookmark from "../dash-component/bookmark";
+import Profilepage from "../dash-component/profilepage";
+import Settings from "../dash-component/settings";
+import AboutPage from "../dash-component/aboutpage";
 
 function Dashboard({ goLogout }) {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
@@ -21,15 +27,21 @@ function Dashboard({ goLogout }) {
           // ✅ keep consistent gap between sidebar and main (both collapsed & expanded)
           marginLeft: isSidebarExpanded ? "20rem" : "8rem",
           marginRight: "1.5rem",
-          // ✅ adjust width so it doesn’t overflow and keeps symmetry
+          // ✅ adjust width so it doesn't overflow and keeps symmetry
           width: isSidebarExpanded
             ? "calc(100% - 21.5rem)"
             : "calc(100% - 9.5rem)",
         }}
       >
-        <h1 className="text-red-800 text-2xl font-semibold">
-          Welcome to your Dashboard!
-        </h1>
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard/home" replace />} />
+          <Route path="/home" element={<Homepage />} />
+          <Route path="/bookmark" element={<Bookmark />} />
+          <Route path="/profile" element={<Profilepage />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="*" element={<Navigate to="/dashboard/home" replace />} />
+        </Routes>
         <style jsx>{`
         .no-scrollbar::-webkit-scrollbar {
           display: none;

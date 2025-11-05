@@ -1,14 +1,24 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../assets/Webapp.svg";
 import privacyPolicyText from "../dataprivacy";
 
 const EXPRESS_API = import.meta.env.VITE_EXPRESS_API;
 
 function Login({ onLoginSuccess }) {
+  const location = useLocation();
   const [isRegister, setIsRegister] = useState(false);
   const [showPolicy, setShowPolicy] = useState(false); // 🔹 Modal state
   const navigate = useNavigate();
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+
+  // Check if we should show register form based on navigation state
+  useEffect(() => {
+    if (location.state?.register) {
+      setIsRegister(true);
+    }
+  }, [location.state]);
 
   // Separate states for login and register
   const [loginData, setLoginData] = useState({
@@ -91,6 +101,8 @@ function Login({ onLoginSuccess }) {
       alert("Server error. Please try again later.");
     }
   };
+  const toggleLoginPassword = () => setShowLoginPassword((v) => !v);
+  const toggleRegisterPassword = () => setShowRegisterPassword((v) => !v);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-white to-pink-300 relative">
@@ -98,7 +110,7 @@ function Login({ onLoginSuccess }) {
       <div className="relative flex bg-[#f9f9f9] shadow-2xl rounded-[50px] h-[500px] w-[800px] max-w-full overflow-hidden">
         {/* Back Button */}
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/main")}
           className="absolute top-5 left-6 flex items-center text-gray-600 hover:text-black transition"
         >
           <svg
@@ -169,6 +181,7 @@ function Login({ onLoginSuccess }) {
                   }
                   className="peer w-full border-b border-gray-400 focus:border-black outline-none bg-transparent p-2 placeholder-transparent"
                   placeholder="Username"
+                  
                 />
                 <label
                   className={`absolute left-2 text-gray-500 transition-all duration-300 bg-[#f9f9f9] px-1 ${
@@ -184,7 +197,7 @@ function Login({ onLoginSuccess }) {
               {/* Password */}
               <div className="relative mb-6">
                 <input
-                  type="password"
+                  type={showLoginPassword ? "text" : "password"}
                   value={loginData.password}
                   onChange={(e) =>
                     setLoginData({ ...loginData, password: e.target.value })
@@ -201,6 +214,18 @@ function Login({ onLoginSuccess }) {
                 >
                   Password
                 </label>
+                <button
+                  type="button"
+                  onClick={toggleLoginPassword}
+                  aria-label={showLoginPassword ? "Hide password" : "Show password"}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1"
+                >
+                  <img
+                    src={showLoginPassword ? "https://www.svgrepo.com/show/532493/eye.svg" : "https://www.svgrepo.com/show/532465/eye-slash.svg"}
+                    alt={showLoginPassword ? "Hide password" : "Show password"}
+                    className="w-5 h-5"
+                  />
+                </button>
               </div>
 
               {/* Remember Me */}
@@ -283,7 +308,7 @@ function Login({ onLoginSuccess }) {
               {/* Password */}
               <div className="relative mb-6">
                 <input
-                  type="password"
+                  type={showRegisterPassword ? "text" : "password"}
                   value={registerData.password}
                   onChange={(e) =>
                     setRegisterData({ ...registerData, password: e.target.value })
@@ -300,6 +325,18 @@ function Login({ onLoginSuccess }) {
                 >
                   Password
                 </label>
+                <button
+                  type="button"
+                  onClick={toggleRegisterPassword}
+                  aria-label={showRegisterPassword ? "Hide password" : "Show password"}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1"
+                >
+                  <img
+                    src={showRegisterPassword ? "https://www.svgrepo.com/show/532493/eye.svg" : "https://www.svgrepo.com/show/532465/eye-slash.svg"}
+                    alt={showRegisterPassword ? "Hide password" : "Show password"}
+                    className="w-5 h-5"
+                  />
+                </button>
               </div>
 
               {/* Agree Checkbox */}
