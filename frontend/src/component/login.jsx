@@ -89,7 +89,7 @@ function Login({ onLoginSuccess }) {
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (response.success) {
         console.log("✅ Registration success:", data);
         onLoginSuccess();
         navigate("/dashboard");

@@ -16,6 +16,9 @@ app.use(cors({
   credentials: true
 }));
 
+// Configure json
+app.use(express.json());
+
 // Configure rate limiting
 const limiter = rateLimit({
   windowMs: 30 * 60 * 1000,
