@@ -1,0 +1,25 @@
+{
+    "post_id": "abc123xyz",
+    "title": "My First Frontend Test Post",
+    "description": "This is a test post to display a card with an image and text content on the frontend.",
+    "images": [
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+      "https://images.unsplash.com/photo-1495567720989-cebdbdd97913",
+      "https://images.unsplash.com/photo-1519681393784-d120267933ba"
+    ],
+    "tags": ["frontend", "test", "mongodb"],
+    "likes": 12,
+    "comments": [
+      {
+        "user": "demoUser1",
+        "text": "Nice post!",
+        "date": "2025-11-06T08:00:00.000Z"
+      },
+      {
+        "user": "demoUser2",
+        "text": "Love the images.",
+        "date": "2025-11-06T09:30:00.000Z"
+      }
+    ]
+    }
+      
