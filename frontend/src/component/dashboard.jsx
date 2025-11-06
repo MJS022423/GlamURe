@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Sidebar from "./sidebar";
-import Homepage from "../dash-component/homepage";
+import Homepage from "../dash-component/homepage-modules/homepage";
 import Bookmark from "../dash-component/bookmark";
 import Profilepage from "../dash-component/profilepage";
 import Settings from "../dash-component/settings";
