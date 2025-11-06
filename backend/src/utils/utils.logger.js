@@ -1,12 +1,12 @@
 export function ConsoleLog(message, log = true) {
   if (log) {
-    console.log(`[ APP LOG ]: ${message}`);
+    console.log(`[ LOG ]: ${message}`);
   }
 }
 
 export function ConsoleError(message, log = true) {
   if (log) {
-    console.Error(`[ APP ERROR ]: ${message}`);
+    console.Error(`[ ERROR ]: ${message}`);
   }
 }
 

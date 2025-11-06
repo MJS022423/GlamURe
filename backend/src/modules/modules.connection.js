@@ -23,19 +23,17 @@ class Database {
     try {
       await this.client.connect();
       const db = this.client.db(this.DBname);
-      ConsoleLog('[ CONNECTION ESTABLISHED ]', this.Log);
       return db
     } catch (error) {
       ConsoleError('[ CONNECTION FAILED TO ESTABLISHED ]', this.Log);
     }
   }
 
-  async Collection(collection = null) {
+  async Collection(collection = process.env.DB_collection_name) {
     if (collection) {
       try {
         const db = await this.Connection();
         const Collection = db.collection(collection);
-        ConsoleLog('[ COLLECTION CONNECTION ESTABLISHED ]', this.Log);
         return Collection;
       } catch (error) {
         ConsoleError('[ FAILED TO CONNECT COLLECTION ]', this.Log);
@@ -49,7 +47,6 @@ class Database {
   async Close() {
     try {
       await this.client.close();
-      ConsoleLog('[ CONNECTION CLOSED ]', this.Log);
     } catch ( error ) {
       ConsoleError('[ FAILED TO CLOSE CONNECTION ]', this.Log);
     }

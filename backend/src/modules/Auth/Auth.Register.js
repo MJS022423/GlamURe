@@ -1,15 +1,18 @@
 import { ConsoleLog, ConsoleError } from '../../utils/utils.logger.js';
 import Database from '../modules.connection.js';
+import bcrypt from 'bcrypt';
 
 const db = new Database();
 const log = true;
+const salt = 12;
 
 async function userSchema(req) {
   const { username, email, password } = req.body;
+  const hashedpassword = await bcrypt.hash(password, salt);
   return {
     Username: `${username}`,
     Email: `${email}`,
-    Password: `${password}`,
+    Password: `${hashedpassword}`,
 
     Bookmark: {
       Saved: [],
@@ -38,7 +41,7 @@ async function Register(req, res) {
 
   try {
 
-    const collection = await db.Collection('Account');
+    const collection = await db.Collection();
     const doc = await userSchema(req)
     await collection.insertOne(doc);
     ConsoleLog('[ USER REGISTERED SUCCESSFULLY ]', log);
@@ -51,7 +54,6 @@ async function Register(req, res) {
     }
     return res.status(500).json({ error: 'Internal Server Error' });
   } finally {
-    ConsoleLog('[ CLOSING REGISTER CONNECTION ]', log);
     await db.Close();
   }
 
