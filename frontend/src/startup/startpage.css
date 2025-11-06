@@ -42,16 +42,16 @@ html, body {
   box-sizing: border-box;
 }
 
-/* Scrollbar hide */
+/* Scrollbar hide /
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 .scrollbar-hide {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; / IE and Edge /
+  scrollbar-width: none; / Firefox /
 }
 
-/* Main scroll area with snap */
+/ Main scroll area with snap /
 main {
   scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
@@ -61,7 +61,7 @@ main {
   width: 100vw;
 }
 
-/* Each section fully fits the screen width */
+/ Each section fully fits the screen width */
 section {
   scroll-snap-align: start;
   width: 100vw;

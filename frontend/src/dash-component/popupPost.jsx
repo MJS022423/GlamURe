@@ -1,10 +1,10 @@
 import React, { useRef } from "react";
 
-function PopupPost({ onClose, onUpload }) {
-  const fileInputRef = useRef(null);
+export default function PopupPost({ onClose, onUpload }) {
+    const fileInputRef = useRef(null);
 
-  return (
-    <div className="absolute inset-0 z-30 flex items-center justify-center">
+    return (
+        <div className="absolute inset-0 z-30 flex items-center justify-center">
       {/* Backdrop within main only */}
       <div
         className="absolute inset-0 bg-black/50"
@@ -84,9 +84,5 @@ function PopupPost({ onClose, onUpload }) {
         </div>
       </div>
     </div>
-  );
+    );
 }
-
-export default PopupPost;
-
-
