@@ -10,7 +10,6 @@ const EXPRESS_API = import.meta.env.VITE_EXPRESS_API;
 
 export default function Web() {
   const [loading, setLoading] = useState(true);
-
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const navigate = useNavigate();
   

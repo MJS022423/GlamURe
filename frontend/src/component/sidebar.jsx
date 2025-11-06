@@ -67,7 +67,7 @@ const Sidebar = ({ onLogout, onExpand = () => {} }) => {
                   isExpanded ? "justify-start gap-4 px-2" : "justify-center"
                 } ${
                   isNavActive || isActive(item.path)
-                    ? "bg-pink-500 text-black font-semibold"
+                    ? "bg-red-100 text-black font-semibold"
                     : "hover:bg-gray-700"
                 }`
               }
