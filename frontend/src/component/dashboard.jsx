@@ -24,6 +24,7 @@ function Dashboard({ goLogout }) {
         `}
         style={{
           height: "95vh",
+          
           // ✅ keep consistent gap between sidebar and main (both collapsed & expanded)
           marginLeft: isSidebarExpanded ? "20rem" : "8rem",
           marginRight: "1.5rem",

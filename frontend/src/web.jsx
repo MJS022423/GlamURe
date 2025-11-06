@@ -15,16 +15,37 @@ export default function Web() {
   
   // Check server status on mount
   useEffect(() => {
+    let attempts = 0;
+    const maxAttempts = 3;
+
     const checkServer = async () => {
       try {
+        if (!EXPRESS_API) {
+          console.error('VITE_EXPRESS_API environment variable is not set');
+          setLoading(false);
+          return;
+        }
+
         const res = await fetch(`${EXPRESS_API}/status`);
         if (res.ok) {
           setLoading(false);
         } else {
-          setTimeout(checkServer, 200); 
+          attempts++;
+          if (attempts < maxAttempts) {
+            setTimeout(checkServer, 1000);
+          } else {
+            console.error('Server not responding after multiple attempts');
+            setLoading(false);
+          }
         }
-      } catch {
-        setTimeout(checkServer, 200); 
+      } catch (error) {
+        console.error('Error connecting to server:', error);
+        attempts++;
+        if (attempts < maxAttempts) {
+          setTimeout(checkServer, 1000);
+        } else {
+          setLoading(false);
+        }
       }
     };
 
