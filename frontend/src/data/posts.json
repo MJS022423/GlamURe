@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "username": "Sarah Johnson",
+    "profilePic": "https://via.placeholder.com/40",
+    "images": ["https://via.placeholder.com/800x450"],
+    "description": "Enjoying the view at the park 🌳",
+    "tags": ["Old Money","Unisex"],
+    "likes": [],
+    "commentsList": [
+      { "id": 1, "user": "Michael B.", "avatar": "https://via.placeholder.com/30", "text": "Beautiful shot! 📸" },
+      { "id": 2, "user": "Emma K.", "avatar": "https://via.placeholder.com/30", "text": "Love the composition!" }
+    ],
+    "createdAt": 1699200000000
+  }
+]
