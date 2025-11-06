@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState} from "react";
 import postData from "./sample.json";
 import PopupPost from "./popupPost";
 
-const placeholderData = Array.from({ length: 40 });
+const Homepage = () => {
+    
+    const [showPostModal, setShowPostModal] = useState(false);
+    const placeholderData = Array.from({ length: 40 });
 
-export default function Homepage() {
-  const [showPostModal, setShowPostModal] = useState(false);
   return (
     <div className="w-full h-full relative flex flex-col gap-10 items-center bg-red-100 pt-6">
       {/* Search bar and icons row */}
@@ -84,5 +85,6 @@ export default function Homepage() {
         />
       )}
     </div>
-  );
-}
+    );
+};
+export default Homepage;
