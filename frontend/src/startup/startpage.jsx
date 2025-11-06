@@ -213,10 +213,13 @@ const Startpage = () => {
   </div>
 
   {/* 3-Stripe Background */}
-  <div className="absolute inset-0 flex">
-    <div className="flex-1 bg-[#FFF5F7]"></div> {/* Blush Pink */}
-    <div className="flex-1 bg-[#FFF0EB]"></div> {/* Cream */}
-    <div className="flex-1 bg-[#FFFFFF]"></div> {/* White */}
+  <div className="absolute inset-0 flex" aria-hidden>
+    {/* Blush Pink */}
+    <div className="flex-1 bg-[#FFF5F7]" />
+    {/* Cream */}
+    <div className="flex-1 bg-[#FFF0EB]" />
+    {/* White */}
+    <div className="flex-1 bg-[#FFFFFF]" />
   </div>
 
   {/* Feature Cards */}
