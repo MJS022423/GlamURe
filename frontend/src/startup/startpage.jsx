@@ -59,7 +59,7 @@ const Startpage = () => {
 
   return (
     <div
-      className="app overflow-y-auto  no-scrollbar flex flex-col min-h-screen w-full bg-green-100"
+      className="app overflow-y-auto  no-scrollbar flex flex-col min-h-screen w-full bg-green-100 "
       style={{ scrollBehavior: "smooth" }}
     >
       {/* Hide scrollbar */}
@@ -216,6 +216,12 @@ const Startpage = () => {
               </h2>
             </div>
 
+  {/* Title */}
+  <div className="absolute top-1/50 left-1/2 -translate-x-1/2 text-center z-10">
+    <h2 className="text-4xl font-bold text-black tracking-wide">Features</h2>
+  </div>
+
+  {/* Feature Cards */}
   <div className="flex flex-col gap-20 max-w-5xl w-full text-left">
     {[
       {
