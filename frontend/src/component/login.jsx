@@ -92,7 +92,7 @@ function Login({ onLoginSuccess }) {
       if (response.ok) {
         console.log("✅ Registration success:", data);
         onLoginSuccess();
-        navigate("/dashboard");
+        navigate("/setupAccount", { state: { username: registerData.username } });
       } else {
         alert(data.message || "Registration failed");
       }
