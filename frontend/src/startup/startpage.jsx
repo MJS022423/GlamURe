@@ -204,70 +204,55 @@ const Startpage = () => {
           </div>
         </section>
 
-     {/* FEATURES */}
-<section
-  id="features"
-  className="min-h-screen flex flex-col justify-center items-center text-center pt-28 pb-36 px-6 bg-gradient-to-b from-[#9ba19d] to-[#2a2a2a] text-white"
->
-  {/* Header */}
-  <div className="flex flex-col justify-start items-center gap-4 mb-20">
-    <Sparkles className="w-10 h-10 text-[#ff1493] animate-pulse" />
-    <h2 className="text-5xl font-extrabold tracking-wide h-25">
-      Platform <span className="text-[#ff1493]">Features</span>
-    </h2>
-  </div>
-
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  {/* Title */}
-  <div className="absolute top-1/50 left-1/2 -translate-x-1/2 text-center z-10">
-    <h2 className="text-4xl font-bold text-black tracking-wide">Features</h2>
-  </div>
-
-  {/* Feature Cards */}
-  <div className="flex flex-col gap-20 max-w-5xl w-full text-left">
-=======
-  {/* Features List */}
-  <div className="flex flex-col gap-20 max-w-4xl w-full items-center">
->>>>>>> Stashed changes
-=======
-  {/* Features List */}
-  <div className="flex flex-col gap-20 max-w-4xl w-full items-center">
->>>>>>> Stashed changes
-    {[
-      {
-        icon: "🏆",
-        title: "Ranking / Leaderboard",
-        text: "Discover top designers and trendsetters dominating the charts through likes and engagement.",
-      },
-      {
-        icon: "💬",
-        title: "Comments & Likes",
-        text: "Connect directly with other designers, clients, or recruiters through our built-in messaging system.",
-      },
-      {
-        icon: "📤",
-        title: "Posting Designs",
-        text: "Submit your designs, apply to contests, and collaborate with brands across the fashion industry.",
-      },
-    ].map((feature, i) => (
-      <div
-        key={i}
-        className="flex flex-col items-center gap-4 text-center"
+      {/* FEATURES */}
+      <section
+        id="features"
+        className="min-h-screen flex flex-col justify-center items-center text-center pt-28 pb-36 px-6 bg-gradient-to-b from-[#9ba19d] to-[#2a2a2a] text-white"
       >
-        <div className="flex items-center justify-center gap-3">
-          <span className="text-4xl">{feature.icon}</span>
-          <h3 className="text-3xl sm:text-4xl font-extrabold text-white transition duration-300 hover:text-[#ff1493] hover:scale-105">
-            {feature.title}
-          </h3>
+        {/* Header */}
+        <div className="flex flex-col justify-start items-center gap-4 mb-20">
+          <Sparkles className="w-10 h-10 text-[#ff1493] animate-pulse" />
+          <h2 className="text-5xl font-extrabold tracking-wide h-25">
+            Platform <span className="text-[#ff1493]">Features</span>
+          </h2>
         </div>
-        <p className="text-lg font-semibold text-white/90 max-w-2xl leading-relaxed">
-          {feature.text}
-        </p>
-      </div>
-    ))}
-  </div>
-</section>
+
+        {/* Features List */}
+        <div className="flex flex-col gap-20 max-w-4xl w-full items-center">
+          {[
+            {
+              icon: "🏆",
+              title: "Ranking / Leaderboard",
+              text: "Discover top designers and trendsetters dominating the charts through likes and engagement.",
+            },
+            {
+              icon: "💬",
+              title: "Comments & Likes",
+            text: "Connect directly with other designers, clients, or recruiters through our built-in messaging system.",
+            },
+            {
+              icon: "📤",
+              title: "Posting Designs",
+              text: "Submit your designs, apply to contests, and collaborate with brands across the fashion industry.",
+            },
+          ].map((feature, i) => (
+            <div
+              key={i}
+              className="flex flex-col items-center gap-4 text-center"
+            >
+              <div className="flex items-center justify-center gap-3">
+                <span className="text-4xl">{feature.icon}</span>
+                <h3 className="text-3xl sm:text-4xl font-extrabold text-white transition duration-300 hover:text-[#ff1493] hover:scale-105">
+                  {feature.title}
+                </h3>
+              </div>
+              <p className="text-lg font-semibold text-white/90 max-w-2xl leading-relaxed">
+                {feature.text}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
 
 
 
