@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Shield, User, Camera, ChevronDown } from 'lucide-react';
 
+const EXPRESS_API = import.meta.env.VITE_EXPRESS_API
+
 const Settings = () => {
   const [profile, setProfile] = useState({
-    name: 'John Doe',
-    username: 'johndoe',
+    name: '',
+    username: '',
     profilePicture: null
   });
 
@@ -58,9 +60,56 @@ const Settings = () => {
     setPasswords({ current: '', new: '', confirm: '' });
   };
 
+  const handleDeleteAccount = async () => {
+    const confirmDelete = window.confirm(
+      "⚠️ Are you sure you want to permanently delete your account? This action cannot be undone."
+    );
+
+    if (!confirmDelete) return;
+
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userid");
+
+    if (!token || !userId) {
+      alert("❌ You must be logged in to delete your account.");
+      return;
+    }
+
+    try {
+
+      const res = await fetch(`${EXPRESS_API}/auth/DeleteAccount`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userid: userId }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("✅ Your account has been permanently deleted.");
+
+        // Clear stored data
+        localStorage.removeItem("token");
+        localStorage.removeItem("userid");
+
+        // Redirect to login or home page
+        window.location.href = "/login";
+      } else {
+        alert(`❌ Error: ${data.error || "Failed to delete account."}`);
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      alert("⚠️ Something went wrong. Please try again.");
+    }
+  };
+
+
   return (
     <div className="h-full overflow-y-auto no-scrollbar bg-pink-50">
-        <style jsx>{`
+      <style jsx>{`
               .no-scrollbar::-webkit-scrollbar {
                 display: none;
               }
@@ -69,7 +118,7 @@ const Settings = () => {
                 scrollbar-width: none;
               }
             `}
-            </style>
+      </style>
       {/* Header */}
       <div className="border-b border-gray-300 bg-black px-16 py-10">
         <h1 className="text-4xl font-bold text-white">Account Settings</h1>
@@ -190,7 +239,7 @@ const Settings = () => {
                 <div>
                   <h3 className="font-medium text-gray-800 mb-1">Change Password</h3>
                   <p className="text-sm text-gray-500 mb-6">Update your account password</p>
-                  
+
                   <div className="space-y-4 max-w-md">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -267,7 +316,8 @@ const Settings = () => {
                     <h3 className="font-medium text-red-600 mb-1">Delete Account</h3>
                     <p className="text-sm text-gray-500">Permanently delete your account and all data</p>
                   </div>
-                  <button className="px-6 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors font-medium">
+                  <button onClick={handleDeleteAccount}
+                    className="px-6 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors font-medium">
                     Delete
                   </button>
                 </div>
