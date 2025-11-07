@@ -218,6 +218,7 @@ const Startpage = () => {
   </div>
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   {/* Title */}
   <div className="absolute top-1/50 left-1/2 -translate-x-1/2 text-center z-10">
     <h2 className="text-4xl font-bold text-black tracking-wide">Features</h2>
@@ -225,6 +226,10 @@ const Startpage = () => {
 
   {/* Feature Cards */}
   <div className="flex flex-col gap-20 max-w-5xl w-full text-left">
+=======
+  {/* Features List */}
+  <div className="flex flex-col gap-20 max-w-4xl w-full items-center">
+>>>>>>> Stashed changes
 =======
   {/* Features List */}
   <div className="flex flex-col gap-20 max-w-4xl w-full items-center">
