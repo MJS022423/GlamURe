@@ -3,7 +3,7 @@ import Database from '../modules.connection.js';
 import bcrypt from 'bcrypt';
 
 const db = new Database();
-const log = true;
+const log = false;
 const salt = 12;
 
 async function userSchema(req) {
@@ -13,9 +13,11 @@ async function userSchema(req) {
     Username: `${username}`,
     Email: `${email}`,
     Password: `${hashedpassword}`,
+    Profile_pic: null,
+    Profile_name: null,
 
     Bookmark: {
-      Saved: [],
+      save_post_id: [],
       BookmarkLastupdate: new Date(),
     },
     notification: {
@@ -23,11 +25,8 @@ async function userSchema(req) {
       NotifLastupdate: new Date(),
     },
 
-    Post: {
-      created: [],
-      createdDate: new Date()
-    },
-    Role: null,
+    Post: [],
+    Role: 'user',
     Createdat: new Date(),
   }
 };

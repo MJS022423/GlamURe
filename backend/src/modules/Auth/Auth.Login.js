@@ -1,9 +1,11 @@
 import { ConsoleLog, ConsoleError } from '../../utils/utils.logger.js';
+import { generateKey } from './Auth.js';
+
 import Database from '../modules.connection.js';
 import bcrypt from 'bcrypt';
 
 const db = new Database();
-const log = true;
+const log = false;
 
 async function Login(req, res) {
   ConsoleLog('[ LOGIN ROUTER ]', log);
@@ -21,12 +23,20 @@ async function Login(req, res) {
       return res.status(401).json({ error: "Account not found" });
     }
 
-    const match = await bcrypt.compare(password, user.password);
+    const match = await bcrypt.compare(password, user.Password);
     if (!match) {
       return res.status(401).json({ error: "Invalid Credential" });
     }
 
-    return res.status(200).json({ message: "Login Successful" });
+    const token = generateKey(user._id.toString());
+
+    return res.status(200).json(
+      {
+        message: "Login Successful",
+        token,
+        userid: user._id.toString()
+      }
+    );
 
   } catch (error) {
     if (error.code === 11000) {
@@ -39,4 +49,4 @@ async function Login(req, res) {
   }
 };
 
-export default Login;
+export default Login; 
