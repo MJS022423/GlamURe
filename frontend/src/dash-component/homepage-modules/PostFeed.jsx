@@ -32,6 +32,7 @@ export default function PostFeed({ posts, variant = "default" }) {
     setLikesState(prev => ({ ...prev, [postId]: !prev[postId] }));
   };
 
+<<<<<<< Updated upstream
   // initialize bookmark state from localStorage
   useEffect(() => {
     try {
@@ -62,6 +63,44 @@ export default function PostFeed({ posts, variant = "default" }) {
         }
       } catch {}
       return next;
+=======
+  const toggleBookmark = (postId) => {
+    const post = posts.find(p => p.id === postId);
+    if (!post) return;
+
+    setBookmarksState(prev => {
+      const newState = { ...prev, [postId]: !prev[postId] };
+      
+      try {
+        const savedBookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+        if (newState[postId]) {
+          // Add to bookmarks if not already present
+          if (!savedBookmarks.some(b => b.id === postId)) {
+            savedBookmarks.push({
+              ...post,
+              savedAt: new Date().toISOString(),
+              images: post.images || [post.image], // Ensure images array exists
+              username: post.username || 'Anonymous',
+              likes: post.likes || 0,
+              tags: post.tags || [],
+              gender: post.gender || '',
+              style: post.style || ''
+            });
+          }
+        } else {
+          // Remove from bookmarks
+          const index = savedBookmarks.findIndex(b => b.id === postId);
+          if (index !== -1) {
+            savedBookmarks.splice(index, 1);
+          }
+        }
+        localStorage.setItem('bookmarks', JSON.stringify(savedBookmarks));
+      } catch (error) {
+        console.error('Error updating bookmarks:', error);
+      }
+
+      return newState;
+>>>>>>> Stashed changes
     });
   };
 

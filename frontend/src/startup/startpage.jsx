@@ -57,6 +57,7 @@ const Startpage = () => {
     setMenuOpen(false);
   };
 
+
   return (
     <div
       className="app overflow-y-auto  no-scrollbar flex flex-col min-h-screen w-full bg-green-100 "
