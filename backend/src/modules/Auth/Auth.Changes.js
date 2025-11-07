@@ -1,10 +1,11 @@
 import Database from "../modules.connection.js";
+import bcrypt from 'bcrypt';
 import { ObjectId } from "mongodb";
-import fs from 'fs';
 import { ConsoleLog, ConsoleError } from "../../utils/utils.logger.js";
 
 const db = new Database();
 const log = true;
+const salt = parseInt(process.env.salt);
 
 export async function UpdateProfile(req, res) {
   ConsoleLog("[ UPDATE PROFILE ROUTER ]", log);
@@ -29,7 +30,6 @@ export async function UpdateProfile(req, res) {
       }
     }
     await collection.updateOne({ _id: new ObjectId(userid) }, userDoc);
-    // fs.unlink(profilePicture);
 
     ConsoleLog('[ SUCCESSFULLY UPDATE PROFILE ]', log);
     return res.status(200).json({ success: true });
@@ -44,29 +44,31 @@ export async function UpdateProfile(req, res) {
 export async function UpdatePassword(req, res) {
   ConsoleLog("[ UPDATE PASSWORD ROUTER ]", log);
 
-  if (!req.body || !req.body.userid || !req.body.newPassword) {
+  if (!req.body || !req.body.userid|| !req.body.password || !req.body.newPassword) {
     return res.status(400).json({ error: "Update Request Failed Parameter is Empty" });
   }
 
-  const { userid, newPassword } = req.body;
+  const { userid, password, newPassword } = req.body;
 
   try {
     const collection = await db.Collection();
     const user = await collection.findOne({ _id: new ObjectId(userid) });
 
-    if (!user) {
-      return res.status(404).json({ error: "Username not found" });
+    const match = await bcrypt.compare(password, user.Password);
+    if (!match) {
+      return res.status(401).json({ error: "Invalid Credential"});
     }
-
+    
     const userDoc = {
       $set: {
-        Password: newPassword
+        Password: await bcrypt.hash(newPassword, salt),
       }
-    }
+    };
 
     await collection.updateOne({ _id: new ObjectId(userid) }, userDoc);
 
     ConsoleLog("[ SUCCESSFULLY UPDATED PASSWORD ]", log);
+    return res.status(200).json({success: true});
 
   } catch (error) {
     ConsoleError(`[ FAILED TO UPDATE ACCOUNT ]: ${error.message}`, log);

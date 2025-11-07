@@ -10,7 +10,7 @@ class Database {
     this.localconnectionString = process.env.localhostUrl;
     this.atlasconnectionString = process.env.AtlasUrl;
     this.DBname = process.env.DB_name;
-    this.Log = true;
+    this.Log = false;
 
     const url = online ? this.atlasconnectionString : this.localconnectionString;
 

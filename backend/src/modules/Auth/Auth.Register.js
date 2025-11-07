@@ -1,10 +1,13 @@
 import { ConsoleLog, ConsoleError } from '../../utils/utils.logger.js';
 import Database from '../modules.connection.js';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const db = new Database();
 const log = false;
-const salt = 12;
+const salt = parseInt(process.env.salt);
 
 async function userSchema(req) {
   const { username, email, password } = req.body;
