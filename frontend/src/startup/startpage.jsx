@@ -1,354 +1,356 @@
-import React, { useState,useEffect } from "react";
-import { useNavigate} from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { Sparkles, HeartHandshake } from "lucide-react";
 import file from "../assets/file.svg";
+import land1 from "../assets/Images/land1.jpg";
+import land2 from "../assets/Images/land2.jpg";
+import land3 from "../assets/Images/land3.jpg";
+import land4 from "../assets/Images/land4.jpg";
 import "./startpage.css";
 
 const Startpage = () => {
   const [activeSection, setActiveSection] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [currentImage, setCurrentImage] = useState(0);
+  const [aboutVisible, setAboutVisible] = useState(false);
   const navigate = useNavigate();
+  const aboutRef = useRef(null);
 
-  const scrollToSection = (id) => {
-    const section = document.getElementById(id);
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
-    }
-    setActiveSection(id);
-    setMenuOpen(false);
-  };
+  const images = [land1, land2, land3, land4];
 
-  // --- Auto-highlight based on scroll position ---
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % images.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [images.length]);
+
   useEffect(() => {
     const sections = document.querySelectorAll("section[id]");
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
+          if (entry.isIntersecting) setActiveSection(entry.target.id);
         });
       },
-      { threshold: 0.6 } // 60% visible triggers highlight
+      { threshold: 0.6 }
     );
-
     sections.forEach((section) => observer.observe(section));
+    return () => sections.forEach((section) => observer.unobserve(section));
+  }, []);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setAboutVisible(entry.isIntersecting),
+      { threshold: 0.5 }
+    );
+    if (aboutRef.current) observer.observe(aboutRef.current);
     return () => {
-      sections.forEach((section) => observer.unobserve(section));
+      if (aboutRef.current) observer.unobserve(aboutRef.current);
     };
   }, []);
 
+  const scrollToSection = (id) => {
+    const section = document.getElementById(id);
+    if (section) section.scrollIntoView({ behavior: "smooth" });
+    setActiveSection(id);
+    setMenuOpen(false);
+  };
+
   return (
-    <div className="app flex flex-col min-h-screen w-screen bg-green-100 overflow-hidden ">
-      <header className="header fixed top-0 left-0 w-full z-50 bg-[#111] text-white h-20 shadow-md relative flex items-center justify-between px-6">
-  {/* Logo */}
-  <div
-    className="w-[100px] h-[50px] mask mask-center cursor-pointer"
-    style={{
-      backgroundColor: "#ff6392",
-      maskImage: `url(${file})`,
-      WebkitMaskImage: `url(${file})`,
-      maskRepeat: "no-repeat",
-      WebkitMaskRepeat: "no-repeat",
-      maskSize: "contain",
-      WebkitMaskSize: "contain",
-    }}
-    onClick={() => scrollToSection("hero")}
-  ></div>
+    <div
+      className="app overflow-y-auto  no-scrollbar flex flex-col min-h-screen w-full bg-green-100 "
+      style={{ scrollBehavior: "smooth" }}
+    >
+      {/* Hide scrollbar */}
+      <style jsx>{`
+              .no-scrollbar::-webkit-scrollbar {
+                display: none;
+              }
+              .no-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+              }
+            `} </style>
 
-  {/* Center Nav (desktop only) */}
-  <nav className="hidden md:flex gap-8 text-[16px] font-medium absolute left-1/2 transform -translate-x-1/2">
-    <button
-      onClick={() => scrollToSection("features")}
-      className={`transition duration-300 hover:text-[#f65b89] ${
-        activeSection === "features" ? "text-[#f65b89]" : ""
-      }`}
-    >
-      Features
-    </button>
-    <button
-      onClick={() => scrollToSection("category")}
-      className={`transition duration-300 hover:text-[#f65b89] ${
-        activeSection === "category" ? "text-[#f65b89]" : ""
-      }`}
-    >
-      Categories
-    </button>
-    <button
-      onClick={() => scrollToSection("about")}
-      className={`transition duration-300 hover:text-[#f65b89] ${
-        activeSection === "about" ? "text-[#f65b89]" : ""
-      }`}
-    >
-      About
-    </button>
-  </nav>
+      {/* HEADER */}
+      <header className="header fixed top-0 left-0 w-full z-50 bg-[#111] text-white h-20 shadow-md flex items-center justify-between px-6">
+        <div
+          className="w-[100px] h-[50px] cursor-pointer"
+          style={{
+            backgroundColor: "#ff6392",
+            maskImage: `url(${file})`,
+            WebkitMaskImage: `url(${file})`,
+            maskRepeat: "no-repeat",
+            WebkitMaskRepeat: "no-repeat",
+            maskSize: "contain",
+            WebkitMaskSize: "contain",
+          }}
+          onClick={() => scrollToSection("hero")}
+        ></div>
 
-  {/* Auth buttons (desktop) */}
-  <div className="hidden md:flex gap-3">
-    <button
-      onClick={() => navigate("/login", { state: { register: false } })}
-      className="border border-[#ff6392] text-[#ff6392] w-24 h-10 font-semibold rounded hover:opacity-90 transition"
-    >
-      Login
-    </button>
-    <button
-      onClick={() => navigate("/login", { state: { register: true } })}
-      className="bg-[#ff6392] text-black font-semibold w-24 h-10 rounded hover:opacity-90 transition"
-    >
-      Sign Up
-    </button>
-  </div>
+        <nav className="hidden md:flex gap-8 text-[16px] font-medium absolute left-1/2 transform -translate-x-1/2">
+          {["features", "category", "about"].map((item) => (
+            <button
+              key={item}
+              onClick={() => scrollToSection(item)}
+              className={`transition duration-300 hover:text-[#f65b89] ${
+                activeSection === item ? "text-[#f65b89]" : ""
+              }`}
+            >
+              {item.charAt(0).toUpperCase() + item.slice(1)}
+            </button>
+          ))}
+        </nav>
 
-  {/* Hamburger (mobile only) */}
-  <button
-    className="md:hidden text-white focus:outline-none"
-    onClick={() => setMenuOpen(!menuOpen)}
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-7 w-7"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      {menuOpen ? (
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-      ) : (
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-      )}
-    </svg>
-  </button>
+        <div className="hidden md:flex gap-3">
+          <button
+            onClick={() => navigate("/login", { state: { register: false } })}
+            className="border border-[#ff6392] text-[#ff6392] w-24 h-10 font-semibold rounded hover:opacity-90 transition"
+          >
+            Login
+          </button>
+          <button
+            onClick={() => navigate("/login", { state: { register: true } })}
+            className="bg-[#ff6392] text-black font-semibold w-24 h-10 rounded hover:opacity-90 transition"
+          >
+            Sign Up
+          </button>
+        </div>
 
-  {/* Mobile dropdown menu */}
-  {menuOpen && (
-    <div className="absolute top-20 left-0 w-full bg-[#111] text-white flex flex-col items-center gap-4 py-4 md:hidden shadow-md border-t border-[#222]">
-      <button
-        onClick={() => scrollToSection("features")}
-        className="hover:text-[#f65b89] transition"
-      >
-        Features
-      </button>
-      <button
-        onClick={() => scrollToSection("category")}
-        className="hover:text-[#f65b89] transition"
-      >
-        Categories
-      </button>
-      <button
-        onClick={() => scrollToSection("about")}
-        className="hover:text-[#f65b89] transition"
-      >
-        About
-      </button>
-      <div className="flex gap-3 mt-2">
+        {/* Mobile Menu */}
         <button
-          onClick={() => navigate('/login', { state: { register: false } })}
-          className="border border-[#ff6392] text-[#ff6392] px-4 py-2 rounded hover:opacity-90"
+          className="md:hidden text-white"
+          onClick={() => setMenuOpen(!menuOpen)}
         >
-          Login
+          {menuOpen ? (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
         </button>
-        <button
-          onClick={() => navigate('/login', { state: { register: true } })}
-          className="bg-[#ff6392] text-black px-4 py-2 rounded hover:opacity-90"
+
+        {menuOpen && (
+          <div className="absolute top-20 left-0 w-full bg-[#111] text-white flex flex-col items-center gap-4 py-4 md:hidden">
+            {["features", "category", "about"].map((item) => (
+              <button
+                key={item}
+                onClick={() => scrollToSection(item)}
+                className="hover:text-[#f65b89] transition"
+              >
+                {item.charAt(0).toUpperCase() + item.slice(1)}
+              </button>
+            ))}
+            <div className="flex gap-3 mt-2">
+              <button
+                onClick={() => navigate("/login")}
+                className="border border-[#ff6392] text-[#ff6392] px-4 py-2 rounded"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => navigate("/login", { state: { register: true } })}
+                className="bg-[#ff6392] text-black px-4 py-2 rounded"
+              >
+                Sign Up
+              </button>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* MAIN CONTENT */}
+      <main className="flex-1 w-full">
+        {/* HERO */}
+        <section
+          id="hero"
+          className="min-h-screen flex flex-col md:flex-row items-center justify-between w-full relative"
+          style={{
+            backgroundImage: `url(${images[currentImage]})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            transition: "background-image 1s ease-in-out",
+          }}
         >
-          Sign Up
-        </button>
-      </div>
-    </div>
-  )}
-</header>
+          <div className="absolute inset-0 bg-black/40"></div>
+          <div className="relative z-10 flex flex-col gap-6 text-center md:text-left md:w-1/2 px-8 md:px-20 text-white">
+            <h1 className="text-5xl font-extrabold leading-tight animate-fadeIn">
+              Where Creativity Meets Opportunity
+            </h1>
+            <p className="text-lg md:text-xl animate-slideUp">
+              Glamure is a platform for aspiring and professional designers to
+              showcase, connect, and shine in the world of fashion.
+            </p>
+            <div className="flex flex-col md:flex-row gap-5 justify-center md:justify-start mt-4">
+              <button
+                className="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-6 rounded-full shadow-md transition duration-300"
+                onClick={() => scrollToSection("category")}
+              >
+                Explore Designs
+              </button>
+              <button
+                className="border-2 border-pink-600 text-pink-600 hover:bg-pink-50 font-semibold py-3 px-6 rounded-full shadow-md transition duration-300 bg-white/10 backdrop-blur"
+                onClick={() =>
+                  navigate("/login", { state: { register: true } })
+                }
+              >
+                Join as Designer
+              </button>
+            </div>
+          </div>
+        </section>
 
-      <main className="flex-1 w-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide scroll-smooth overflow-x-hidden">
-
-  {/* Hero Section */}
-  <section
-    id="hero"
-    className="snap-start min-h-screen flex flex-col md:flex-row items-center justify-between py-20 pt-20 w-screen bg-gradient-to-r from-[#f9f9f9] to-[#fce4ec] px-30"
-  >
-    {/* Text Section */}
-    <div className="flex flex-col gap-6 text-center md:text-left md:w-1/2 px-8 md:px-20">
-      <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight">
-        Where Creativity Meets Opportunity
-      </h1>
-      <p className="text-gray-700 text-lg md:text-xl">
-        Glamure is a platform for aspiring and professional designers to
-        showcase, connect, and shine in the world of fashion.
-      </p>
-
-      <div className="flex flex-wrap flex-col md:flex-row gap-5 justify-center md:justify-start mt-4">
-        <button
-          className="bg-pink-600 hover:bg-pink-700 w-35 h-10 text-white font-semibold py-3 px-6 rounded-full shadow-md transition duration-300"
-          onClick={() => setActiveSection("category")}
-        >
-          Explore Designs
-        </button>
-        <button
-          className="border-2 border-pink-600 w-35 text-pink-600 hover:bg-pink-50 font-semibold py-3 px-6 rounded-full shadow-md transition duration-300"
-          onClick={() => navigate("/login", { state: { register: true } })}
-        >
-          Join as Designer
-        </button>
-      </div>
-    </div>
-
-    {/* Image Section */}
-    <div className="flex justify-end w-full md:w-1/2 px-4 md:px-10">
-      <img
-        src="https://assets.vogue.com/photos/616062ff816ea2de6ec85809/master/w_1920,c_limit/00_story.jpg"
-        alt="Fashion Design"
-        className="rounded-2xl h-80 shadow-lg w-full max-w-md object-cover"
-      />
-    </div>
-  </section>
-
-  {/* Features Section */}
-  <section
+      {/* FEATURES */}
+<section
   id="features"
-  className="relative h-screen m-0" >
+  className="min-h-screen flex flex-col justify-center items-center text-center py-24 px-6 bg-gradient-to-b from-[#f3d6da] to-[#2a2a2a] text-[#111]"
+>
+  <div className="flex flex-col justify-start items-center gap-3 mb-10">
+              <Sparkles className="w-10 h-10 text-[#ff1493] animate-pulse" />
+              <h2 className="text-4xl font-bold text-Black tracking-wide">
+                Platform <span className="text-[#ff1493]">Features</span>
+              </h2>
+            </div>
 
   {/* Title */}
   <div className="absolute top-1/50 left-1/2 -translate-x-1/2 text-center z-10">
     <h2 className="text-4xl font-bold text-black tracking-wide">Features</h2>
   </div>
 
-  {/* 3-Stripe Background */}
-  <div className="absolute inset-0 flex">
-    <div className="flex-1 bg-[#FFF5F7]"></div> {/* Blush Pink */}
-    <div className="flex-1 bg-[#FFF0EB]"></div> {/* Cream */}
-    <div className="flex-1 bg-[#FFFFFF]"></div> {/* White */}
-  </div>
-
   {/* Feature Cards */}
-  <div className="absolute top-1/3 left-0 w-full -translate-y-1/2 flex justify-center gap-40 px-10 z-10">
+  <div className="flex flex-col gap-20 max-w-5xl w-full text-left">
     {[
       {
         title: "🏆 Ranking / Leaderboard",
-        text: "This feature showcases the most popular posted designs based on the number of likes they receive, creating a dynamic and competitive environment for designers. Users can explore the top-rated designs, discover trending styles, and gain inspiration from the community’s favorites. The leaderboard also highlights the top designers who consistently create engaging and well-loved works, motivating others to improve and showcase their creativity. It’s an exciting way to recognize talent, celebrate creativity, and encourage friendly competition within the design community.",
+        text: "Discover top designers and trendsetters dominating the charts through likes and engagement.",
       },
       {
-        title: "👗 Design Categories",
-        text: "This feature lets users explore a wide range of fashion designs organized into clear and distinct categories, such as Men’s Apparel and Women’s Apparel. By separating designs into these sections, users can easily browse and find outfits that match their style preferences, whether they’re interested in casual wear, formal attire, or creative concept pieces. It enhances the browsing experience by making navigation more intuitive and enjoyable, allowing aspiring designers and fashion enthusiasts to quickly access the types of designs they love most. This feature also encourages designers to showcase their work in specific categories, helping their creations reach the right audience and gain more visibility within the community.",
+        title: "💬 Comments & Likes",
+        text: "Connect directly with other designers, clients, or recruiters through our built-in messaging system.",
       },
       {
-        title: "📌 Bookmark Design",
-        text: "This feature allows users to save their favorite designs for easy access and future inspiration. By bookmarking designs they admire, users can build their own personalized collection of creative ideas to revisit anytime. It’s perfect for designers looking to reference styles, color combinations, or layout inspirations later on. This feature encourages continuous learning and creativity by giving users a convenient way to organize and revisit the designs that inspire them most. Whether you’re planning your next project or just exploring, your saved designs will always be just a click away.",
+        title: "📤 Posting Designs",
+        text: "Submit your designs, apply to contests, and collaborate with brands across the fashion industry.",
       },
-    ].map((feature, idx) => (
+    ].map((feature, i) => (
       <div
-        key={idx}
-        className="w-1/4 rounded-2xl p-8 text-center
-                   shadow-md hover:-translate-y-2 hover:shadow-xl transition-transform duration-300"
+        key={i}
+        className="flex flex-col sm:flex-row items-start gap-6 transition duration-300 hover:pl-4 hover:text-pink-600"
       >
-        <h3 className="text-pink-600 text-xl font-semibold mb-4 leading-relaxed">
-          {feature.title}
-        </h3>
-        <p className="text-gray-700 leading-loose tracking-wide">{feature.text}</p>
+        <div className="text-3xl sm:text-4xl">{feature.title.split(" ")[0]}</div>
+        <div className="flex flex-col">
+          <h3 className="text-2xl font-bold mb-2 text-[#111]">
+            {feature.title.slice(2)}
+          </h3>
+          <p className="text-gray-700 leading-relaxed max-w-3xl">
+            {feature.text}
+          </p>
+        </div>
       </div>
     ))}
   </div>
 </section>
 
-  {/* Categories Section */}
-  <section
-    id="category"
-    className="min-h-screen snap-start flex flex-col items-center justify-center text-center py-20 w-screen bg-orange-500"
-  >
-    <h2 className="text-3xl font-semibold text-gray-900 mb-10">
-      Fashion Categories
-    </h2>
+      {/* CATEGORIES */}
+<section
+  id="category"
+  className="min-h-screen flex flex-col items-center justify-center text-center py-24 px-6 bg-gradient-to-b from-[#2a2a2a] to-[#000000] text-white overflow-hidden"
+>
+  <h2 className="text-5xl font-extrabold mb-10 bg-gradient-to-r from-pink-500 to-fuchsia-400 text-transparent bg-clip-text animate-pulse tracking-wide">
+    Fashion Categories
+  </h2>
 
-    <div className="flex flex-wrap justify-center items-center gap-5 bg-[#f6b0ba] w-full max-w-5xl mx-auto rounded-xl py-8 px-4">
-      {[
-        "👗 Women's Wear",
-        "👔 Men's Wear",
-        "👜 Accessories",
-        "👟 Footwear",
-        "🌿 Sustainable Fashion",
-        "👶 Children's Fashion",
-      ].map((category, idx) => (
-        <div
-          key={idx}
-          className="bg-[#ffe4ed] rounded-xl px-8 py-5 font-bold cursor-pointer transition-transform duration-300 hover:bg-[#f794a3] hover:scale-105"
-        >
-          {category}
-        </div>
-      ))}
-    </div>
-  </section>
+  <p className="text-gray-300 max-w-3xl mb-16 text-lg leading-relaxed">
+    Discover the diverse world of fashion — from timeless sophistication to modern creativity.
+  </p>
 
-  {/* About Section */}
-  <section
-    id="about"
-    className="min-h-screen snap-start flex flex-col justify-center items-center text-center pt-15 w-screen bg-red-500 text-gray-800"
-  >
-    <div className="max-w-3xl px-6">
-      <h2 className="text-3xl font-semibold mb-10">About Glamure</h2>
-      <p className="mb-6 leading-8">
-        Glamure is more than just a platform — it's a vibrant ecosystem designed
-        to uplift and empower both aspiring and professional fashion designers.
-        In an industry where creativity meets fierce competition, Glamure offers
-        a sanctuary where talent is nurtured, ideas are celebrated, and
-        connections flourish.
-      </p>
-      <p className="leading-8">
-        Our community is built on collaboration, inspiration, and mutual growth,
-        where every member — from emerging artists to seasoned professionals —
-        can find their voice and be seen. Whether you're sketching your first
-        collection or preparing for your next runway show, Glamure is your
-        creative partner.
-      </p>
-    </div>
-  </section>
-</main>
-
-
-      {/* Footer */}
-      <footer className="footer bg-[#111] text-white text-center flex flex-col justify-center items-center gap-5 h-auto w-screen px-4 py-10">
-
-      <p className="mt-3">© 2025 Glamure — Designed for Designers.</p>
-      <h2>Contact us</h2>
-      <div className="w-half flex flex-row md:flex-row gap-10 mb-10">
-        <a 
-          href="https://www.facebook.com/kimbenedick.anzures.9"  
-          target="_blank" 
-          rel="noopener noreferrer">
-          <button className="bg-black-600 p-2 h-5 w-5 rounded-full hover:bg-blue-700 transition">
-          <img 
-            src="https://www.svgrepo.com/show/503338/facebook.svg" 
-            alt="Facebook.com" 
-            className="w-5 h-5 filter invert"
-          />
-        </button>
-        </a>
-        <a 
-          href="https://www.instagram.com/beben_brsg/?fbclid=IwY2xjawN2w8NleHRuA2FlbQIxMABicmlkETExME9QWW9ZOWw1Z0V4QlFhAR4ac2uHxcHk_sRUaQAg_-59T2yQ1JGQW6oDtRtMW1-sdP1Ahvb7FXL2nfDCCA_aem_nRfMQTirdwNNSATvk9KZkQ#"  
-          target="_blank" 
-          rel="noopener noreferrer">
-          <button className="bg-black-600 p-2 rounded-full w-5 h-5 hover:bg-gradient-to-r hover:from-yellow-400 hover:via-pink-500 hover:to-purple-600 transition">
-          <img 
-            src="https://www.svgrepo.com/show/512399/instagram-167.svg" 
-            alt="Instagram.com" 
-            className="w-5 h-4 filter invert"
-          />
-        </button>
-        </a>
-        <a 
-          href="https://discord.gg/zzx3JTmn"
-          target="_blank" 
-          rel="noopener noreferrer">
-          <button className="bg-black-600 p-2 rounded-full w-5 h-5 hover:bg-blue-700 transition">
-          <img 
-            src="https://www.svgrepo.com/show/506463/discord.svg"
-            alt="Discord.com" 
-            className="w-5 h-5 filter invert"
-          />
-        </button>
-        </a>
+  <div className="flex flex-wrap justify-center gap-10 w-full max-w-6xl">
+    {[
+      "👗 Women's Wear",
+      "👔 Men's Wear",
+      "👜 Accessories",
+      "👟 Footwear",
+      "🌿 Sustainable Fashion",
+      "👶 Children's Fashion",
+    ].map((c, i) => (
+      <div
+        key={i}
+        className="group relative bg-[#1a1a1a] rounded-3xl px-10 py-10 font-semibold text-xl cursor-pointer transition-all duration-500 border border-gray-700 hover:border-pink-500 hover:scale-110 hover:shadow-[0_0_35px_rgba(236,72,153,0.4)] w-[250px] h-[180px] flex items-center justify-center text-center"
+      >
+        <span className="relative z-10 bg-gradient-to-r from-pink-400 to-fuchsia-500 bg-clip-text text-transparent">
+          {c}
+        </span>
+        <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500 to-pink-600 rounded-3xl opacity-0 group-hover:opacity-25 transition duration-500 blur-lg"></div>
       </div>
-    </footer> 
+    ))}
+  </div>
+</section>
+
+        {/* ABOUT */}
+        <section
+          id="about"
+          ref={aboutRef}
+          className="min-h-screen flex flex-col justify-center items-center text-center px-8 py-20 bg-gradient-to-b from-black via-[#1a1a1a] to-[#ff6392] text-white"
+        >
+          <div
+            className={`max-w-3xl transition-all duration-1000 ease-out transform ${
+              aboutVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-12"
+            }`}
+          >
+            <div className="flex flex-col items-center gap-3 mb-10">
+              <Sparkles className="w-10 h-10 text-[#ff80ab] animate-pulse" />
+              <h2 className="text-4xl font-bold text-white tracking-wide">
+                About <span className="text-[#ff80ab]">Glamure</span>
+              </h2>
+            </div>
+            <p className="text-lg leading-relaxed text-gray-200 mb-6">
+              Glamure is more than just a platform — it's a vibrant ecosystem
+              built to uplift and empower fashion designers worldwide.
+            </p>
+            <p className="text-lg leading-relaxed text-gray-100">
+              Every designer — from emerging talents to industry veterans —
+              finds a space to showcase their unique vision.
+            </p>
+            <div
+              className={`flex justify-center items-center gap-4 mt-10 transition-all duration-1000 delay-300 ${
+                aboutVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-8"
+              }`}
+            >
+              <HeartHandshake className="w-8 h-8 text-pink-400 animate-bounce" />
+              <span className="text-xl font-semibold text-pink-300">
+                Designed for Dreamers. Built for Designers.
+              </span>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* FOOTER */}
+      <footer className="bg-[#111] text-white text-center flex flex-col justify-center items-center gap-5 px-4 py-10">
+        <p>© 2025 Glamure — Designed for Designers.</p>
+        <h2>Contact us</h2>
+        <div className="flex gap-10">
+          <a href="https://www.facebook.com/kimbenedick.anzures.9" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.svgrepo.com/show/503338/facebook.svg" alt="Facebook" className="w-6 h-6 filter invert hover:scale-110 transition" />
+          </a>
+          <a href="https://www.instagram.com/beben_brsg/" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.svgrepo.com/show/512399/instagram-167.svg" alt="Instagram" className="w-6 h-6 filter invert hover:scale-110 transition" />
+          </a>
+          <a href="https://discord.gg/zzx3JTmn" target="_blank" rel="noopener noreferrer">
+            <img src="https://www.svgrepo.com/show/506463/discord.svg" alt="Discord" className="w-6 h-6 filter invert hover:scale-110 transition" />
+          </a>
+        </div>
+      </footer>
     </div>
-  );  
+  );
 };
 
 export default Startpage;
