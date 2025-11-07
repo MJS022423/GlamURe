@@ -65,7 +65,7 @@ export default function TagSearchBar({ onSearch }) {
 
   return (
     <div className="relative w-full max-w-lg">
-      <div className="flex flex-wrap items-center gap-2 border border-gray-800 rounded-lg px-2 py-1 focus-within:ring-2 focus-within:ring-pink-400">
+      <div className="flex flex-wrap items-center gap-2 border border-gray-800 rounded-lg px-2 py-1 focus-within:ring-2 focus-within:ring-blue-400">
         {selectedTags.map((tag, idx) => (
           <div
             key={idx}
