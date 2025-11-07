@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 class Database {
-  constructor(online = false) {
+  constructor(online = true) {
 
     this.localconnectionString = process.env.localhostUrl;
     this.atlasconnectionString = process.env.AtlasUrl;
