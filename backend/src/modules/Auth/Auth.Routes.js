@@ -4,6 +4,7 @@ import Register from './Auth.Register.js';
 import Delete from './Auth.Delete.js';
 import { authMiddleware } from '../../../middleware.js';
 import { UpdateProfile, UpdatePassword } from './Auth.Changes.js';
+import SetupAccount from './Auth.SetupAccount.js';
 
 const Authrouter = express.Router();
 
@@ -12,5 +13,6 @@ Authrouter.post('/Register', Register);
 Authrouter.post('/UpdateProfile', authMiddleware, UpdateProfile);
 Authrouter.post('/UpdatePass', authMiddleware, UpdatePassword);
 Authrouter.post('/DeleteAccount', authMiddleware, Delete);
+Authrouter.post('/SetupAccount', SetupAccount);
 
 export default Authrouter;

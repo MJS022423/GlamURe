@@ -5,6 +5,7 @@ import LoadingScreen from "./component/loading";
 import Login from "./component/login";
 import Dashboard from "./component/dashboard";
 import Startpage from "./startup/startpage";
+import SetupAccount from "./component/setupAccount";
 
 const EXPRESS_API = import.meta.env.VITE_EXPRESS_API;
 
@@ -59,7 +60,7 @@ export default function Web() {
     }
   }, [loading, isLoggedIn, navigate]);
   if (loading) return <LoadingScreen />;
-
+  
   return (
     <Routes>
       {/* Default route */}
@@ -78,6 +79,12 @@ export default function Web() {
             <Login onLoginSuccess={() => setIsLoggedIn(true)} />
           )
         }
+      />
+
+      {/* Setup Account page */}
+      <Route
+        path="/setupAccount"
+        element={<SetupAccount />}
       />
 
       {/* Dashboard (Protected Route) */}
