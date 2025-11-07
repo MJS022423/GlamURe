@@ -54,7 +54,8 @@ function Login({ onLoginSuccess }) {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("✅ Login success:", data);
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userid", data.userid)
         onLoginSuccess();
         navigate("/dashboard");
       } else {

@@ -6,7 +6,7 @@ export function ConsoleLog(message, log = true) {
 
 export function ConsoleError(message, log = true) {
   if (log) {
-    console.Error(`[ ERROR ]: ${message}`);
+    console.error(`[ ERROR ]: ${message}`);
   }
 }
 
