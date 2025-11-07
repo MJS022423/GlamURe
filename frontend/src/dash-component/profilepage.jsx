@@ -91,7 +91,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="text-3xl font-extrabold text-pink-200">Glamur'e</div>
+          <div className="text-3xl font-extrabold text-pink-200">Glamure</div>
           <div className="text-xl text-white font-semibold">APPAREL</div>
         </div>
       </div>
