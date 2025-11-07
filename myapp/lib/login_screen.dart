@@ -1,312 +1,264 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:getwidget/getwidget.dart';
 
 class LoginScreen extends StatefulWidget {
-  final VoidCallback? onBack;
-
-  const LoginScreen({super.key, this.onBack});
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _isRegister = false;
+  bool isRegister = false;
+  bool showLoginPassword = false;
+  bool showRegisterPassword = false;
+  bool rememberMe = false;
+  bool agreePolicy = false;
 
-  // Text controllers
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  final _usernameController = TextEditingController();
+  final _loginUsernameController = TextEditingController();
+  final _loginPasswordController = TextEditingController();
+  final _registerUsernameController = TextEditingController();
+  final _registerEmailController = TextEditingController();
+  final _registerPasswordController = TextEditingController();
 
-  // Handle login
-  void _handleLogin() {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      _showSnackbar('Please fill in all fields');
-      return;
-    }
-
-    // TODO: Add your real authentication logic here
-    _showSnackbar('Login successful');
-  }
-
-  // Handle register
-  void _handleRegister() {
-    final email = _emailController.text.trim();
-    final username = _usernameController.text.trim();
-    final password = _passwordController.text.trim();
-    final confirmPassword = _confirmPasswordController.text.trim();
-
-    if (email.isEmpty ||
-        username.isEmpty ||
-        password.isEmpty ||
-        confirmPassword.isEmpty) {
-      _showSnackbar('Please fill in all fields');
-      return;
-    }
-
-    if (password != confirmPassword) {
-      _showSnackbar('Passwords do not match');
-      return;
-    }
-
-    // TODO: Add your real registration logic here
-    _showSnackbar('Account created successfully');
-  }
-
-  // Snackbar helper
-  void _showSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
-  }
-
-  // Toggle between login/register
-  Widget _buildToggleButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton(
-          onPressed: () => setState(() => _isRegister = false),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: !_isRegister ? Colors.pinkAccent : Colors.grey[300],
-            foregroundColor: !_isRegister ? Colors.white : Colors.black,
-          ),
-          child: const Text('Login'),
-        ),
-        const SizedBox(width: 16),
-        ElevatedButton(
-          onPressed: () => setState(() => _isRegister = true),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: _isRegister ? Colors.pinkAccent : Colors.grey[300],
-            foregroundColor: _isRegister ? Colors.white : Colors.black,
-          ),
-          child: const Text('Register'),
-        ),
-      ],
-    );
-  }
-
-  // Login form
-  Widget _buildLoginForm() {
-    return Column(
-      key: const ValueKey('login'),
-      children: [
-        TextField(
-          controller: _emailController,
-          decoration: const InputDecoration(labelText: 'Email'),
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: _passwordController,
-          obscureText: true,
-          decoration: const InputDecoration(labelText: 'Password'),
-        ),
-        const SizedBox(height: 32),
-        ElevatedButton(
-          onPressed: _handleLogin,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.pinkAccent,
-            minimumSize: const Size.fromHeight(45),
-          ),
-          child: const Text('Login'),
-        ),
-      ],
-    );
-  }
-
-  // Register form
-  Widget _buildRegisterForm() {
-    return Column(
-      key: const ValueKey('register'),
-      children: [
-        TextField(
-          controller: _usernameController,
-          decoration: const InputDecoration(labelText: 'Username'),
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: _emailController,
-          decoration: const InputDecoration(labelText: 'Email'),
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: _passwordController,
-          obscureText: true,
-          decoration: const InputDecoration(labelText: 'Password'),
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: _confirmPasswordController,
-          obscureText: true,
-          decoration: const InputDecoration(labelText: 'Confirm Password'),
-        ),
-        const SizedBox(height: 32),
-        ElevatedButton(
-          onPressed: _handleRegister,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.pinkAccent,
-            minimumSize: const Size.fromHeight(45),
-          ),
-          child: const Text('Register'),
-        ),
-      ],
-    );
+  void toggleView() {
+    setState(() {
+      isRegister = !isRegister;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: Stack(
+      backgroundColor: const Color(0xfffde2e4),
+      body: SafeArea(
+        child: Column(
           children: [
-            // Back Button
-            if (widget.onBack != null)
-              Positioned(
-                top: 20,
-                left: 24,
-                child: TextButton.icon(
-                  onPressed: widget.onBack,
-                  icon: const Icon(Icons.arrow_back, color: Colors.black),
-                  label: const Text(
-                    'Back',
-                    style: TextStyle(color: Colors.black),
+            // HEADER SECTION (SVG Logo + App Name)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Row(
+                children: [
+                  SvgPicture.asset(
+                    'assets/images/Web-logo.svg',
+                    height: 50,
+                  ),
+                  const SizedBox(width: 10),
+                  const Text(
+                    "Glamure",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 40),
+
+            // CENTERED CARD SECTION
+            Expanded(
+              child: Center(
+                child: Container(
+                  width: 400,
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    color: const Color(0xfff9f9f9),
+                    borderRadius: BorderRadius.circular(50),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      )
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Toggle Buttons
+                      Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: const Color(0xfff5f1f1),
+                          border: Border.all(color: Colors.black87),
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: Stack(
+                          children: [
+                            AnimatedAlign(
+                              alignment:
+                                  isRegister ? Alignment.centerRight : Alignment.centerLeft,
+                              duration: const Duration(milliseconds: 500),
+                              child: Container(
+                                width: 150,
+                                decoration: BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius: BorderRadius.circular(50),
+                                ),
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextButton(
+                                    onPressed: () => setState(() => isRegister = false),
+                                    child: Text(
+                                      "Login",
+                                      style: TextStyle(
+                                        color: isRegister ? Colors.black : Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: TextButton(
+                                    onPressed: () => setState(() => isRegister = true),
+                                    child: Text(
+                                      "Register",
+                                      style: TextStyle(
+                                        color: isRegister ? Colors.white : Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Login/Register Forms
+                      AnimatedCrossFade(
+                        duration: const Duration(milliseconds: 400),
+                        crossFadeState: isRegister
+                            ? CrossFadeState.showSecond
+                            : CrossFadeState.showFirst,
+                        firstChild: _buildLoginForm(),
+                        secondChild: _buildRegisterForm(),
+                      ),
+                    ],
                   ),
                 ),
               ),
-
-            // ✅ Responsive layout starts here
-            LayoutBuilder(
-              builder: (context, constraints) {
-                // Wide screen (desktop/web)
-                if (constraints.maxWidth > 700) {
-                  return Row(
-                    children: [
-                      // Left - Logo
-                      Expanded(
-                        flex: 1,
-                        child: Container(
-                          padding: const EdgeInsets.all(32),
-                          child: Center(
-                            child: Image.asset(
-                              'assets/Webapp.svg',
-                              height: 200,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(
-                                  Icons.account_circle,
-                                  size: 100,
-                                  color: Colors.grey,
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Divider
-                      Container(
-                        width: 1,
-                        margin: const EdgeInsets.symmetric(vertical: 40),
-                        color: Colors.black,
-                      ),
-
-                      // Right - Forms
-                      Expanded(
-                        flex: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.all(40),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _buildToggleButtons(),
-                              const SizedBox(height: 40),
-                              AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 500),
-                                transitionBuilder: (child, animation) {
-                                  return SlideTransition(
-                                    position: Tween<Offset>(
-                                      begin: Offset(
-                                          _isRegister ? 0.4 : -0.4, 0),
-                                      end: Offset.zero,
-                                    ).animate(animation),
-                                    child: FadeTransition(
-                                      opacity: animation,
-                                      child: child,
-                                    ),
-                                  );
-                                },
-                                child: _isRegister
-                                    ? _buildRegisterForm()
-                                    : _buildLoginForm(),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                }
-
-                // Small screen (mobile/tablet)
-                else {
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Logo
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          child: Center(
-                            child: Image.asset(
-                              'assets/Webapp.svg',
-                              height: 120,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(
-                                  Icons.account_circle,
-                                  size: 80,
-                                  color: Colors.grey,
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        _buildToggleButtons(),
-                        const SizedBox(height: 24),
-
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 500),
-                          transitionBuilder: (child, animation) {
-                            return SlideTransition(
-                              position: Tween<Offset>(
-                                begin:
-                                    Offset(_isRegister ? 0.4 : -0.4, 0),
-                                end: Offset.zero,
-                              ).animate(animation),
-                              child: FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: _isRegister
-                              ? _buildRegisterForm()
-                              : _buildLoginForm(),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-              },
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildLoginForm() {
+    return Column(
+      children: [
+        GFTextField(
+          controller: _loginUsernameController,
+          decoration: const InputDecoration(labelText: "Username"),
+        ),
+        const SizedBox(height: 16),
+        GFTextField(
+          controller: _loginPasswordController,
+          obscureText: !showLoginPassword,
+          decoration: InputDecoration(
+            labelText: "Password",
+            suffixIcon: IconButton(
+              icon: Icon(
+                  showLoginPassword ? Icons.visibility_off : Icons.visibility),
+              onPressed: () =>
+                  setState(() => showLoginPassword = !showLoginPassword),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            GFCheckbox(
+              size: GFSize.SMALL,
+              activeBgColor: GFColors.DARK,
+              value: rememberMe,
+              onChanged: (v) => setState(() => rememberMe = v ?? false),
+            ),
+            const Text("Remember Me")
+          ],
+        ),
+        const SizedBox(height: 16),
+        GFButton(
+          onPressed: () {
+            print("Login with: ${_loginUsernameController.text}");
+          },
+          text: "Login",
+          fullWidthButton: true,
+          color: Colors.black,
+          shape: GFButtonShape.pills,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRegisterForm() {
+    return Column(
+      children: [
+        GFTextField(
+          controller: _registerUsernameController,
+          decoration: const InputDecoration(labelText: "Username"),
+        ),
+        const SizedBox(height: 16),
+        GFTextField(
+          controller: _registerEmailController,
+          decoration: const InputDecoration(labelText: "Email"),
+        ),
+        const SizedBox(height: 16),
+        GFTextField(
+          controller: _registerPasswordController,
+          obscureText: !showRegisterPassword,
+          decoration: InputDecoration(
+            labelText: "Password",
+            suffixIcon: IconButton(
+              icon: Icon(showRegisterPassword
+                  ? Icons.visibility_off
+                  : Icons.visibility),
+              onPressed: () =>
+                  setState(() => showRegisterPassword = !showRegisterPassword),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            GFCheckbox(
+              size: GFSize.SMALL,
+              activeBgColor: GFColors.DARK,
+              value: agreePolicy,
+              onChanged: (v) => setState(() => agreePolicy = v ?? false),
+            ),
+            const Text("I agree to the Terms & Privacy Policy"),
+          ],
+        ),
+        const SizedBox(height: 16),
+        GFButton(
+          onPressed: () {
+            if (!agreePolicy) {
+              GFToast.showToast(
+                "Please agree to continue.",
+                context,
+                toastPosition: GFToastPosition.BOTTOM,
+              );
+              return;
+            }
+            print("Register user: ${_registerUsernameController.text}");
+          },
+          text: "Register",
+          fullWidthButton: true,
+          color: Colors.black,
+          shape: GFButtonShape.pills,
+        ),
+      ],
     );
   }
 }
