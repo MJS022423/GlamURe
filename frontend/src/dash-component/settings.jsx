@@ -3,8 +3,8 @@ import { Shield, User, Camera, ChevronDown } from 'lucide-react';
 
 const Settings = () => {
   const [profile, setProfile] = useState({
-    name: 'John Doe',
-    username: 'johndoe',
+    name: '',
+    username: '',
     profilePicture: null
   });
 
@@ -59,7 +59,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="h-full overflow-y-auto no-scrollbar bg-pink-50">
+    <div className="h-full overflow-y-auto no-scrollbar bg-gradient-to-b from-[#1b1b1b] via-[#2b2b2b] to-[#f9c5d1] text-white overflow-hidden">
         <style jsx>{`
               .no-scrollbar::-webkit-scrollbar {
                 display: none;
@@ -71,10 +71,12 @@ const Settings = () => {
             `}
             </style>
       {/* Header */}
-      <div className="border-b border-gray-300 bg-black px-16 py-10">
-        <h1 className="text-4xl font-bold text-white">Account Settings</h1>
-        <p className="text-gray-300 font-semibold mt-3">Manage your preferences and account configuration</p>
-      </div>
+      <div className="sticky top-0 z-50 bg-[#1b1b1b] border-b border-pink-300 py-6 px-8">
+  <div className="max-w-10xl mx-auto flex items-left justify-start flex-col">
+    <h1 className="text-4xl font-bold text-white">ACCOUNT SETTINGS</h1>
+    <p className="text-gray-300 mt-3 font-bold">Manage your preferences and application configuration</p>
+  </div>
+</div>
 
       {/* Settings Content */}
       <div className="px-100 py-10 max-w-20xl">
