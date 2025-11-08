@@ -4,7 +4,7 @@ import { ConsoleLog, ConsoleError } from "../../utils/utils.logger.js";
 const db = new Database();
 const log = true;
 
-async function RemoveProduct(req, res) {
+async function RemovePost(req, res) {
   try {
     const { Product_name } = req.body;
     const collection = await db.Collection('Product');
@@ -27,4 +27,4 @@ async function RemoveProduct(req, res) {
   }
 }
 
-export default RemoveProduct;
+export default RemovePost;

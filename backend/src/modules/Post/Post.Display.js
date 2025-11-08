@@ -1,7 +1,7 @@
 import Database from "../modules.connection.js";
 import { ConsoleLog, ConsoleError } from "../../utils/utils.logger.js";
 
-const db = Database();
+const db = new Database();
 const log = true;
 const page = 1;
 const limit = 30;
@@ -20,11 +20,11 @@ function convertImage(base64Str) {
   return { buffer, ext };
 }
 
-async function DisplayProduct(req, res) {
+async function DisplayPost(req, res) {
 
   try {
 
-    const collection = await db.Collection('Product');
+    const collection = await db.Collection('Account');
     const result = await collection.find({}).skip(skip).limit(limit).toArray();
 
     if (!product || !product.image) {
@@ -43,7 +43,6 @@ async function DisplayProduct(req, res) {
     db.Close();
     ConsoleLog('[ CONNECTION CLOSED ]', log);
   }
-
 }
 
-export default DisplayProduct;
+export default DisplayPost;

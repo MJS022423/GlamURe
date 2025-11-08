@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const FEED_DESC_LIMIT = 30; // characters to show in feed
 const MODAL_DESC_LIMIT = 100; // characters to show initially in modal
@@ -9,7 +9,17 @@ const HEART_TRUE = "https://www.svgrepo.com/show/535436/heart.svg";
 const BOOKMARK_FALSE = "https://www.svgrepo.com/show/533035/bookmark.svg";
 const BOOKMARK_TRUE = "https://www.svgrepo.com/show/535228/bookmark.svg";
 
-export default function PostFeed({ posts }) {
+const CONTAINER_VARIANTS = {
+  default: "mt-20 mb-5 w-full max-w-[95%] mx-auto px-5 py-5",
+  profile: "mt-8 mb-5 w-full px-0",
+};
+
+const GRID_VARIANTS = {
+  default: "grid grid-cols-5 justify-items-center gap-8 h-full w-full",
+  profile: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full",
+};
+
+export default function PostFeed({ posts, variant = "default" }) {
   const [expandedPost, setExpandedPost] = useState(null);
   const [likesState, setLikesState] = useState({});
   const [bookmarksState, setBookmarksState] = useState({});
@@ -22,8 +32,37 @@ export default function PostFeed({ posts }) {
     setLikesState(prev => ({ ...prev, [postId]: !prev[postId] }));
   };
 
-  const toggleBookmark = (postId) => {
-    setBookmarksState(prev => ({ ...prev, [postId]: !prev[postId] }));
+  // initialize bookmark state from localStorage
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("bookmarks") || "[]");
+      const map = saved.reduce((acc, item) => { acc[item.id] = true; return acc; }, {});
+      setBookmarksState(map);
+    } catch {}
+  }, []);
+
+  const toggleBookmark = (post) => {
+    const postId = post.id;
+    setBookmarksState(prev => {
+      const next = { ...prev, [postId]: !prev[postId] };
+      try {
+        const current = JSON.parse(localStorage.getItem("bookmarks") || "[]");
+        if (next[postId]) {
+          const newItem = {
+            id: post.id,
+            image: post.images?.[0] || "",
+            title: post.style || "Design",
+            description: post.description || "",
+          };
+          const updated = [newItem, ...current.filter(b => b.id !== post.id)];
+          localStorage.setItem("bookmarks", JSON.stringify(updated));
+        } else {
+          const updated = current.filter(b => b.id !== post.id);
+          localStorage.setItem("bookmarks", JSON.stringify(updated));
+        }
+      } catch {}
+      return next;
+    });
   };
 
   const handleAddComment = (postId) => {
@@ -86,22 +125,28 @@ export default function PostFeed({ posts }) {
     );
   };
 
+  const containerClass = CONTAINER_VARIANTS[variant] || CONTAINER_VARIANTS.default;
+  const gridClass = GRID_VARIANTS[variant] || GRID_VARIANTS.default;
+  const cardClass = variant === "profile"
+    ? "border border-gray-700 rounded-lg w-full h-[320px] bg-white flex flex-col p-3 hover:scale-[1.02] shadow-lg transition-transform duration-200 cursor-pointer"
+    : "border border-gray-700 rounded-lg w-[240px] h-[320px] bg-white flex flex-col p-3 hover:scale-105 shadow-lg transition-transform duration-200 cursor-pointer";
+
   return (
-    <div className="mt-20 mb-5 w-full max-w-[95%] mx-auto px-5 py-5">
+    <div className={containerClass}>
       {posts.length === 0 ? (
         <p className="text-center text-gray-500 text-xl mt-20">No posts yet</p>
       ) : (
-        <div className="grid grid-cols-5 justify-items-center gap-8 h-full w-full">
+        <div className={gridClass}>
           {posts.map(post => (
             <div
               key={post.id}
-              className="border border-gray-700 rounded-lg w-[240px] h-[320px] bg-white flex flex-col p-3 hover:scale-105 shadow-lg transition-transform duration-200 cursor-pointer"
+              className={cardClass}
               onClick={() => openPost(post)}
             >
               <div className={`grid ${post.images.length === 1 ? "grid-cols-1" : "grid-cols-2"} gap-1 w-full h-[180px] mb-2`}>
                 {post.images.slice(0, 4).map((img, idx) => (
                   <div key={idx} className="relative w-full h-full flex items-center justify-center bg-gray-100 rounded overflow-hidden">
-                    <img src={img} alt={`post-${idx}`} className="max-w-full max-h-full object-contain transition-transform duration-200 hover:scale-105" />
+                    <img src={img} alt={`post-${idx}`} className="h-full object-cover transition-transform duration-200 hover:scale-105" />
                     {idx === 3 && post.images.length > 4 && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-xl font-bold rounded">
                         +{post.images.length - 4} more
@@ -131,7 +176,7 @@ export default function PostFeed({ posts }) {
                   <span>{post.likes + (likesState[post.id] ? 1 : 0)}</span>
                 </div>
                 {/* Bookmark */}
-                <div className="flex items-center gap-1 cursor-pointer" onClick={e => { e.stopPropagation(); toggleBookmark(post.id); }}>
+                <div className="flex items-center gap-1 cursor-pointer" onClick={e => { e.stopPropagation(); toggleBookmark(post); }}>
                   <img src={bookmarksState[post.id] ? BOOKMARK_TRUE : BOOKMARK_FALSE} alt="bookmark" className="w-6 h-6" />
                   <span>{bookmarksState[post.id] ? 1 : 0}</span>
                 </div>
@@ -177,7 +222,7 @@ export default function PostFeed({ posts }) {
                   <img src={likesState[expandedPost.id] ? HEART_TRUE : HEART_FALSE} alt="heart" className="w-6 h-6" />
                   <span>{expandedPost.likes + (likesState[expandedPost.id] ? 1 : 0)}</span>
                 </div>
-                <div className="flex items-center gap-1 cursor-pointer" onClick={() => toggleBookmark(expandedPost.id)}>
+                <div className="flex items-center gap-1 cursor-pointer" onClick={() => toggleBookmark(expandedPost)}>
                   <img src={bookmarksState[expandedPost.id] ? BOOKMARK_TRUE : BOOKMARK_FALSE} alt="bookmark" className="w-6 h-6" />
                   <span>{bookmarksState[expandedPost.id] ? 1 : 0}</span>
                 </div>

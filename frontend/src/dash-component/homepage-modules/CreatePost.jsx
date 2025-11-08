@@ -26,10 +26,10 @@ export default function CreatePost({ onClose, addPost }) {
 
   const handleImageSelect = (e) => {
     const files = Array.from(e.target.files);
-    const remainingSlots = 10 - selectedImages.length;
+    const remainingSlots = 1;
 
     if (files.length > remainingSlots) {
-      alert(`You can only upload up to 10 images. You can add ${remainingSlots} more.`);
+      alert(`You can only upload up to 1 image.`);
       e.target.value = null;
       return;
     }
@@ -160,7 +160,7 @@ export default function CreatePost({ onClose, addPost }) {
                 onClick={() => fileInputRef.current?.click()}
                 className="px-4 py-2 border rounded-2xl text-blue-600 font-semibold hover:bg-blue-50 hover:scale-105 transition-transform duration-200 w-max"
               >
-                + Add Images
+                + Add Image
               </button>
               <input ref={fileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={handleImageSelect} />
 

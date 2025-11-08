@@ -10,7 +10,7 @@ import SetupAccount from "./component/setupAccount";
 const EXPRESS_API = import.meta.env.VITE_EXPRESS_API;
 
 export default function Web() {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
   

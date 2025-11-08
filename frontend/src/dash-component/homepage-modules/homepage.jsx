@@ -10,7 +10,6 @@ export default function Homepage() {
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [showLeaderboard, setShowLeaderboard] = useState(false); // <-- new state
-  const [isActive, setIsActive] = useState([]);
 
   const handleAddPost = (newPost) => {
     setPosts(prev => [newPost, ...prev]);
@@ -35,7 +34,7 @@ export default function Homepage() {
   }
 
   return (
-    <div className="w-full h-full relative flex flex-col gap-10 items-center bg-red-100 pt-6">
+    <div className="w-full h-full relative flex flex-col gap-10 items-center bg-gradient-to-b from-[#1b1b1b] via-[#2b2b2b] to-[#f9c5d1] pt-6">
       {/* Search and icons */}
       <div className="flex flex-row fixed items-center justify-between w-full max-w-4xl mt-1 z-20">
         <div className="flex-1 flex items-center">
