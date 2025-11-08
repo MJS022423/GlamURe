@@ -2,7 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:getwidget/getwidget.dart';
 
+<<<<<<< Updated upstream
 import 'homepage-modules/homepage.dart';
+=======
+
+// Import homepage.dart (create it later inside lib/)
+import 'homepage.dart';
+>>>>>>> Stashed changes
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -164,6 +170,7 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             GFCheckbox(
               size: GFSize.SMALL,
+              inactiveBgColor: Colors.transparent,
               activeBgColor: GFColors.DARK,
               value: rememberMe,
               onChanged: (v) => setState(() => rememberMe = v ?? false),
@@ -220,6 +227,7 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             GFCheckbox(
               size: GFSize.SMALL,
+              inactiveBgColor: Colors.transparent,
               activeBgColor: GFColors.DARK,
               value: agreePolicy,
               onChanged: (v) => setState(() => agreePolicy = v ?? false),
@@ -236,14 +244,20 @@ class _LoginScreenState extends State<LoginScreen> {
               GFToast.showToast(
                 "Please agree to continue.",
                 context,
-                toastPosition: GFToastPosition.BOTTOM,
+                toastPosition: GFToastPosition.CENTER,
               );
               return;
             }
+<<<<<<< Updated upstream
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const HomePage()),
             );
+=======
+
+            // Navigate to setupAccount.dart instead of homepage.dart
+            Navigator.pushReplacementNamed(context, '/setupAccount');
+>>>>>>> Stashed changes
           },
           text: "Register",
           fullWidthButton: true,
