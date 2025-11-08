@@ -1,6 +1,7 @@
-import 'dart:html' as html;
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:getwidget/getwidget.dart';
+import 'package:image_picker/image_picker.dart';
 
 const sampleTags = {
   'Gender': ['Men', 'Women', 'Unisex'],
@@ -28,36 +29,28 @@ class CreatePostModule extends StatefulWidget {
 
 class _CreatePostModuleState extends State<CreatePostModule> {
   final TextEditingController descriptionController = TextEditingController();
+  XFile? selectedImageFile;
   Uint8List? selectedImageBytes;
-  String? selectedImageName;
   bool showTags = false;
   List<String> selectedTags = [];
-  bool zoomImage = false;
 
-  void pickImage() {
-    final uploadInput = html.FileUploadInputElement()..accept = 'image/*';
-    uploadInput.click();
+  final ImagePicker picker = ImagePicker();
 
-    uploadInput.onChange.listen((event) {
-      final files = uploadInput.files;
-      if (files == null || files.isEmpty) return;
-
-      final file = files[0];
-      final reader = html.FileReader();
-      reader.readAsArrayBuffer(file);
-      reader.onLoadEnd.listen((event) {
-        setState(() {
-          selectedImageBytes = reader.result as Uint8List;
-          selectedImageName = file.name;
-        });
+  Future<void> pickImage() async {
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      final bytes = await image.readAsBytes();
+      setState(() {
+        selectedImageFile = image;
+        selectedImageBytes = bytes;
       });
-    });
+    }
   }
 
   void removeImage() {
     setState(() {
+      selectedImageFile = null;
       selectedImageBytes = null;
-      selectedImageName = null;
     });
   }
 
@@ -65,7 +58,7 @@ class _CreatePostModuleState extends State<CreatePostModule> {
     setState(() {
       final categoryTags = sampleTags[category]!;
       final isExclusive = ['Gender'].contains(category);
-      selectedTags.removeWhere((t) => categoryTags.contains(t));
+      if (isExclusive) selectedTags.removeWhere((t) => categoryTags.contains(t));
       if (selectedTags.contains(tag)) {
         selectedTags.remove(tag);
       } else {
@@ -76,9 +69,7 @@ class _CreatePostModuleState extends State<CreatePostModule> {
 
   void handleUpload() {
     if (selectedImageBytes == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You must add an image to post.')),
-      );
+      GFToast.showToast('You must add an image to post.', context);
       return;
     }
 
@@ -86,10 +77,14 @@ class _CreatePostModuleState extends State<CreatePostModule> {
       'id': DateTime.now().millisecondsSinceEpoch,
       'username': 'Jzar Alaba',
       'description': descriptionController.text,
-      'images': [selectedImageName],
+      'images': [selectedImageBytes!], // store Uint8List directly
       'tags': selectedTags,
-      'gender': selectedTags.firstWhere((t) => sampleTags['Gender']!.contains(t), orElse: () => 'Unisex'),
-      'style': selectedTags.firstWhere((t) => sampleTags['Style']!.contains(t), orElse: () => 'Casual'),
+      'gender': selectedTags.firstWhere(
+          (t) => sampleTags['Gender']!.contains(t),
+          orElse: () => 'Unisex'),
+      'style': selectedTags.firstWhere(
+          (t) => sampleTags['Style']!.contains(t),
+          orElse: () => 'Casual'),
       'likes': 0,
       'comments': [],
       'createdAt': DateTime.now().toIso8601String(),
@@ -100,10 +95,9 @@ class _CreatePostModuleState extends State<CreatePostModule> {
     descriptionController.clear();
     setState(() {
       selectedImageBytes = null;
-      selectedImageName = null;
+      selectedImageFile = null;
       selectedTags = [];
       showTags = false;
-      zoomImage = false;
     });
 
     widget.onClose();
@@ -112,12 +106,10 @@ class _CreatePostModuleState extends State<CreatePostModule> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final cardWidth = screenWidth * 0.9;
 
     return Center(
       child: Stack(
         children: [
-          // Background overlay
           GestureDetector(
             onTap: widget.onClose,
             child: Container(
@@ -126,161 +118,162 @@ class _CreatePostModuleState extends State<CreatePostModule> {
               height: double.infinity,
             ),
           ),
-
-          // Main card
           Center(
             child: SingleChildScrollView(
-              child: Container(
-                width: cardWidth,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Create Post',
-                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close),
-                          onPressed: widget.onClose,
-                        ),
-                      ],
-                    ),
+              child: GFCard(
+                elevation: 8,
+                borderRadius: BorderRadius.circular(24),
+                color: Colors.white,
+                content: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Header
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Create Post',
+                            style: TextStyle(
+                                fontSize: 22, fontWeight: FontWeight.bold),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: widget.onClose,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
 
-                    const SizedBox(height: 12),
+                      // User info
+                      Row(
+                        children: const [
+                          CircleAvatar(child: Text('👤')),
+                          SizedBox(width: 8),
+                          Text('Jzar Alaba',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16)),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
 
-                    // User info
-                    Row(
-                      children: const [
-                        CircleAvatar(child: Text('👤')),
-                        SizedBox(width: 8),
-                        Text('Jzar Alaba', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      ],
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Description input
-                    TextField(
-                      controller: descriptionController,
-                      maxLength: 100,
-                      maxLines: 4,
-                      decoration: InputDecoration(
-                        hintText: "What's on your mind?",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
+                      // Description input
+                      TextField(
+                        controller: descriptionController,
+                        maxLength: 100,
+                        maxLines: 4,
+                        decoration: InputDecoration(
+                          hintText: "What's on your mind?",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 12),
 
-                    const SizedBox(height: 12),
-
-                    // Buttons grid
-                    Column(
-                      children: [
-                        // Add Image row
-                        Row(
-                          children: [
-                            ElevatedButton(
-                              onPressed: pickImage,
-                              style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                backgroundColor: Colors.blue,
-                              ),
-                              child: Text(selectedImageBytes == null ? '+ Add Image' : 'Change Image'),
+                      // Buttons + small image preview
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              children: [
+                                GFButton(
+                                  onPressed: pickImage,
+                                  text: selectedImageBytes == null
+                                      ? '+ Add Image'
+                                      : 'Change Image',
+                                  type: GFButtonType.outline,
+                                  color: Colors.blue,
+                                  shape: GFButtonShape.pills,
+                                ),
+                                const SizedBox(height: 8),
+                                GFButton(
+                                  onPressed: () =>
+                                      setState(() => showTags = !showTags),
+                                  text: showTags ? '- Tags' : '+ Tags',
+                                  type: GFButtonType.outline,
+                                  color: Colors.blue,
+                                  shape: GFButtonShape.pills,
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            if (selectedImageBytes != null)
-                              GestureDetector(
-                                onTap: () => setState(() => zoomImage = true),
-                                child: Container(
-                                  width: 60,
-                                  height: 60,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    image: DecorationImage(
-                                      image: MemoryImage(selectedImageBytes!),
-                                      fit: BoxFit.cover,
+                          ),
+                          const SizedBox(width: 12),
+                          if (selectedImageBytes != null)
+                            GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (_) => Dialog(
+                                    child: Stack(
+                                      children: [
+                                        Image.memory(selectedImageBytes!),
+                                        Positioned(
+                                          top: 8,
+                                          left: 8,
+                                          child: IconButton(
+                                            icon: const Icon(Icons.arrow_back,
+                                                color: Colors.white),
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                          ),
+                                        ),
+                                      ],
                                     ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  image: DecorationImage(
+                                    image: MemoryImage(selectedImageBytes!),
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
                               ),
-                          ],
-                        ),
+                            ),
+                        ],
+                      ),
 
-                        const SizedBox(height: 12),
-
-                        // Add Tags row
-                        Row(
-                          children: [
-                            if (!showTags)
-                              ElevatedButton(
-                                onPressed: () => setState(() => showTags = true),
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                  backgroundColor: Colors.blue,
-                                ),
-                                child: const Text('+ Add Tags'),
-                              ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        // Tags expanded section
-                        if (showTags)
-                          Column(
+                      // Tags section
+                      if (showTags)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Minimize button
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  ElevatedButton.icon(
-                                    onPressed: () => setState(() => showTags = false),
-                                    icon: const Icon(Icons.arrow_drop_down),
-                                    label: const Text('Tags'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 8),
-
-                              // Tags list
                               ...sampleTags.entries.map((entry) {
                                 final category = entry.key;
                                 final tags = entry.value;
                                 return Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(category, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    Text(category,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold)),
                                     const SizedBox(height: 4),
                                     Wrap(
                                       spacing: 6,
                                       runSpacing: 6,
                                       children: tags.map((tag) {
-                                        final isSelected = selectedTags.contains(tag);
-                                        return ElevatedButton(
-                                          onPressed: () => toggleTag(category, tag),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: isSelected ? Colors.blue : Colors.grey[300],
-                                            foregroundColor: isSelected ? Colors.white : Colors.black,
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                          ),
-                                          child: Text(tag),
+                                        final isSelected =
+                                            selectedTags.contains(tag);
+                                        return GFButton(
+                                          onPressed: () =>
+                                              toggleTag(category, tag),
+                                          text: tag,
+                                          type: isSelected
+                                              ? GFButtonType.solid
+                                              : GFButtonType.outline,
+                                          color: Colors.blue,
+                                          textColor:
+                                              isSelected ? Colors.white : Colors.black,
+                                          shape: GFButtonShape.pills,
+                                          size: GFSize.SMALL,
                                         );
                                       }).toList(),
                                     ),
@@ -290,50 +283,24 @@ class _CreatePostModuleState extends State<CreatePostModule> {
                               }).toList(),
                             ],
                           ),
-                      ],
-                    ),
+                        ),
 
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 12),
 
-                    // Upload button
-                    ElevatedButton(
-                      onPressed: selectedImageBytes == null ? null : handleUpload,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedImageBytes == null ? Colors.grey : Colors.black,
-                        minimumSize: const Size.fromHeight(50),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      // Upload button
+                      GFButton(
+                        onPressed:
+                            selectedImageBytes == null ? null : handleUpload,
+                        text: 'Upload Post',
+                        fullWidthButton: true,
+                        color: selectedImageBytes == null ? Colors.grey : Colors.black,
                       ),
-                      child: const Text('Upload Post', style: TextStyle(color: Colors.white, fontSize: 18)),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-
-          // Zoomed image
-          if (zoomImage && selectedImageBytes != null)
-            Positioned.fill(
-              child: Container(
-                color: Colors.black.withOpacity(0.9),
-                child: Stack(
-                  children: [
-                    Center(child: Image.memory(selectedImageBytes!)),
-                    Positioned(
-                      top: 40,
-                      left: 16,
-                      child: ElevatedButton(
-                        onPressed: () => setState(() => zoomImage = false),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black54,
-                        ),
-                        child: const Icon(Icons.arrow_back, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
         ],
       ),
     );

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:getwidget/getwidget.dart';
 
-// Import homepage.dart (create it later inside lib/)
 import 'homepage-modules/homepage.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -36,122 +35,103 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: const Color(0xfffde2e4),
       body: SafeArea(
-        child: Column(
-          children: [
-            // HEADER SECTION (SVG Logo + App Name)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Row(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Container(
+              width: 400,
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: const Color(0xfff9f9f9),
+                borderRadius: BorderRadius.circular(50),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  )
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
+                  // SVG Logo at top
                   SvgPicture.asset(
-                    'assets/images/Web-logo.svg',
-                    height: 50,
+                    'assets/Webapp.svg',
+                    height: 120, // Bigger size
+                    width: 120,
                   ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    "Glamure",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                  const SizedBox(height: 24),
+
+                  // Toggle Buttons for Login/Register
+                  Container(
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: const Color(0xfff5f1f1),
+                      border: Border.all(color: Colors.black87),
+                      borderRadius: BorderRadius.circular(50),
                     ),
+                    child: Stack(
+                      children: [
+                        AnimatedAlign(
+                          alignment: isRegister
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
+                          duration: const Duration(milliseconds: 500),
+                          child: Container(
+                            width: 160,
+                            decoration: BoxDecoration(
+                              color: Colors.black,
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextButton(
+                                onPressed: () => setState(() => isRegister = false),
+                                child: Text(
+                                  "Login",
+                                  style: TextStyle(
+                                    color: isRegister ? Colors.black : Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: TextButton(
+                                onPressed: () => setState(() => isRegister = true),
+                                child: Text(
+                                  "Register",
+                                  style: TextStyle(
+                                    color: isRegister ? Colors.white : Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Login/Register Forms
+                  AnimatedCrossFade(
+                    duration: const Duration(milliseconds: 400),
+                    crossFadeState: isRegister
+                        ? CrossFadeState.showSecond
+                        : CrossFadeState.showFirst,
+                    firstChild: _buildLoginForm(context),
+                    secondChild: _buildRegisterForm(context),
                   ),
                 ],
               ),
             ),
-
-            const SizedBox(height: 40),
-
-            // CENTERED CARD SECTION
-            Expanded(
-              child: Center(
-                child: Container(
-                  width: 400,
-                  padding: const EdgeInsets.all(32),
-                  decoration: BoxDecoration(
-                    color: const Color(0xfff9f9f9),
-                    borderRadius: BorderRadius.circular(50),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
-                      )
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Toggle Buttons
-                      Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: const Color(0xfff5f1f1),
-                          border: Border.all(color: Colors.black87),
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: Stack(
-                          children: [
-                            AnimatedAlign(
-                              alignment:
-                                  isRegister ? Alignment.centerRight : Alignment.centerLeft,
-                              duration: const Duration(milliseconds: 500),
-                              child: Container(
-                                width: 150,
-                                decoration: BoxDecoration(
-                                  color: Colors.black,
-                                  borderRadius: BorderRadius.circular(50),
-                                ),
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: TextButton(
-                                    onPressed: () => setState(() => isRegister = false),
-                                    child: Text(
-                                      "Login",
-                                      style: TextStyle(
-                                        color: isRegister ? Colors.black : Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: TextButton(
-                                    onPressed: () => setState(() => isRegister = true),
-                                    child: Text(
-                                      "Register",
-                                      style: TextStyle(
-                                        color: isRegister ? Colors.white : Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Login/Register Forms
-                      AnimatedCrossFade(
-                        duration: const Duration(milliseconds: 400),
-                        crossFadeState: isRegister
-                            ? CrossFadeState.showSecond
-                            : CrossFadeState.showFirst,
-                        firstChild: _buildLoginForm(context),
-                        secondChild: _buildRegisterForm(context),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -194,7 +174,6 @@ class _LoginScreenState extends State<LoginScreen> {
         const SizedBox(height: 16),
         GFButton(
           onPressed: () {
-            // Navigate to homepage.dart (temporary redirect)
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const HomePage()),
@@ -245,7 +224,9 @@ class _LoginScreenState extends State<LoginScreen> {
               value: agreePolicy,
               onChanged: (v) => setState(() => agreePolicy = v ?? false),
             ),
-            const Text("I agree to the Terms & Privacy Policy"),
+            const Expanded(
+              child: Text("I agree to the Terms & Privacy Policy"),
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -259,7 +240,6 @@ class _LoginScreenState extends State<LoginScreen> {
               );
               return;
             }
-            // Simple navigation after registration for now
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const HomePage()),
