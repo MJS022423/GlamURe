@@ -1,15 +1,11 @@
 import { useState } from "react";
-import {
-  Heart,
-  Eye,
-  MessageSquare,
-  Plus,
-  User,
-  ChevronLeft,
-} from "lucide-react";
+import CreatePost from "./homepage-modules/CreatePost";
+import PostFeed from "./homepage-modules/PostFeed";
+import { Heart, Plus, User, Bookmark } from "lucide-react";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("profile");
+  const [showPostModal, setShowPostModal] = useState(false);
 
   // Sample data
   const designer = {
@@ -30,25 +26,25 @@ export default function ProfilePage() {
       image:
         "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400",
       likes: "4.2k",
-      views: "21",
+      bookmarks: "21",
     },
     {
       id: 2,
       image:
         "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=400",
       likes: "33.2k",
-      views: "1k",
+      bookmarks: "1k",
     },
     {
       id: 3,
       image:
         "https://images.unsplash.com/photo-1617127365659-c47c5007f80f?w=400",
       likes: "40.3k",
-      views: "800",
+      bookmarks: "800",
     },
   ];
 
-  const posts = [
+  const initialPosts = [
     {
       id: 1,
       image:
@@ -79,19 +75,41 @@ export default function ProfilePage() {
     },
   ];
 
+  const [posts, setPosts] = useState(initialPosts);
+
+  const handleAddPost = (newPost) => {
+    setPosts(prev => [newPost, ...prev]);
+    setShowPostModal(false);
+  };
+
+  const normalizedPosts = posts.map(p => {
+    if (p.images) return p;
+    return {
+      id: p.id,
+      username: designer.name,
+      description: "",
+      images: [p.image],
+      tags: [],
+      gender: "Unisex",
+      style: "Casual",
+      likes: 0,
+      comments: [],
+      createdAt: new Date().toISOString(),
+    };
+  });
+
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#1b1b1b] via-[#2b2b2b] to-[#f9c5d1] text-white overflow-hidden">
       {/* Header */}
-      <div className="bg-black/40 backdrop-blur-sm border-b border-pink-300 p-6 flex items-center justify-between sticky top-0 z-10">
-        <div className="flex items-center gap-4">
-          <ChevronLeft className="w-6 h-6 text-pink-300 cursor-pointer" />
-          <h1 className="text-2xl font-bold text-pink-200 tracking-wide">
+      <div className="bg-[#1b1b1b] backdrop-blur-sm border-b border-pink-300 p-6 flex items-center justify-between sticky top-0 z-10">
+        <div className="flex items-center">
+          <h1 className="text-4xl font-extrabold text-pink-200 tracking-wide">
             PROFILE
           </h1>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="text-3xl font-extrabold text-pink-200">Glamur'e</div>
+          <div className="text-3xl font-extrabold text-pink-200">Glamure</div>
           <div className="text-xl text-white font-semibold">APPAREL</div>
         </div>
       </div>
@@ -107,40 +125,40 @@ export default function ProfilePage() {
                   <User className="w-12 h-12 text-black" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">NAME</h2>
-                  <p className="text-gray-700">{designer.name}</p>
+                  <h2 className="text-xl font-bold text-pink-900">NAME</h2>
+                  <p className="text-black">{designer.name}</p>
                 </div>
               </div>
 
               {/* Stats */}
               <div className="flex justify-around mb-6">
                 <div className="text-center">
-                  <div className="text-xs font-semibold text-gray-600 mb-1">
+                  <div className="text-xs font-semibold text-pink-700 mb-1">
                     LIKES
                   </div>
-                  <div className="text-lg font-bold text-gray-900">
+                  <div className="text-lg font-bold text-black">
                     {designer.likes}
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xs font-semibold text-gray-600 mb-1">
+                  <div className="text-xs font-semibold text-pink-700 mb-1">
                     FOLLOWERS
                   </div>
-                  <div className="text-lg font-bold text-gray-900">
+                  <div className="text-lg font-bold text-black">
                     {designer.followers}
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xs font-semibold text-gray-600 mb-1">
+                  <div className="text-xs font-semibold text-pink-700 mb-1">
                     POSTS
                   </div>
-                  <div className="text-lg font-bold text-gray-900">
+                  <div className="text-lg font-bold text-black">
                     {designer.posts}
                   </div>
                 </div>
               </div>
 
-              <button className="w-full bg-black text-pink-200 font-semibold py-3 rounded-full flex items-center justify-center gap-2 hover:bg-pink-300 hover:text-black transition">
+              <button onClick={() => setShowPostModal(true)} className="w-full bg-black text-pink-200 font-semibold py-3 rounded-full flex items-center justify-center gap-2 hover:bg-pink-300 hover:text-black transition">
                 <Plus className="w-5 h-5" />
                 Add Post
               </button>
@@ -195,12 +213,8 @@ export default function ProfilePage() {
                           <span className="font-semibold">{design.likes}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <Eye className="w-4 h-4 text-black" />
-                          <span className="font-semibold">{design.views}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <MessageSquare className="w-4 h-4 text-black" />
-                          <span className="font-semibold">Chat</span>
+                          <Bookmark className="w-4 h-4 text-black" />
+                          <span className="font-semibold">{design.bookmarks}</span>
                         </div>
                       </div>
                     </div>
@@ -212,39 +226,11 @@ export default function ProfilePage() {
             {/* Posts */}
             <div>
               <h3 className="text-xl font-bold text-pink-200 mb-4">POSTS</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {posts.map((post) => (
-                  <div
-                    key={post.id}
-                    className="bg-pink-100 text-black rounded-2xl overflow-hidden shadow-md"
-                  >
-                    <div className="aspect-square">
-                      <img
-                        src={post.image}
-                        alt="Post"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="p-3 flex items-center justify-between bg-pink-200">
-                      <div className="flex items-center gap-2 text-xs">
-                        <div className="flex items-center gap-1">
-                          <Heart className="w-3 h-3 text-black" />
-                          <span className="font-semibold">{post.likes}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Eye className="w-3 h-3 text-black" />
-                          <span className="font-semibold">{post.views}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <MessageSquare className="w-3 h-3 text-black" />
-                          <span className="font-semibold">Chat</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <PostFeed posts={normalizedPosts} variant="profile" />
             </div>
+            {showPostModal && (
+              <CreatePost onClose={() => setShowPostModal(false)} addPost={handleAddPost} />
+            )}
           </div>
         </div>
       </div>

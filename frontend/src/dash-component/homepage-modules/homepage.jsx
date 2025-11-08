@@ -10,7 +10,6 @@ export default function Homepage() {
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [showLeaderboard, setShowLeaderboard] = useState(false); // <-- new state
-  const [isActive, setIsActive] = useState([]);
 
   const handleAddPost = (newPost) => {
     setPosts(prev => [newPost, ...prev]);
