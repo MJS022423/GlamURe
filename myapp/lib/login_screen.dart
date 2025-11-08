@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:getwidget/getwidget.dart';
 
+// Import homepage.dart (create it later inside lib/)
+import 'homepage.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -140,8 +143,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         crossFadeState: isRegister
                             ? CrossFadeState.showSecond
                             : CrossFadeState.showFirst,
-                        firstChild: _buildLoginForm(),
-                        secondChild: _buildRegisterForm(),
+                        firstChild: _buildLoginForm(context),
+                        secondChild: _buildRegisterForm(context),
                       ),
                     ],
                   ),
@@ -154,7 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildLoginForm() {
+  Widget _buildLoginForm(BuildContext context) {
     return Column(
       children: [
         GFTextField(
@@ -169,7 +172,8 @@ class _LoginScreenState extends State<LoginScreen> {
             labelText: "Password",
             suffixIcon: IconButton(
               icon: Icon(
-                  showLoginPassword ? Icons.visibility_off : Icons.visibility),
+                showLoginPassword ? Icons.visibility_off : Icons.visibility,
+              ),
               onPressed: () =>
                   setState(() => showLoginPassword = !showLoginPassword),
             ),
@@ -190,7 +194,11 @@ class _LoginScreenState extends State<LoginScreen> {
         const SizedBox(height: 16),
         GFButton(
           onPressed: () {
-            print("Login with: ${_loginUsernameController.text}");
+            // Navigate to homepage.dart (temporary redirect)
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+            );
           },
           text: "Login",
           fullWidthButton: true,
@@ -201,7 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildRegisterForm() {
+  Widget _buildRegisterForm(BuildContext context) {
     return Column(
       children: [
         GFTextField(
@@ -251,7 +259,11 @@ class _LoginScreenState extends State<LoginScreen> {
               );
               return;
             }
-            print("Register user: ${_registerUsernameController.text}");
+            // Simple navigation after registration for now
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+            );
           },
           text: "Register",
           fullWidthButton: true,
