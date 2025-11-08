@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
 import 'login_screen.dart';
+import 'homepage.dart';
+import 'menu.dart';
 
 void main() {
   runApp(
@@ -19,7 +21,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'GlamURe',
       debugShowCheckedModeBanner: false,
-      // DevicePreview requires these properties
       useInheritedMediaQuery: true,
       locale: DevicePreview.locale(context),
       builder: DevicePreview.appBuilder,
@@ -27,8 +28,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.pink),
         useMaterial3: true,
       ),
-      home: const LoginScreen(),
+      // App routes
+      routes: {
+        '/': (context) => const LoginScreen(),
+        '/home': (context) => const HomePage(),
+        '/menu': (context) => const MenuPage(),
+      },
+      initialRoute: '/',
     );
   }
-
 }
