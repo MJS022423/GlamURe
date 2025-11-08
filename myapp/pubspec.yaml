@@ -25,5 +25,19 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/
     - assets/
+    - assets/Web-logo.svg
+    - assets/Webapp.svg
+    - assets/menu-icon.svg
+    - assets/home.svg
+    - assets/bookmark.svg
+    - assets/profile.svg
+    - assets/settings.svg
+    - assets/info.svg
+    - assets/logout.svg
+    - assets/bell.svg
+    - assets/file.svg
+    - assets/leaderboard.svg
+    - assets/message.svg
+    - assets/react.svg
+    - assets/search.svg
