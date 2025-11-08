@@ -15,13 +15,8 @@ dependencies:
   getwidget: ^7.0.0
   device_preview: ^1.1.0
   flutter_svg: ^2.1.6
-<<<<<<< Updated upstream
   path_provider: ^2.0.15
   image_picker: ^0.8.7+6
-=======
-  image_picker: ^1.0.4
-
->>>>>>> Stashed changes
 
 dev_dependencies:
   flutter_test:

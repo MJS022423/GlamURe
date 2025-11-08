@@ -2,13 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:getwidget/getwidget.dart';
 
-<<<<<<< Updated upstream
 import 'homepage-modules/homepage.dart';
-=======
-
-// Import homepage.dart (create it later inside lib/)
-import 'homepage.dart';
->>>>>>> Stashed changes
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -248,16 +242,10 @@ class _LoginScreenState extends State<LoginScreen> {
               );
               return;
             }
-<<<<<<< Updated upstream
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const HomePage()),
             );
-=======
-
-            // Navigate to setupAccount.dart instead of homepage.dart
-            Navigator.pushReplacementNamed(context, '/setupAccount');
->>>>>>> Stashed changes
           },
           text: "Register",
           fullWidthButton: true,
