@@ -25,7 +25,7 @@ const GlamureBookmarks = () => {
       // Initialize likes state from saved posts
       const initialLikes = {};
       saved.forEach(post => {
-        initialLikes[post.id] = false;
+        initialLikes[post.id] = true;
       });
       setLikesState(initialLikes);
     } catch (error) {

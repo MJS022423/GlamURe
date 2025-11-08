@@ -146,7 +146,7 @@ export default function PostFeed({ posts, variant = "default" }) {
               <div className={`grid ${post.images.length === 1 ? "grid-cols-1" : "grid-cols-2"} gap-1 w-full h-[180px] mb-2`}>
                 {post.images.slice(0, 4).map((img, idx) => (
                   <div key={idx} className="relative w-full h-full flex items-center justify-center bg-gray-100 rounded overflow-hidden">
-                    <img src={img} alt={`post-${idx}`} className="max-w-full max-h-full object-contain transition-transform duration-200 hover:scale-105" />
+                    <img src={img} alt={`post-${idx}`} className="h-full object-cover transition-transform duration-200 hover:scale-105" />
                     {idx === 3 && post.images.length > 4 && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-xl font-bold rounded">
                         +{post.images.length - 4} more

@@ -24,10 +24,10 @@ export default function CreatePost({ onClose, addPost }) {
 
   const handleImageSelect = (e) => {
     const files = Array.from(e.target.files);
-    const remainingSlots = 10;
+    const remainingSlots = 1;
 
     if (files.length > remainingSlots) {
-      alert(`You can only upload up to 10 image.`);
+      alert(`You can only upload up to 1 image.`);
       e.target.value = null;
       return;
     }
