@@ -16,7 +16,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   bool showPostModal = false;
 
   List<Map<String, dynamic>> posts = [];
@@ -24,16 +24,57 @@ class _HomePageState extends State<HomePage> {
 
   int _selectedIndex = 0;
 
-  // Handle adding a post
+  late AnimationController _modalController;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _modalController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _modalController, curve: Curves.easeOut),
+    );
+
+    _fadeAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(
+      CurvedAnimation(parent: _modalController, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _modalController.dispose();
+    super.dispose();
+  }
+
   void handleAddPost(Map<String, dynamic> newPost) {
     setState(() {
       posts.insert(0, newPost);
       filteredPosts.insert(0, newPost);
-      showPostModal = false;
     });
+    closeModal();
   }
 
-  // Handle tag search
+  void openModal() {
+    setState(() => showPostModal = true);
+    _modalController.forward();
+  }
+
+  void closeModal() async {
+    await _modalController.reverse();
+    setState(() => showPostModal = false);
+  }
+
   void handleTagSearch(List<String> selectedTags) {
     setState(() {
       if (selectedTags.isEmpty) {
@@ -54,20 +95,20 @@ class _HomePageState extends State<HomePage> {
           children: [
             // Header
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: 12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SvgPicture.asset(
                     'assets/Web-logo.svg',
-                    width: 40,
-                    height: 40,
+                    width: 48,
+                    height: 48,
                   ),
                   const SizedBox(width: 8),
                   const Text(
                     "Glamure",
                     style: TextStyle(
-                        fontSize: 22,
+                        fontSize: 26,
                         fontWeight: FontWeight.bold,
                         color: Colors.black),
                   ),
@@ -80,19 +121,16 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  // Create Post icon on the left
                   IconButton(
-                    iconSize: 36,
-                    onPressed: () => setState(() => showPostModal = true),
+                    iconSize: 40,
+                    onPressed: openModal,
                     icon: SvgPicture.asset(
                       'assets/create-svgrepo-com.svg',
-                      width: 36,
-                      height: 36,
+                      width: 40,
+                      height: 40,
                     ),
                   ),
                   const SizedBox(width: 8),
-
-                  // Search bar (flexible)
                   Expanded(
                     child: TagSearchBarModule(onSearch: handleTagSearch),
                   ),
@@ -100,7 +138,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            // Post feed (fills remaining screen)
+            // Post feed
             Expanded(
               child: PostFeedModule(
                 posts: filteredPosts.isNotEmpty ? filteredPosts : posts,
@@ -109,11 +147,19 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
 
-        // Create Post Modal on top
+        // Modal overlay with animation
         if (showPostModal)
-          CreatePostModule(
-            onClose: () => setState(() => showPostModal = false),
-            addPost: handleAddPost,
+          FadeTransition(
+            opacity: _fadeAnimation,
+            child: SlideTransition(
+              position: _slideAnimation,
+              child: Positioned.fill(
+                child: CreatePostModule(
+                  onClose: closeModal,
+                  addPost: handleAddPost,
+                ),
+              ),
+            ),
           ),
       ],
     );
@@ -155,82 +201,70 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 224, 224, 224),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            currentPage,
-
-            // Bottom navigation bar (absolute)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    IconButton(
-                      onPressed: () => _onNavTapped(0),
-                      icon: SvgPicture.asset(
-                        'assets/home.svg',
-                        width: 28,
-                        height: 28,
-                        color: _selectedIndex == 0 ? Colors.blue : Colors.grey,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => _onNavTapped(1),
-                      icon: SvgPicture.asset(
-                        'assets/leaderboard.svg',
-                        width: 28,
-                        height: 28,
-                        color: _selectedIndex == 1 ? Colors.blue : Colors.grey,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => _onNavTapped(2),
-                      icon: SvgPicture.asset(
-                        'assets/info.svg',
-                        width: 28,
-                        height: 28,
-                        color: _selectedIndex == 2 ? Colors.blue : Colors.grey,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => _onNavTapped(3),
-                      icon: SvgPicture.asset(
-                        'assets/profile.svg',
-                        width: 28,
-                        height: 28,
-                        color: _selectedIndex == 3 ? Colors.blue : Colors.grey,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => _onNavTapped(4),
-                      icon: SvgPicture.asset(
-                        'assets/settings.svg',
-                        width: 28,
-                        height: 28,
-                        color: _selectedIndex == 4 ? Colors.blue : Colors.grey,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => _onNavTapped(5),
-                      icon: SvgPicture.asset(
-                        'assets/bookmark.svg',
-                        width: 28,
-                        height: 28,
-                        color: _selectedIndex == 5 ? Colors.blue : Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+      body: SafeArea(child: currentPage),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex,
+        onTap: _onNavTapped,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        iconSize: 36,
+        items: [
+          BottomNavigationBarItem(
+            icon: SvgPicture.asset(
+              'assets/home.svg',
+              width: 36,
+              height: 36,
+              color: _selectedIndex == 0 ? Colors.blue : Colors.grey,
             ),
-          ],
-        ),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: SvgPicture.asset(
+              'assets/leaderboard.svg',
+              width: 36,
+              height: 36,
+              color: _selectedIndex == 1 ? Colors.blue : Colors.grey,
+            ),
+            label: 'Leaderboard',
+          ),
+          BottomNavigationBarItem(
+            icon: SvgPicture.asset(
+              'assets/info.svg',
+              width: 36,
+              height: 36,
+              color: _selectedIndex == 2 ? Colors.blue : Colors.grey,
+            ),
+            label: 'About',
+          ),
+          BottomNavigationBarItem(
+            icon: SvgPicture.asset(
+              'assets/profile.svg',
+              width: 36,
+              height: 36,
+              color: _selectedIndex == 3 ? Colors.blue : Colors.grey,
+            ),
+            label: 'Profile',
+          ),
+          BottomNavigationBarItem(
+            icon: SvgPicture.asset(
+              'assets/settings.svg',
+              width: 36,
+              height: 36,
+              color: _selectedIndex == 4 ? Colors.blue : Colors.grey,
+            ),
+            label: 'Settings',
+          ),
+          BottomNavigationBarItem(
+            icon: SvgPicture.asset(
+              'assets/bookmark.svg',
+              width: 36,
+              height: 36,
+              color: _selectedIndex == 5 ? Colors.blue : Colors.grey,
+            ),
+            label: 'Bookmark',
+          ),
+        ],
       ),
     );
   }
