@@ -1,11 +1,4 @@
 import React, { useEffect, useState } from "react";
-<<<<<<< Updated upstream
-import { ChevronLeft, X } from "lucide-react";
-
-const GlamureBookmarks = () => {
-  const [selectedDesign, setSelectedDesign] = useState(null);
-  const [designs, setDesigns] = useState([]);
-=======
 import { X } from "lucide-react";
 
 const FEED_DESC_LIMIT = 30;
@@ -23,19 +16,10 @@ const GlamureBookmarks = () => {
   const [commentInputs, setCommentInputs] = useState({});
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [modalDescExpanded, setModalDescExpanded] = useState(false);
->>>>>>> Stashed changes
 
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("bookmarks") || "[]");
-<<<<<<< Updated upstream
-      setDesigns(saved);
-    } catch {}
-
-    const onStorage = (e) => {
-      if (e.key === "bookmarks") {
-        try { setDesigns(JSON.parse(e.newValue || "[]")); } catch {}
-=======
       setSavedPosts(saved);
       
       // Initialize likes state from saved posts
@@ -56,91 +40,12 @@ const GlamureBookmarks = () => {
         } catch (error) {
           console.error('Error handling storage event:', error);
         }
->>>>>>> Stashed changes
       }
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-<<<<<<< Updated upstream
-  const collections = [
-    { id: 9, image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=500&fit=crop", title: "Spring Collection", description: "Fresh and vibrant spring styles" },
-    { id: 10, image: "https://images.unsplash.com/photo-1558769132-cb1aea37f5ce?w=400&h=500&fit=crop", title: "Winter Styles", description: "Cozy winter fashion collection" },
-    { id: 11, image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&h=500&fit=crop", title: "Accessories", description: "Complete your look with accessories" },
-    { id: 12, image: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400&h=500&fit=crop", title: "Luxury Items", description: "Premium luxury fashion pieces" },
-  ];
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-200 via-pink-100 to-pink-50">
-      {/* Header */}
-      <div className={`transition-colors duration-500 py-6 px-8 ${
-        selectedDesign 
-          ? 'bg-gradient-to-r from-rose-400 to-pink-300' 
-          : 'bg-gradient-to-r from-purple-300 to-pink-200'
-      }`}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => selectedDesign && setSelectedDesign(null)}
-              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
-            >
-              <ChevronLeft className="w-6 h-6 text-gray-800" />
-            </button>
-            <h1 className="text-4xl font-bold text-gray-800">
-              {selectedDesign ? selectedDesign.title : 'BOOKMARKS'}
-            </h1>
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-white bg-opacity-50 rounded-lg flex items-center justify-center">
-                <span className="text-purple-500 text-xl">💎</span>
-              </div>
-              <span className="text-xl font-semibold text-gray-800">Glamur'e</span>
-            </div>
-            <span className="text-xl font-semibold text-gray-800">APPAREL</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      {!selectedDesign ? (
-        <div className="max-w-7xl mx-auto p-8">
-          {/* Saved Designs Section */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Saved Designs</h2>
-            {designs.length === 0 ? (
-              <div className="text-gray-600">No bookmarks yet. Save posts using the bookmark icon.</div>
-            ) : (
-              <div className="grid grid-cols-4 gap-6">
-                {designs.map(design => (
-                  <DesignCard 
-                    key={design.id}
-                    design={design}
-                    onClick={() => setSelectedDesign(design)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Collections Section */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Collections</h2>
-            <div className="grid grid-cols-4 gap-6">
-              {collections.map(design => (
-                <DesignCard 
-                  key={design.id}
-                  design={design}
-                  onClick={() => setSelectedDesign(design)}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      ) : (
-        <ExpandedView design={selectedDesign} onClose={() => setSelectedDesign(null)} />
-=======
   const toggleLike = (postId) => {
     setLikesState(prev => ({ ...prev, [postId]: !prev[postId] }));
   };
@@ -360,7 +265,6 @@ const GlamureBookmarks = () => {
             </div>
           </div>
         </div>
->>>>>>> Stashed changes
       )}
     </div>
   );
