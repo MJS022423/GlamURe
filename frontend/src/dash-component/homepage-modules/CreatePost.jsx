@@ -1,5 +1,7 @@
 import React, { useRef, useState } from "react";
 
+const EXPRESS_API = import.meta.env.VITE_EXPRESS_API
+
 const sampleTags = {
   Gender: ["Men", "Women", "Unisex"],
   Style: [
@@ -49,32 +51,63 @@ export default function CreatePost({ onClose, addPost }) {
     });
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userid");
     if (selectedImages.length === 0) {
       alert("You must add at least one image to post.");
       return;
     }
 
-    const newPost = {
-      id: Date.now(),
-      username: "Jzar Alaba",
-      description,
-      images: selectedImages.map(img => img.preview),
-      tags: selectedTags,
-      gender: selectedTags.find(t => sampleTags.Gender.includes(t)) || "Unisex",
-      style: selectedTags.find(t => sampleTags.Style.includes(t)) || "Casual",
-      likes: 0,
-      comments: [],
-      createdAt: new Date().toISOString(),
-    };
+    const formData = new FormData();
+    formData.append("userid", userId);
+    formData.append("caption", description);
+    formData.append("tags", JSON.stringify(selectedTags));
 
-    addPost(newPost);
+    selectedImages.forEach((img) => {
+      formData.append("images", img.file); // each image file
+    });
+    try {
+      const res = await fetch(`${EXPRESS_API}/post/Addpost`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to upload post");
+      }
+
+      console.log("✅ Post uploaded successfully:", data);
+      alert("Post uploaded successfully!");
+      
+      setDescription("");
+      setSelectedImages([]);
+      setSelectedTags([]);
+      onClose();
+
+    } catch (error) {
+      alert("Something went wrong please try again.");
+    }
+
+    // const newPost = {
+    //   id: Date.now(),
+    //   username: "Jzar Alaba",
+    //   description,
+    //   images: selectedImages.map(img => img.preview),
+    //   tags: selectedTags,
+    //   gender: selectedTags.find(t => sampleTags.Gender.includes(t)) || "Unisex",
+    //   style: selectedTags.find(t => sampleTags.Style.includes(t)) || "Casual",
+    //   likes: 0,
+    //   comments: [],
+    //   createdAt: new Date().toISOString(),
+    // };
+
+    // addPost(newPost);
 
     // reset state
-    setDescription("");
-    setSelectedImages([]);
-    setSelectedTags([]);
-    onClose();
   };
 
   return (
@@ -208,9 +241,9 @@ export default function CreatePost({ onClose, addPost }) {
       )}
 
       <style jsx>{`
-        @keyframes slide-in { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } 
-        .animate-slide-in { animation: slide-in 0.3s ease-out; }
-      `}</style>
+          @keyframes slide-in { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } 
+          .animate-slide-in { animation: slide-in 0.3s ease-out; }
+        `}</style>
     </div>
   );
 }
