@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
+import '../bookmark.dart'; // Add this import
+import 'dart:convert'; // Add for base64
 
 class ExpandedPostPage extends StatefulWidget {
   final Map<String, dynamic> post;
@@ -80,7 +82,8 @@ class _ExpandedPostPageState extends State<ExpandedPostPage> {
                   Image(
                     image: images[currentImageIndex] is Uint8List
                         ? MemoryImage(images[currentImageIndex])
-                        : NetworkImage(images[currentImageIndex]) as ImageProvider,
+                        : NetworkImage(images[currentImageIndex])
+                            as ImageProvider,
                     width: double.infinity,
                     height: 300,
                     fit: BoxFit.cover,
@@ -90,16 +93,19 @@ class _ExpandedPostPageState extends State<ExpandedPostPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                          icon: const Icon(Icons.arrow_back_ios,
+                              color: Colors.white),
                           onPressed: () {
                             setState(() {
                               currentImageIndex =
-                                  (currentImageIndex - 1 + images.length) % images.length;
+                                  (currentImageIndex - 1 + images.length) %
+                                      images.length;
                             });
                           },
                         ),
                         IconButton(
-                          icon: const Icon(Icons.arrow_forward_ios, color: Colors.white),
+                          icon: const Icon(Icons.arrow_forward_ios,
+                              color: Colors.white),
                           onPressed: () {
                             setState(() {
                               currentImageIndex =
@@ -135,30 +141,103 @@ class _ExpandedPostPageState extends State<ExpandedPostPage> {
                           setState(() {
                             likes[postId] = !(likes[postId] ?? false);
                           });
+
+                          // Update bookmark if this post is bookmarked
+                          final isCurrentlyLiked = likes[postId] ?? false;
+                          final baseLikes = widget.post['likes'] ?? 0;
+
+                          if (BookmarkManager().isBookmarked(postId)) {
+                            BookmarkManager().updateBookmarkLike(
+                              postId,
+                              isCurrentlyLiked,
+                              baseLikes,
+                            );
+                          }
+
                           widget.toggleLike?.call(postId);
                         },
                         child: Row(
                           children: [
                             Icon(
-                              likes[postId]! ? Icons.favorite : Icons.favorite_border,
+                              likes[postId]!
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
                               color: Colors.red,
                             ),
                             const SizedBox(width: 4),
-                            Text("${widget.post['likes'] + (likes[postId]! ? 1 : 0)}"),
+                            Text(
+                                "${(widget.post['likes'] ?? 0) + ((widget.likesState?[postId] ?? likes[postId] ?? false) ? 1 : 0)}"),
                           ],
                         ),
                       ),
                       GestureDetector(
                         onTap: () {
+                          // Get the current state BEFORE flipping
+                          final isCurrentlyBookmarked =
+                              bookmarks[postId] ?? false;
+
                           setState(() {
-                            bookmarks[postId] = !(bookmarks[postId] ?? false);
+                            // Flip the state after checking
+                            bookmarks[postId] = !isCurrentlyBookmarked;
                           });
+
+                          // Now use the original state (before flip) to determine action
+                          if (!isCurrentlyBookmarked) {
+                            // Add to bookmarks
+                            final images =
+                                List<dynamic>.from(widget.post['images'] ?? []);
+                            final List<String> imageUrls = [];
+                            final List<Uint8List> imageBytesList = [];
+
+                            for (var img in images) {
+                              if (img is String) {
+                                imageUrls.add(img);
+                              } else if (img is Uint8List) {
+                                final base64String = base64Encode(img);
+                                final dataUrl =
+                                    'data:image/jpeg;base64,$base64String';
+                                imageUrls.add(dataUrl);
+                                imageBytesList.add(img);
+                              }
+                            }
+
+                            // Get current like state - use the actual current state
+                            final currentLikeState = likes[postId] ??
+                                (widget.likesState?[postId] ?? false);
+                            final baseLikes = widget.post['likes'] ?? 0;
+                            final currentLikesCount =
+                                baseLikes + (currentLikeState ? 1 : 0);
+
+                            final bookmarkPost = BookmarkPost(
+                              id: postId,
+                              imageUrls: imageUrls,
+                              imageBytes: imageBytesList.isNotEmpty
+                                  ? imageBytesList
+                                  : null,
+                              description: widget.post['description'] ?? '',
+                              gender: widget.post['gender'] ?? 'Unisex',
+                              style: widget.post['style'] ?? 'Casual',
+                              tags:
+                                  List<String>.from(widget.post['tags'] ?? []),
+                              baseLikes: widget.post['likes'] ??
+                               0, // Store base likes only
+                              isLiked: currentLikeState,
+                              username: widget.post['username'] ?? 'Unknown',
+                            );
+
+                            BookmarkManager().addBookmark(bookmarkPost);
+                          } else {
+                            BookmarkManager().removeBookmark(postId);
+                          }
+
                           widget.toggleBookmark?.call(postId);
                         },
                         child: Row(
                           children: [
                             Icon(
-                              bookmarks[postId]! ? Icons.bookmark : Icons.bookmark_border,
+                              bookmarks[postId]!
+                                  ? Icons.bookmark
+                                  : Icons.bookmark_border,
                             ),
                           ],
                         ),
@@ -172,7 +251,8 @@ class _ExpandedPostPageState extends State<ExpandedPostPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('Comments',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
                       ListView.builder(
                         shrinkWrap: true,
@@ -188,7 +268,8 @@ class _ExpandedPostPageState extends State<ExpandedPostPage> {
                                 children: [
                                   TextSpan(
                                       text: comment['username'],
-                                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold)),
                                   TextSpan(text: ' ${comment['text']}'),
                                 ],
                               ),
@@ -211,7 +292,8 @@ class _ExpandedPostPageState extends State<ExpandedPostPage> {
                           IconButton(
                             icon: const Icon(Icons.send),
                             onPressed: () {
-                              final text = commentControllers[postId]?.text.trim();
+                              final text =
+                                  commentControllers[postId]?.text.trim();
                               if (text != null && text.isNotEmpty) {
                                 setState(() {
                                   comments[postId] = [

@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
+import '../bookmark.dart';
+import 'dart:convert'; // Add for base64 encoding
 
 class PostFeedModule extends StatefulWidget {
   final List<Map<String, dynamic>> posts;
@@ -19,13 +21,94 @@ class _PostFeedModuleState extends State<PostFeedModule> {
 
   void toggleLike(String postId) {
     setState(() {
-      likesState[postId] = !(likesState[postId] ?? false);
+      final wasLiked = likesState[postId] ?? false;
+      likesState[postId] = !wasLiked;
+
+      // Update bookmark if this post is bookmarked
+      if (BookmarkManager().isBookmarked(postId)) {
+        final bookmark = BookmarkManager().getBookmark(postId);
+        if (bookmark != null) {
+          // Calculate base likes by removing the current like if it exists
+          // If bookmark.isLiked was true, then bookmark.likes already includes +1
+          // So we need to subtract 1 to get the base
+          final baseLikes = bookmark.baseLikes - (bookmark.isLiked ? 1 : 0);
+          final isCurrentlyLiked = !wasLiked; // New state after toggle
+
+          BookmarkManager().updateBookmarkLike(
+            postId,
+            isCurrentlyLiked,
+            baseLikes,
+          );
+        }
+      }
     });
   }
 
   void toggleBookmark(String postId) {
     setState(() {
-      bookmarksState[postId] = !(bookmarksState[postId] ?? false);
+      final isCurrentlyBookmarked = bookmarksState[postId] ?? false;
+      bookmarksState[postId] = !isCurrentlyBookmarked;
+
+      // Find the post
+      final post = widget.posts.firstWhere((p) => p['id'].toString() == postId);
+
+      if (!isCurrentlyBookmarked) {
+        // Add to bookmarks
+        final images = List<dynamic>.from(post['images'] ?? []);
+        final List<String> imageUrls = [];
+        final List<Uint8List> imageBytesList = [];
+
+        // Process images - convert Uint8List to base64 or store as URL
+        for (var img in images) {
+          if (img is String) {
+            // Regular URL
+            imageUrls.add(img);
+          } else if (img is Uint8List) {
+            // Convert Uint8List to base64 data URL
+            final base64String = base64Encode(img);
+            final dataUrl = 'data:image/jpeg;base64,$base64String';
+            imageUrls.add(dataUrl);
+            imageBytesList.add(img); // Also store original bytes
+          }
+        }
+
+        // Get current like state
+        final currentLikeState = likesState[postId] ?? false;
+        // Get current likes count (original + user's like if they liked it)
+        final currentLikesCount =
+            (post['likes'] ?? 0) + (currentLikeState ? 1 : 0);
+
+        final bookmarkPost = BookmarkPost(
+          id: postId,
+          imageUrls: imageUrls,
+          imageBytes: imageBytesList.isNotEmpty ? imageBytesList : null,
+          description: post['description'] ?? '',
+          gender: post['gender'] ?? 'Unisex',
+          style: post['style'] ?? 'Casual',
+          tags: List<String>.from(post['tags'] ?? []),
+          baseLikes: post['likes'] ?? 0, // Store base likes only
+          isLiked: currentLikeState,
+          username: post['username'] ?? 'Unknown',
+        );
+
+        BookmarkManager().addBookmark(bookmarkPost);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Post bookmarked!'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      } else {
+        // Remove from bookmarks
+        BookmarkManager().removeBookmark(postId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Bookmark removed'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      }
     });
   }
 
@@ -139,12 +222,15 @@ class _PostFeedModuleState extends State<PostFeedModule> {
                       child: Row(
                         children: [
                           Icon(
-                            likesState[postId]! ? Icons.favorite : Icons.favorite_border,
+                            likesState[postId]!
+                                ? Icons.favorite
+                                : Icons.favorite_border,
                             size: 20,
                             color: Colors.red,
                           ),
                           const SizedBox(width: 4),
-                          Text("${post['likes'] + (likesState[postId]! ? 1 : 0)}"),
+                          Text(
+                              "${post['likes'] + (likesState[postId]! ? 1 : 0)}"),
                         ],
                       ),
                     ),
@@ -153,7 +239,9 @@ class _PostFeedModuleState extends State<PostFeedModule> {
                       child: Row(
                         children: [
                           Icon(
-                            bookmarksState[postId]! ? Icons.bookmark : Icons.bookmark_border,
+                            bookmarksState[postId]!
+                                ? Icons.bookmark
+                                : Icons.bookmark_border,
                             size: 20,
                           ),
                         ],
@@ -230,7 +318,8 @@ class _ExpandedPostPageState extends State<ExpandedPostPage> {
                   Image(
                     image: images[currentImageIndex] is Uint8List
                         ? MemoryImage(images[currentImageIndex])
-                        : NetworkImage(images[currentImageIndex]) as ImageProvider,
+                        : NetworkImage(images[currentImageIndex])
+                            as ImageProvider,
                     width: double.infinity,
                     height: 300,
                     fit: BoxFit.cover,
@@ -240,16 +329,19 @@ class _ExpandedPostPageState extends State<ExpandedPostPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                          icon: const Icon(Icons.arrow_back_ios,
+                              color: Colors.white),
                           onPressed: () {
                             setState(() {
                               currentImageIndex =
-                                  (currentImageIndex - 1 + images.length) % images.length;
+                                  (currentImageIndex - 1 + images.length) %
+                                      images.length;
                             });
                           },
                         ),
                         IconButton(
-                          icon: const Icon(Icons.arrow_forward_ios, color: Colors.white),
+                          icon: const Icon(Icons.arrow_forward_ios,
+                              color: Colors.white),
                           onPressed: () {
                             setState(() {
                               currentImageIndex =
@@ -279,32 +371,109 @@ class _ExpandedPostPageState extends State<ExpandedPostPage> {
                       GestureDetector(
                         onTap: () {
                           setState(() {
-                            widget.likesState[postId] = !(widget.likesState[postId]!);
+                            widget.likesState[postId] =
+                                !(widget.likesState[postId]!);
                           });
-                          widget.toggleLike(postId);
+
+                          // Update bookmark if this post is bookmarked
+                          final isCurrentlyLiked =
+                              widget.likesState[postId] ?? false;
+                          final baseLikes = widget.post['likes'] ?? 0;
+
+                          if (BookmarkManager().isBookmarked(postId)) {
+                            BookmarkManager().updateBookmarkLike(
+                              postId,
+                              isCurrentlyLiked,
+                              baseLikes,
+                            );
+                          }
+
+                          widget.toggleLike?.call(postId);
                         },
                         child: Row(
                           children: [
                             Icon(
-                              widget.likesState[postId]! ? Icons.favorite : Icons.favorite_border,
+                              widget.likesState[postId]!
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
                               color: Colors.red,
                             ),
                             const SizedBox(width: 4),
-                            Text("${widget.post['likes'] + (widget.likesState[postId]! ? 1 : 0)}"),
+                            Text(
+                                "${(widget.post['likes'] ?? 0) + ((widget.likesState?[postId] ?? widget.likesState[postId] ?? false) ? 1 : 0)}"),
                           ],
                         ),
                       ),
                       GestureDetector(
                         onTap: () {
+                          // Get the current state BEFORE flipping
+                          final isCurrentlyBookmarked =
+                              widget.bookmarksState[postId] ?? false;
+
                           setState(() {
-                            widget.bookmarksState[postId] = !(widget.bookmarksState[postId]!);
+                            // Flip the state after checking
+                            widget.bookmarksState[postId] =
+                                !isCurrentlyBookmarked;
                           });
-                          widget.toggleBookmark(postId);
+
+                          // Now use the original state (before flip) to determine action
+                          if (!isCurrentlyBookmarked) {
+                            // Add to bookmarks
+                            final images =
+                                List<dynamic>.from(widget.post['images'] ?? []);
+                            final List<String> imageUrls = [];
+                            final List<Uint8List> imageBytesList = [];
+
+                            for (var img in images) {
+                              if (img is String) {
+                                imageUrls.add(img);
+                              } else if (img is Uint8List) {
+                                final base64String = base64Encode(img);
+                                final dataUrl =
+                                    'data:image/jpeg;base64,$base64String';
+                                imageUrls.add(dataUrl);
+                                imageBytesList.add(img);
+                              }
+                            }
+
+                            // Get current like state - use the actual current state
+                            final currentLikeState =
+                                widget.likesState[postId] ??
+                                    (widget.likesState?[postId] ?? false);
+                            final baseLikes = widget.post['likes'] ?? 0;
+                            final currentLikesCount =
+                                baseLikes + (currentLikeState ? 1 : 0);
+
+                            final bookmarkPost = BookmarkPost(
+                              id: postId,
+                              imageUrls: imageUrls,
+                              imageBytes: imageBytesList.isNotEmpty
+                                  ? imageBytesList
+                                  : null,
+                              description: widget.post['description'] ?? '',
+                              gender: widget.post['gender'] ?? 'Unisex',
+                              style: widget.post['style'] ?? 'Casual',
+                              tags:
+                                  List<String>.from(widget.post['tags'] ?? []),
+                              baseLikes: widget.post['likes'] ??
+                                  0, // Store base likes only
+                              isLiked: currentLikeState,
+                              username: widget.post['username'] ?? 'Unknown',
+                            );
+
+                            BookmarkManager().addBookmark(bookmarkPost);
+                          } else {
+                            BookmarkManager().removeBookmark(postId);
+                          }
+
+                          widget.toggleBookmark?.call(postId);
                         },
                         child: Row(
                           children: [
                             Icon(
-                              widget.bookmarksState[postId]! ? Icons.bookmark : Icons.bookmark_border,
+                              widget.bookmarksState[postId]!
+                                  ? Icons.bookmark
+                                  : Icons.bookmark_border,
                             ),
                           ],
                         ),
@@ -312,7 +481,9 @@ class _ExpandedPostPageState extends State<ExpandedPostPage> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const Text('Comments', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text('Comments',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   ListView.builder(
                     shrinkWrap: true,
@@ -328,7 +499,8 @@ class _ExpandedPostPageState extends State<ExpandedPostPage> {
                             children: [
                               TextSpan(
                                   text: comment['username'],
-                                  style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold)),
                               TextSpan(text: ' ${comment['text']}'),
                             ],
                           ),
