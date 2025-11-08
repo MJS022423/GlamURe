@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'homepage-modules/create_post_module.dart';
-import 'homepage-modules/post_feed_module.dart';
-import 'homepage-modules/tag_search_bar_module.dart';
-import 'homepage-modules/leaderboard_module.dart';
-import 'about.dart';
-import 'profile.dart';
-import 'settings.dart';
-import 'bookmark.dart';
+import 'create_post_module.dart';
+import 'post_feed_module.dart';
+import 'tag_search_bar_module.dart';
+import 'leaderboard_module.dart';
+import '../about.dart';
+import '../profile.dart';
+import '../settings.dart';
+import '../bookmark.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -23,21 +23,6 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> filteredPosts = [];
 
   int _selectedIndex = 0;
-
-  final List<Widget> _pages = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _pages.addAll([
-      _buildHomeContent(),
-      LeaderboardModule(goBack: () => setState(() => _selectedIndex = 0)),
-      AboutPage(),
-      ProfilePage(),
-      SettingsPage(),
-      BookmarkPage(),
-    ]);
-  }
 
   // Handle adding a post
   void handleAddPost(Map<String, dynamic> newPost) {
@@ -63,64 +48,68 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildHomeContent() {
-    return Column(
+    return Stack(
       children: [
-        // Header
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset(
-                'assets/Web-logo.svg',
-                width: 40,
-                height: 40,
+        Column(
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                    'assets/Web-logo.svg',
+                    width: 40,
+                    height: 40,
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    "Glamure",
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              const Text(
-                "Glamure",
-                style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black),
+            ),
+
+            // Search bar with Create Post icon
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  // Create Post icon on the left
+                  IconButton(
+                    iconSize: 36,
+                    onPressed: () => setState(() => showPostModal = true),
+                    icon: SvgPicture.asset(
+                      'assets/create-svgrepo-com.svg',
+                      width: 36,
+                      height: 36,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+
+                  // Search bar (flexible)
+                  Expanded(
+                    child: TagSearchBarModule(onSearch: handleTagSearch),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+
+            // Post feed (fills remaining screen)
+            Expanded(
+              child: PostFeedModule(
+                posts: filteredPosts.isNotEmpty ? filteredPosts : posts,
+              ),
+            ),
+          ],
         ),
 
-        // Search bar with Create Post icon
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            children: [
-              // Create Post icon on the left
-              IconButton(
-                iconSize: 36,
-                onPressed: () => setState(() => showPostModal = true),
-                icon: SvgPicture.asset(
-                  'assets/create-svgrepo-com.svg',
-                  width: 36,
-                  height: 36,
-                ),
-              ),
-              const SizedBox(width: 8),
-
-              // Search bar (flexible)
-              Expanded(
-                child: TagSearchBarModule(onSearch: handleTagSearch),
-              ),
-            ],
-          ),
-        ),
-
-        // Post feed (fills remaining screen)
-        Expanded(
-          child: PostFeedModule(
-            posts: filteredPosts.isNotEmpty ? filteredPosts : posts,
-          ),
-        ),
-
-        // Create Post Modal
+        // Create Post Modal on top
         if (showPostModal)
           CreatePostModule(
             onClose: () => setState(() => showPostModal = false),
@@ -138,12 +127,38 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    Widget currentPage;
+
+    switch (_selectedIndex) {
+      case 0:
+        currentPage = _buildHomeContent();
+        break;
+      case 1:
+        currentPage =
+            LeaderboardModule(goBack: () => setState(() => _selectedIndex = 0));
+        break;
+      case 2:
+        currentPage = AboutPage();
+        break;
+      case 3:
+        currentPage = ProfilePage();
+        break;
+      case 4:
+        currentPage = SettingsPage();
+        break;
+      case 5:
+        currentPage = BookmarkPage();
+        break;
+      default:
+        currentPage = _buildHomeContent();
+    }
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 224, 224, 224),
       body: SafeArea(
         child: Stack(
           children: [
-            _pages[_selectedIndex],
+            currentPage,
 
             // Bottom navigation bar (absolute)
             Positioned(

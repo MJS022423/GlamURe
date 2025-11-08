@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:getwidget/getwidget.dart';
 
 // Import homepage.dart (create it later inside lib/)
-import 'homepage.dart';
+import 'homepage-modules/homepage.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
