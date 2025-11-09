@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'data/account_store.dart';
+import '../data/account_store.dart';
 
 class SetupAccountPage extends StatefulWidget {
   final String? username;

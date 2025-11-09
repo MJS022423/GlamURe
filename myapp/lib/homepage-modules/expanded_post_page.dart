@@ -47,6 +47,10 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
+  // network icons (same URLs)
+  static const _heartUnlikedUrl = 'https://www.svgrepo.com/show/532473/heart.svg';
+  static const _heartLikedUrl = 'https://www.svgrepo.com/show/369346/heart.svg';
+
   @override
   void initState() {
     super.initState();
@@ -64,8 +68,8 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
         CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
     _fadeController.forward();
 
-    // refresh "time ago" every minute automatically
-    _timeRefreshTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+    // refresh "time ago" every second so times are realtime (secs -> mins -> hours -> days)
+    _timeRefreshTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});
     });
   }
@@ -113,31 +117,38 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
     final text = commentController.text.trim();
     if (text.isEmpty) return;
 
-    // Determine commenter display name and author username (if available)
     final current = AccountStore.currentUser;
     final displayName = (current != null && (current['displayName'] ?? '').toString().isNotEmpty)
         ? current['displayName'] as String
         : (AccountStore.currentUsername ?? (current != null ? current['username'] : null) ?? 'Anonymous');
     final authorUsername = AccountStore.currentUsername;
 
-    // store both displayName and authorUsername in the comment
     CommentStore.addComment(postId, displayName, text, authorUsername: authorUsername);
 
-    // Clear input and refresh UI
     commentController.clear();
     setState(() {});
   }
 
+  /// Returns a realtime human-friendly delta string:
+  /// - "now" (0s)
+  /// - "5s ago" (seconds)
+  /// - "1m ago", "23m ago" (minutes)
+  /// - "3h ago" (hours)
+  /// - "2d ago" (days)
   String _timeAgo(DateTime date) {
     final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 1) return '1m ago';
-    if (diff.inHours < 1) return '${diff.inMinutes}m ago';
-    if (diff.inDays < 1) return '${diff.inHours}h ago';
-    return '${diff.inDays}d ago';
+    final seconds = diff.inSeconds;
+    if (seconds < 1) return 'now';
+    if (seconds < 60) return '${seconds}s ago';
+    final minutes = diff.inMinutes;
+    if (minutes < 60) return '${minutes}m ago';
+    final hours = diff.inHours;
+    if (hours < 24) return '${hours}h ago';
+    final days = diff.inDays;
+    return '${days}d ago';
   }
 
   Widget _buildCommentAvatar(Map<String, dynamic> comment) {
-    // Prefer authorUsername to lookup profile
     final authorUsername = comment['authorUsername'] as String?;
     Map<String, dynamic>? profile;
     if (authorUsername != null) {
@@ -153,11 +164,10 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
           backgroundImage: MemoryImage(bytes),
         );
       } catch (e) {
-        // fall through to default
+        // fall through
       }
     }
 
-    // fallback avatar: first letter of displayName or icon
     final displayName = (comment['displayName'] as String?) ?? '';
     if (displayName.isNotEmpty) {
       return CircleAvatar(
@@ -186,6 +196,8 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
     final bookmarks = (post['bookmarks'] ?? 0) as int;
     final postId = post['id'] as int;
     final comments = CommentStore.getComments(postId);
+
+    final heartUrl = isLiked ? _heartLikedUrl : _heartUnlikedUrl;
 
     return Scaffold(
       backgroundColor: const Color(0xfffde2e4),
@@ -272,12 +284,10 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
                             curve: Curves.easeOut,
                             scale: isLiked ? 1.2 : 1.0,
                             child: SvgPicture.asset(
-                              'assets/heart.svg',
+                              isLiked
+                                  ? 'assets/likediconheart.svg'
+                                  : 'assets/unlikeiconheart.svg',
                               width: 26,
-                              colorFilter: ColorFilter.mode(
-                                isLiked ? Colors.red : Colors.black54,
-                                BlendMode.srcIn,
-                              ),
                             ),
                           ),
                           const SizedBox(width: 6),

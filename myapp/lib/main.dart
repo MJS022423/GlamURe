@@ -1,9 +1,9 @@
 // myapp/lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:device_preview/device_preview.dart';
-import 'login_screen.dart';
+import 'login-register-setup/login_screen.dart';
 import 'homepage-modules/homepage.dart';
-import 'setupAccount.dart';
+import 'login-register-setup/setupAccount.dart';
 
 final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 

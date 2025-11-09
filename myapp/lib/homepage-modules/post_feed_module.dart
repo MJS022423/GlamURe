@@ -19,10 +19,15 @@ class _PostFeedModuleState extends State<PostFeedModule> {
   List<Map<String, dynamic>> get _posts =>
       widget.posts ?? PostStore.getAllPosts();
 
+  // Network SVG URLs (user-provided)
+  static const _heartUnlikedUrl = 'https://www.svgrepo.com/show/532473/heart.svg';
+  static const _heartLikedUrl = 'https://www.svgrepo.com/show/369346/heart.svg';
+
   void _toggleLike(int postId) {
     final isLiked = UserActionsStore.isLiked(postId);
     final newState = !isLiked;
 
+    // flip store state first
     UserActionsStore.toggleLike(postId, newState);
 
     setState(() {
@@ -112,6 +117,8 @@ class _PostFeedModuleState extends State<PostFeedModule> {
         final isLiked = UserActionsStore.isLiked(postId);
         final isBookmarked = UserActionsStore.isBookmarked(postId);
 
+        final heartUrl = isLiked ? _heartLikedUrl : _heartUnlikedUrl;
+
         return GestureDetector(
           onTap: () {
             Navigator.push(
@@ -186,12 +193,14 @@ class _PostFeedModuleState extends State<PostFeedModule> {
                               duration: const Duration(milliseconds: 220),
                               curve: Curves.elasticOut,
                               scale: isLiked ? 1.2 : 1.0,
-                              child: SvgPicture.asset(
-                                'assets/heart.svg',
+                              child: SizedBox(
                                 width: 22,
-                                colorFilter: ColorFilter.mode(
-                                  isLiked ? Colors.red : Colors.black54,
-                                  BlendMode.srcIn,
+                                height: 22,
+                                child: SvgPicture.asset(
+                                  isLiked
+                                      ? 'assets/likediconheart.svg'
+                                      : 'assets/unlikeiconheart.svg',
+                                  width: 22,
                                 ),
                               ),
                             ),
@@ -221,9 +230,7 @@ class _PostFeedModuleState extends State<PostFeedModule> {
                                 'assets/bookmark.svg',
                                 width: 22,
                                 colorFilter: ColorFilter.mode(
-                                  isBookmarked
-                                      ? Colors.pinkAccent
-                                      : Colors.black54,
+                                  isBookmarked ? Colors.pinkAccent : Colors.black54,
                                   BlendMode.srcIn,
                                 ),
                               ),

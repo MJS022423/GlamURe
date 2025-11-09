@@ -3,8 +3,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:getwidget/getwidget.dart';
-import 'homepage-modules/homepage.dart';
-import 'data/account_store.dart';
+import '../homepage-modules/homepage.dart';
+import '../data/account_store.dart';
 import 'setupAccount.dart';
 
 class LoginScreen extends StatefulWidget {

@@ -6,8 +6,8 @@ import 'post_feed_module.dart';
 import 'tag_search_bar_module.dart';
 import 'leaderboard_module.dart';
 import '../about.dart';
-import '../profile.dart';
-import '../settings.dart';
+import '../profile/profile_page.dart';
+import '../settings/settings.dart';
 import '../bookmark.dart';
 import '../data/post_store.dart'; // ✅ Global post storage
 
