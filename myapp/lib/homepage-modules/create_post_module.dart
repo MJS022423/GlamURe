@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:image_picker/image_picker.dart';
+import '../data/post_store.dart';
+import '../data/account_store.dart'; // <- use current username
 
 const sampleTags = {
   'Gender': ['Men', 'Women', 'Unisex'],
@@ -24,11 +26,51 @@ const sampleTags = {
     'Designer',
     'Fashionista'
   ],
-  'Occasion': ['Everyday', 'Workwear', 'Partywear', 'Outdoor', 'Seasonal', 'Special Event'],
-  'Material': ['Cotton', 'Denim', 'Leather', 'Silk', 'Wool', 'Linen', 'Synthetic', 'Eco-Friendly', 'Sustainable'],
-  'Color': ['Monochrome', 'Colorful', 'Neutral', 'Pastel', 'Bold', 'Patterned'],
-  'Accessories': ['Footwear', 'Bags', 'Jewelry', 'Hats', 'Belts', 'Scarves', 'Sunglasses'],
-  'Features': ['Comfortable', 'Layered', 'Textured', 'Statement', 'Soft', 'Versatile', 'Functional']
+  'Occasion': [
+    'Everyday',
+    'Workwear',
+    'Partywear',
+    'Outdoor',
+    'Seasonal',
+    'Special Event'
+  ],
+  'Material': [
+    'Cotton',
+    'Denim',
+    'Leather',
+    'Silk',
+    'Wool',
+    'Linen',
+    'Synthetic',
+    'Eco-Friendly',
+    'Sustainable'
+  ],
+  'Color': [
+    'Monochrome',
+    'Colorful',
+    'Neutral',
+    'Pastel',
+    'Bold',
+    'Patterned'
+  ],
+  'Accessories': [
+    'Footwear',
+    'Bags',
+    'Jewelry',
+    'Hats',
+    'Belts',
+    'Scarves',
+    'Sunglasses'
+  ],
+  'Features': [
+    'Comfortable',
+    'Layered',
+    'Textured',
+    'Statement',
+    'Soft',
+    'Versatile',
+    'Functional'
+  ]
 };
 
 class CreatePostModule extends StatefulWidget {
@@ -51,9 +93,7 @@ class _CreatePostModuleState extends State<CreatePostModule> {
   Uint8List? selectedImageBytes;
   bool showTags = false;
 
-  // Default selected tags
   List<String> selectedTags = ['Men', 'Casual'];
-
   final ImagePicker picker = ImagePicker();
 
   Future<void> pickImage() async {
@@ -79,53 +119,31 @@ class _CreatePostModuleState extends State<CreatePostModule> {
     return selectedTags.where((t) => styleSet.contains(t.toLowerCase())).length;
   }
 
-  /// Toggle logic:
-  /// - Gender remains exclusive (only one gender at a time).
-  /// - Style is *not* exclusive (you can have multiple styles).
-  /// - "Casual" is the default style and is protected from removal until more than 2 styles are selected.
   void toggleTag(String category, String tag) {
     setState(() {
       final categoryTags = sampleTags[category] ?? [];
       final isGenderExclusive = category == 'Gender';
       final isStyleCategory = category == 'Style';
 
-      // Gender exclusivity: keep only one selected gender at a time
       if (isGenderExclusive) {
         selectedTags.removeWhere((t) => categoryTags.contains(t));
       }
 
-      // Normal toggle behavior but with special rules
       final alreadySelected = selectedTags.contains(tag);
-
       if (alreadySelected) {
-        // Prevent removing default gender 'Men' until another is chosen
         if (category == 'Gender' && tag == 'Men') {
-          // allow removal only if another gender is selected (i.e., if some other gender exists in selectedTags)
           final otherGenderSelected = selectedTags.any((t) =>
               t != 'Men' && (sampleTags['Gender'] ?? []).contains(t));
-          if (!otherGenderSelected) {
-            return; // don't remove Men if it's the only gender selected
-          }
+          if (!otherGenderSelected) return;
         }
 
-        // Special rule for 'Casual' in Style:
-        // - Keep Casual protected until there are more than 2 styles selected.
         if (isStyleCategory && tag == 'Casual') {
           final styleCount = _selectedStyleCount();
-          // If styleCount <= 2, prevent removing Casual
-          if (styleCount <= 2) {
-            return;
-          }
-          // If styleCount > 2, allow removal
+          if (styleCount <= 2) return;
         }
-
-        // Safe to remove
         selectedTags.remove(tag);
       } else {
-        // Add tag (prevent duplicates)
-        if (!selectedTags.contains(tag)) {
-          selectedTags.add(tag);
-        }
+        selectedTags.add(tag);
       }
     });
   }
@@ -136,7 +154,7 @@ class _CreatePostModuleState extends State<CreatePostModule> {
       return;
     }
 
-    // Build normalized, deduplicated tags preserving insertion order
+    // Normalize tags
     final seen = <String>{};
     final normalizedTags = <String>[];
     for (final t in selectedTags) {
@@ -149,30 +167,44 @@ class _CreatePostModuleState extends State<CreatePostModule> {
     }
 
     final genderValue = normalizedTags.firstWhere(
-      (t) => sampleTags['Gender']!.map((e) => e.toLowerCase()).contains(t.toLowerCase()),
+      (t) => sampleTags['Gender']!
+          .map((e) => e.toLowerCase())
+          .contains(t.toLowerCase()),
       orElse: () => 'Unisex',
     );
 
     final styleValue = normalizedTags.firstWhere(
-      (t) => sampleTags['Style']!.map((e) => e.toLowerCase()).contains(t.toLowerCase()),
+      (t) => sampleTags['Style']!
+          .map((e) => e.toLowerCase())
+          .contains(t.toLowerCase()),
       orElse: () => 'Casual',
     );
 
+    // Use actual logged-in username if available
+    final creatorUsername = AccountStore.currentUsername ??
+        (AccountStore.currentUser != null ? AccountStore.currentUser!['username'] : 'Designer');
+
     final newPost = {
       'id': DateTime.now().millisecondsSinceEpoch,
-      'username': 'Jzar Alaba',
+      'username': creatorUsername,
       'description': descriptionController.text.trim(),
       'images': [selectedImageBytes!],
       'tags': normalizedTags,
       'gender': genderValue,
       'style': styleValue,
       'likes': 0,
+      'bookmarks': 0,
       'comments': [],
       'createdAt': DateTime.now().toIso8601String(),
     };
 
+    // Add only once globally
+    PostStore.addPost(newPost);
+
+    // Notify parent (UI refresh)
     widget.addPost(newPost);
 
+    // Reset fields
     descriptionController.clear();
     setState(() {
       selectedImageBytes = null;
@@ -180,6 +212,10 @@ class _CreatePostModuleState extends State<CreatePostModule> {
       selectedTags = ['Men', 'Casual'];
       showTags = false;
     });
+
+    GFToast.showToast('Post uploaded successfully!', context,
+        backgroundColor: Colors.green,
+        textStyle: const TextStyle(color: Colors.white));
 
     widget.onClose();
   }
@@ -227,23 +263,22 @@ class _CreatePostModuleState extends State<CreatePostModule> {
                       ),
                       const SizedBox(height: 8),
 
-                      // User info
+                      // Show current username if available
                       Row(
-                        children: const [
-                          CircleAvatar(child: Text('👤')),
-                          SizedBox(width: 8),
+                        children: [
+                          const CircleAvatar(child: Text('👤')),
+                          const SizedBox(width: 8),
                           Text(
-                            'Jzar Alaba',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
+                            AccountStore.currentUsername ??
+                                (AccountStore.currentUser != null ? AccountStore.currentUser!['username'] : 'Designer'),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
 
-                      // Description input
+                      // Description
                       TextField(
                         controller: descriptionController,
                         maxLength: 100,
@@ -257,7 +292,6 @@ class _CreatePostModuleState extends State<CreatePostModule> {
                       ),
                       const SizedBox(height: 12),
 
-                      // Image + Tags buttons
                       Row(
                         children: [
                           Expanded(
@@ -265,14 +299,17 @@ class _CreatePostModuleState extends State<CreatePostModule> {
                               children: [
                                 GFButton(
                                   onPressed: pickImage,
-                                  text: selectedImageBytes == null ? '+ Add Image' : 'Change Image',
+                                  text: selectedImageBytes == null
+                                      ? '+ Add Image'
+                                      : 'Change Image',
                                   type: GFButtonType.outline,
                                   color: Colors.blue,
                                   shape: GFButtonShape.pills,
                                 ),
                                 const SizedBox(height: 8),
                                 GFButton(
-                                  onPressed: () => setState(() => showTags = !showTags),
+                                  onPressed: () =>
+                                      setState(() => showTags = !showTags),
                                   text: showTags ? '- Tags' : '+ Tags',
                                   type: GFButtonType.outline,
                                   color: Colors.blue,
@@ -299,7 +336,8 @@ class _CreatePostModuleState extends State<CreatePostModule> {
                                               Icons.arrow_back,
                                               color: Colors.white,
                                             ),
-                                            onPressed: () => Navigator.pop(context),
+                                            onPressed: () =>
+                                                Navigator.pop(context),
                                           ),
                                         ),
                                       ],
@@ -322,7 +360,6 @@ class _CreatePostModuleState extends State<CreatePostModule> {
                         ],
                       ),
 
-                      // Tags Section
                       if (showTags)
                         Padding(
                           padding: const EdgeInsets.only(top: 12),
@@ -334,24 +371,27 @@ class _CreatePostModuleState extends State<CreatePostModule> {
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    category,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                  Text(category,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold)),
                                   const SizedBox(height: 4),
                                   Wrap(
                                     spacing: 6,
                                     runSpacing: 6,
                                     children: tags.map((tag) {
-                                      final isSelected = selectedTags.contains(tag);
+                                      final isSelected =
+                                          selectedTags.contains(tag);
                                       return GFButton(
-                                        onPressed: () => toggleTag(category, tag),
+                                        onPressed: () =>
+                                            toggleTag(category, tag),
                                         text: tag,
-                                        type: isSelected ? GFButtonType.solid : GFButtonType.outline,
+                                        type: isSelected
+                                            ? GFButtonType.solid
+                                            : GFButtonType.outline,
                                         color: Colors.blue,
-                                        textColor: isSelected ? Colors.white : Colors.black,
+                                        textColor: isSelected
+                                            ? Colors.white
+                                            : Colors.black,
                                         shape: GFButtonShape.pills,
                                         size: GFSize.SMALL,
                                       );
@@ -363,15 +403,16 @@ class _CreatePostModuleState extends State<CreatePostModule> {
                             }).toList(),
                           ),
                         ),
-
                       const SizedBox(height: 12),
 
-                      // Upload Button
                       GFButton(
-                        onPressed: selectedImageBytes == null ? null : handleUpload,
+                        onPressed:
+                            selectedImageBytes == null ? null : handleUpload,
                         text: 'Upload Post',
                         fullWidthButton: true,
-                        color: selectedImageBytes == null ? Colors.grey : Colors.black,
+                        color: selectedImageBytes == null
+                            ? Colors.grey
+                            : Colors.black,
                       ),
                     ],
                   ),
