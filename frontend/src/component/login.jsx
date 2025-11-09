@@ -55,7 +55,9 @@ function Login({ onLoginSuccess }) {
 
       if (response.ok) {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("userid", data.userid)
+        localStorage.setItem("userid", data.userid);
+        localStorage.setItem("profile_name", data.name);
+        localStorage.setItem("userRole", data.role);
         onLoginSuccess();
         navigate("/dashboard");
       } else {

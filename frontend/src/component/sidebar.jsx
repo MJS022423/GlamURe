@@ -8,6 +8,9 @@ import settings from "../assets/settings.svg";
 import info from "../assets/info.svg";
 import logout from "../assets/logout.svg";
 
+const profileName = localStorage.getItem("profile_name");  
+const profileTitle = localStorage.getItem("userRole"); 
+
 const Sidebar = ({ onLogout, onExpand = () => {} }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const location = useLocation();
@@ -45,19 +48,20 @@ const Sidebar = ({ onLogout, onExpand = () => {} }) => {
         <div className="w-14 h-14 rounded-full bg-green-600 mb-2"></div>
         {isExpanded && (
           <>
-            <h3 className="text-lg font-semibold">NAME</h3>
-            <p className="text-gray-400 text-sm font-medium">Designer</p>
+            <h3 className="text-lg font-semibold">{profileName}</h3>
+            <p className="text-gray-400 text-sm font-medium">{profileTitle}</p>
             <div className="w-2/3 border-b border-gray-500 mt-2"></div>
           </>
         )}
       </div>
+      
 
       {/* Scrollable Center Menu */}
       <ul
         className={`flex flex-col items-center flex-1 gap-2 overflow-y-auto no-scrollbar py-2 transition-all duration-300 ${
           isExpanded ? "items-start px-4" : ""
         }`}
-      >
+      > 
         {menuItems.map((item) => (
           <li key={item.name} className="w-full">
             <NavLink

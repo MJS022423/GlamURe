@@ -14,7 +14,7 @@ export default function Homepage() {
   const handleAddPost = (newPost) => {
     setPosts(prev => [newPost, ...prev]);
     setFilteredPosts(prev => [newPost, ...prev]);
-    setShowPostModal(false);
+    setShowPostModal(true);
   };
 
   const handleTagSearch = (selectedTags) => {

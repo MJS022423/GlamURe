@@ -3,9 +3,6 @@ import { ConsoleLog, ConsoleError } from "../../utils/utils.logger.js";
 
 const db = new Database();
 const log = true;
-const page = 1;
-const limit = 30;
-const skip = (page - 1) * limit;
 
 function convertImage(base64Str) {
   if (!base64Str) return null;
@@ -21,27 +18,33 @@ function convertImage(base64Str) {
 }
 
 async function DisplayPost(req, res) {
-
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    const collection = await db.Collection('Account');
-    const result = await collection.find({}).skip(skip).limit(limit).toArray();
+    const collection = await db.Collection();
+    const totalDocs = await collection.countDocuments();
+    const totalPages = Math.ceil(totalDocs / limit);
 
-    if (!product || !product.image) {
-      return res.status(404).send("Image not found");
-    }
+    const posts = await collection.find({})
+      .skip(skip)
+      .limit(limit)
+      .toArray();
 
-    const img = convertImage(product.image);
-    if (!img) return res.status(400).send("Invalid image format");
-
-    res.setHeader("Content-Type", `image/${img.ext}`);
-    res.send(img.buffer);
+    res.status(200).json({
+      success: true,
+      page, 
+      totalPages,
+      totalDocs,
+      results: posts,
+    });
 
   } catch (error) {
-    ConsoleError(`[ FAILED TO RETRIEVE DATA ]: ${error.message}`, log);
+    ConsoleError(`[ FAILED TO RETRIEVE POSTS ]: ${error.message}`, log);
+    res.status(500).json({ success: false, error: error.message });
   } finally {
     db.Close();
-    ConsoleLog('[ CONNECTION CLOSED ]', log);
   }
 }
 
