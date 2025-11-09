@@ -9,31 +9,42 @@ const log = true;
 
 async function AddPost(req, res) {
 
-  const { userid, caption , tags } = req.body;
-  const files = req.files;
+  let { userid, caption, tags } = req.body;
+  let files = req.files;
 
-  if (!userid || !caption || !tags || !images ) {
+  if (!userid || !caption || !tags || !files) {
     return res.status(400).json({ error: "Register Failed Parameter is Empty" });
   }
 
   try {
 
-    const collection = await db.Collection();
+    try {
+      tags = JSON.parse(tags);
+    } catch {
+      tags = Array.isArray(tags) ? tags : [];
+    }
+
+    const collection = await db.Collection(); 
 
     const uniqueId = crypto.randomUUID();
-    const imagesbuffer = images.map((img) => ({  }))
+    const imagesArray =
+      files && files.length > 0
+        ? files.map((file) => file.buffer)
+        : [];
+
     const postDoc = {
       Post_id: uniqueId,
       Caption: caption,
       Tags: tags,
-      Images: imagesbuffer,
-      likes: [],
-      comments: [],
+      Images: imagesArray,
+      likes: null,
+      comments: null,
       createdDate: new Date(),
     };
-    await collection.updateOne({
-      _id: new ObjectId(userid)}, 
-      {$push: {Post: postDoc}});
+    const result = await collection.updateOne({
+      _id: new ObjectId(userid)
+    },
+      { $push: { Post: postDoc } });
 
     if (result) {
       ConsoleLog("[ PRODUCT SUCCESSFULLY ADDED ]", log);

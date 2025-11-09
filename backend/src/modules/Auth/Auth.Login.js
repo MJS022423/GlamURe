@@ -34,7 +34,9 @@ async function Login(req, res) {
       {
         message: "Login Successful",
         token,
-        userid: user._id.toString()
+        userid: user._id.toString(),
+        name: user.Profile_name || user.Username,
+        role: user.Role,
       }
     );
 

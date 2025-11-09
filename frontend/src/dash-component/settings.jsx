@@ -161,13 +161,8 @@ const Settings = () => {
 
 
   return (
-<<<<<<< HEAD
-    <div className="h-full overflow-y-auto no-scrollbar bg-pink-50">
-      <style jsx>{`
-=======
     <div className="h-full overflow-y-auto no-scrollbar bg-gradient-to-b from-[#1b1b1b] via-[#2b2b2b] to-[#f9c5d1] text-white overflow-hidden">
         <style jsx>{`
->>>>>>> 7b5829c9252e32f2ebb6770b6344c712c9d8cbc0
               .no-scrollbar::-webkit-scrollbar {
                 display: none;
               }
