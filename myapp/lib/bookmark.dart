@@ -1,4 +1,4 @@
-// myapp/lib/bookmark.dart
+// lib/bookmark.dart
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -11,8 +11,8 @@ import 'homepage-modules/expanded_post_page.dart';
 /// BookmarkPage - shows posts bookmarked by the currently signed-in user.
 /// Relies on:
 ///  - AccountStore.currentUsername to identify the user
-///  - UserActionsStore.isBookmarked(postId) and toggleBookmark(postId, state)
-///  - PostStore.getAllPosts() / updatePost for counts
+///  - UserActionsStore.isBookmarked(postId, username: ...) and toggleBookmark(postId, newState)
+///  - PostStore.getAllPosts() / updatePost for counts (updated by UserActionsStore)
 class BookmarkPage extends StatefulWidget {
   const BookmarkPage({super.key});
 
@@ -46,18 +46,23 @@ class _BookmarkPageState extends State<BookmarkPage> {
           addComment: (_) => setState(() {}),
         ),
       ),
-    ).then((_) => setState(() {}));
+    ).then((_) {
+      // Refresh when coming back (in case expanded page changed counts)
+      if (mounted) setState(() {});
+    });
   }
 
   void _toggleLike(int postId) {
     final newState = !UserActionsStore.isLiked(postId);
     UserActionsStore.toggleLike(postId, newState);
+    // PostStore counts are updated inside UserActionsStore.toggleLike
     setState(() {});
   }
 
   void _toggleBookmark(int postId) {
     final newState = !UserActionsStore.isBookmarked(postId);
     UserActionsStore.toggleBookmark(postId, newState);
+    // PostStore counts are updated inside UserActionsStore.toggleBookmark
     setState(() {});
   }
 
@@ -88,8 +93,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
     final images = List<dynamic>.from(post['images'] ?? []);
     final img = images.isNotEmpty ? images[0] : null;
     final desc = (post['description'] ?? '').toString();
-    final tags =
-        (post['tags'] is Iterable) ? List<String>.from(post['tags']) : <String>[];
+    final tags = (post['tags'] is Iterable) ? List<String>.from(post['tags']) : <String>[];
     final likes = (post['likes'] ?? 0) as int;
     final bookmarks = (post['bookmarks'] ?? 0) as int;
     final isBookmarked = UserActionsStore.isBookmarked(postId);
@@ -103,10 +107,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
-            BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 4))
+            BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 4))
           ],
         ),
         child: Column(
@@ -114,12 +115,10 @@ class _BookmarkPageState extends State<BookmarkPage> {
           children: [
             if (img != null)
               ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(14)),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
                 child: img is Uint8List
                     ? Image.memory(img, width: double.infinity, fit: BoxFit.cover)
-                    : Image.network(img,
-                        width: double.infinity, fit: BoxFit.cover),
+                    : Image.network(img, width: double.infinity, fit: BoxFit.cover),
               ),
             Padding(
               padding: const EdgeInsets.all(10.0),
@@ -127,17 +126,14 @@ class _BookmarkPageState extends State<BookmarkPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (desc.isNotEmpty)
-                    Text(desc,
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w500)),
+                    Text(desc, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 6),
                   Wrap(
                     spacing: 6,
                     runSpacing: 4,
                     children: tags
                         .map((t) => Chip(
-                              label: Text(t,
-                                  style: const TextStyle(fontSize: 11)),
+                              label: Text(t, style: const TextStyle(fontSize: 11)),
                               backgroundColor: Colors.pink.shade50,
                             ))
                         .toList(),
@@ -149,7 +145,9 @@ class _BookmarkPageState extends State<BookmarkPage> {
                       // Like + Bookmark Row
                       Row(children: [
                         InkWell(
-                          onTap: () => _toggleLike(postId),
+                          onTap: () {
+                            _toggleLike(postId);
+                          },
                           borderRadius: BorderRadius.circular(8),
                           child: Row(
                             children: [
@@ -158,9 +156,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
                                 curve: Curves.elasticOut,
                                 scale: isLiked ? 1.2 : 1.0,
                                 child: SvgPicture.asset(
-                                  isLiked
-                                      ? 'assets/likediconheart.svg'
-                                      : 'assets/unlikeiconheart.svg',
+                                  isLiked ? 'assets/likediconheart.svg' : 'assets/unlikeiconheart.svg',
                                   width: 22,
                                 ),
                               ),
@@ -171,7 +167,9 @@ class _BookmarkPageState extends State<BookmarkPage> {
                         ),
                         const SizedBox(width: 18),
                         InkWell(
-                          onTap: () => _toggleBookmark(postId),
+                          onTap: () {
+                            _toggleBookmark(postId);
+                          },
                           borderRadius: BorderRadius.circular(8),
                           child: Row(
                             children: [
@@ -182,11 +180,8 @@ class _BookmarkPageState extends State<BookmarkPage> {
                                 child: SvgPicture.asset(
                                   'assets/bookmark.svg',
                                   width: 22,
-                                  colorFilter: ColorFilter.mode(
-                                      isBookmarked
-                                          ? Colors.pinkAccent
-                                          : Colors.black54,
-                                      BlendMode.srcIn),
+                                  colorFilter:
+                                      ColorFilter.mode(isBookmarked ? Colors.pinkAccent : Colors.black54, BlendMode.srcIn),
                                 ),
                               ),
                               const SizedBox(width: 6),
@@ -215,9 +210,7 @@ class _BookmarkPageState extends State<BookmarkPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 1,
-        title: const Text('Bookmarks',
-            style:
-                TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: const Text('Bookmarks', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: SafeArea(

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 
 // Import your tags source (create_post_module.dart should define `const sampleTags = { ... };`)
-import 'create_post_module.dart';
+import 'create_post_components/create_post_module.dart';
 
 class TagSearchBarModule extends StatefulWidget {
   final void Function(List<String>) onSearch;
