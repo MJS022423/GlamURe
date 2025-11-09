@@ -3,10 +3,10 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'data/post_store.dart';
-import 'data/user_actions_store.dart';
-import 'data/account_store.dart';
-import 'homepage-modules/expanded_post_page.dart';
+import '../data/post_store.dart';
+import '../data/user_actions_store.dart';
+import '../data/account_store.dart';
+import '../homepage-modules/expanded_post_page.dart';
 
 /// BookmarkPage - shows posts bookmarked by the currently signed-in user.
 /// Relies on:

@@ -219,7 +219,7 @@ Email: privacy@glamure.com
 Address: Marilao, Bulacan, Philippines
 Phone: 01234567890
 For data protection inquiries: dpo@glamure.com
-_________________________________________________________________________________________________________________________________
+__________________________________________________________________________________________________________________________________________
 By using Glamure, you acknowledge that you have read and understood this Privacy Policy and agree to our collection, use, and disclosure of your information as described herein.
 ''';
 

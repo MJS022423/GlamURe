@@ -1,6 +1,7 @@
-// lib/settings/widgets/account_section.dart
+// myapp/lib/settings/widgets/account_section.dart
 import 'package:flutter/material.dart';
 import '../../data/account_store.dart';
+import '../../login-register-setup/login_screen.dart';
 import 'header_tile.dart';
 
 class AccountSection extends StatelessWidget {
@@ -45,6 +46,7 @@ class AccountSection extends StatelessWidget {
         return;
       }
 
+      // show success message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Account deleted successfully'),
@@ -52,9 +54,15 @@ class AccountSection extends StatelessWidget {
         ),
       );
 
+      // perform logout / cleanup
       AccountStore.logout();
       onLogout?.call();
-      Navigator.of(context).maybePop();
+
+      // Navigate to LoginScreen and remove all previous routes
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
     }
   }
 

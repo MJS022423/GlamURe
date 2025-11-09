@@ -4,11 +4,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'create_post_components/create_post_module.dart';
 import 'post_feed_module.dart';
 import 'tag_search_bar_module.dart';
-import 'leaderboard_module.dart';
-import '../about.dart';
+import '../single-coded-page/leaderboard_module.dart';
+import '../single-coded-page/about.dart';
 import '../profile/profile_page.dart';
 import '../settings/settings_page.dart';
-import '../bookmark.dart';
+import '../single-coded-page/bookmark.dart';
 import '../data/post_store.dart'; // ✅ Global post storage
 
 class HomePage extends StatefulWidget {

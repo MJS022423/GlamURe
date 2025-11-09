@@ -6,6 +6,7 @@ import 'package:getwidget/getwidget.dart';
 import '../homepage-modules/homepage.dart';
 import '../data/account_store.dart';
 import 'setupAccount.dart';
+import 'package:myapp/login-register-setup/privacy_policy.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,6 +28,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final _registerEmailController = TextEditingController();
   final _registerPasswordController = TextEditingController();
 
+  // keep focus nodes (helpful for future enhancements)
+  final FocusNode _loginUsernameFocus = FocusNode();
+  final FocusNode _loginPasswordFocus = FocusNode();
+  final FocusNode _registerUsernameFocus = FocusNode();
+  final FocusNode _registerEmailFocus = FocusNode();
+  final FocusNode _registerPasswordFocus = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -39,11 +47,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
+    // dispose controllers
     _loginUsernameController.dispose();
     _loginPasswordController.dispose();
     _registerUsernameController.dispose();
     _registerEmailController.dispose();
     _registerPasswordController.dispose();
+
+    // dispose focus nodes
+    _loginUsernameFocus.dispose();
+    _loginPasswordFocus.dispose();
+    _registerUsernameFocus.dispose();
+    _registerEmailFocus.dispose();
+    _registerPasswordFocus.dispose();
+
     super.dispose();
   }
 
@@ -80,12 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 320,
                     child: SingleChildScrollView(
                       child: Text(
-                        // Short placeholder terms — replace with real terms text.
-                        "By using this app you agree to the Terms & Privacy Policy. "
-                        "We collect minimal information to provide the service. "
-                        "Don't post abusive or illegal content. Be respectful to others. "
-                        "This app is a demo (local-only) unless connected to a backend. "
-                        "\n\n(Replace with full legal text for production.)",
+                        privacyPolicyText,
                         style: const TextStyle(fontSize: 14, color: Colors.black87),
                       ),
                     ),
@@ -183,11 +195,13 @@ class _LoginScreenState extends State<LoginScreen> {
       children: [
         GFTextField(
           controller: _loginUsernameController,
+          focusNode: _loginUsernameFocus,
           decoration: const InputDecoration(labelText: "Username"),
         ),
         const SizedBox(height: 16),
         GFTextField(
           controller: _loginPasswordController,
+          focusNode: _loginPasswordFocus,
           obscureText: !showLoginPassword,
           decoration: InputDecoration(
             labelText: "Password",
@@ -229,16 +243,19 @@ class _LoginScreenState extends State<LoginScreen> {
       children: [
         GFTextField(
           controller: _registerUsernameController,
+          focusNode: _registerUsernameFocus,
           decoration: const InputDecoration(labelText: "Username"),
         ),
         const SizedBox(height: 16),
         GFTextField(
           controller: _registerEmailController,
+          focusNode: _registerEmailFocus,
           decoration: const InputDecoration(labelText: "Email"),
         ),
         const SizedBox(height: 16),
         GFTextField(
           controller: _registerPasswordController,
+          focusNode: _registerPasswordFocus,
           obscureText: !showRegisterPassword,
           decoration: InputDecoration(
             labelText: "Password",
