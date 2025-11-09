@@ -1,3 +1,4 @@
+// myapp/lib/homepage-modules/homepage.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'create_post_module.dart';
@@ -5,9 +6,10 @@ import 'post_feed_module.dart';
 import 'tag_search_bar_module.dart';
 import 'leaderboard_module.dart';
 import '../about.dart';
-import '../profile.dart';
-import '../settings.dart';
+import '../profile/profile_page.dart';
+import '../settings/settings.dart';
 import '../bookmark.dart';
+import '../data/post_store.dart'; // ✅ Global post storage
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -31,6 +33,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
+    _loadPosts();
     _modalController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -51,17 +54,31 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
+  /// ✅ Load posts from PostStore
+  void _loadPosts() {
+    final allPosts = PostStore.getAllPosts();
+    setState(() {
+      posts = allPosts;
+      filteredPosts = allPosts;
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadPosts(); // ✅ Auto-refresh when returning from ProfilePage
+  }
+
   @override
   void dispose() {
     _modalController.dispose();
     super.dispose();
   }
 
+  /// ✅ When adding post, only refresh UI (CreatePostModule already stores globally)
   void handleAddPost(Map<String, dynamic> newPost) {
-    setState(() {
-      posts.insert(0, newPost);
-      filteredPosts.insert(0, newPost);
-    });
+    // Remove PostStore.addPost(newPost); ✅ no more duplication
+    _loadPosts(); // refresh from global store
     closeModal();
   }
 
@@ -138,10 +155,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
             ),
 
-            // Post feed
+            // ✅ Live Post Feed
             Expanded(
-              child: PostFeedModule(
-                posts: filteredPosts.isNotEmpty ? filteredPosts : posts,
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  _loadPosts();
+                },
+                child: PostFeedModule(
+                  posts: filteredPosts.isNotEmpty ? filteredPosts : posts,
+                ),
               ),
             ),
           ],
@@ -168,6 +190,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void _onNavTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      if (index == 0) _loadPosts(); // ✅ Refresh when returning to Home
     });
   }
 
@@ -187,7 +210,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         currentPage = AboutPage();
         break;
       case 3:
-        currentPage = ProfilePage();
+        currentPage = const ProfilePage();
         break;
       case 4:
         currentPage = SettingsPage();
