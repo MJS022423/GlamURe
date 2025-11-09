@@ -1,15 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CreatePost from "./CreatePost";
 import PostFeed from "./PostFeed";
 import TagSearchBar from "./TagSearchBar";
 import Leaderboard from "./leaderboard-modules/leaderboard";
 
 
+const EXPRESS_API = import.meta.env.VITE_EXPRESS_API;
+
 export default function Homepage() {
   const [showPostModal, setShowPostModal] = useState(false);
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [showLeaderboard, setShowLeaderboard] = useState(false); // <-- new state
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await fetch(`${EXPRESS_API}/post/Displaypost?page=1&limit=10`);
+        const data = await res.json();
+
+        if (!data.success) throw new Error(data.error || "Failed to fetch posts");
+
+        const formattedPosts = data.results.map(post => ({
+          id: post.id, // comes from backend Post_id
+          username: post.username || "Unknown User",
+          description: post.caption || "",
+          images: post.images || [],
+          tags: post.tags || [],
+          gender: post.gender || "Unisex",
+          style: post.style || "Casual", 
+          likes: post.likes || 0,
+        }));
+
+        setPosts(formattedPosts);
+        setFilteredPosts(formattedPosts);
+      } catch (err) {
+        console.error("Failed to load posts:", err);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
 
   const handleAddPost = (newPost) => {
     setPosts(prev => [newPost, ...prev]);
@@ -59,10 +91,10 @@ export default function Homepage() {
             onClick={() => setShowLeaderboard(true)}
             className="rounded-full w-10 h-10 transition-transform duration-200 hover:scale-105"
           >
-            <img 
-            src="https://www.svgrepo.com/show/487506/leaderboard.svg" 
-            alt="Leaderboard"
-            className="w-10 h-10 object-cover rounded mb-2 transition-transform duration-200 hover:scale-105"
+            <img
+              src="https://www.svgrepo.com/show/487506/leaderboard.svg"
+              alt="Leaderboard"
+              className="w-10 h-10 object-cover rounded mb-2 transition-transform duration-200 hover:scale-105"
             />
           </button>
         </div>

@@ -4,40 +4,49 @@ import { ConsoleLog, ConsoleError } from "../../utils/utils.logger.js";
 const db = new Database();
 const log = true;
 
-function convertImage(base64Str) {
-  if (!base64Str) return null;
-
-  const matches = base64Str.match(/^data:image\/(\w+);base64,(.+)$/);
-  if (!matches) return null;
-
-  const ext = matches[1]; // png, jpeg, etc.
-  const data = matches[2];
-  const buffer = Buffer.from(data, "base64");
-
-  return { buffer, ext };
-}
-
 async function DisplayPost(req, res) {
+  ConsoleLog("[ POST DISPLAY ROUTER ]", log);
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
     const collection = await db.Collection();
-    const totalDocs = await collection.countDocuments();
-    const totalPages = Math.ceil(totalDocs / limit);
 
-    const posts = await collection.find({})
-      .skip(skip)
-      .limit(limit)
-      .toArray();
+    const users = await collection.find({ Post: { $exists: true, $ne: [] } }).toArray();
+
+    const allPosts = users.flatMap(user =>
+      (user.Post || []).map(post => ({
+        id: post.Post_id,
+        userId: user._id,
+        username: user.Username || "Unknown User",
+        profile_pic: user.Profile_pic || null,
+        caption: post.Caption || "",
+        tags: post.Tags || [],
+        likes: post.likes || 0,
+        comments: post.comments || [],
+        createdDate: post.createdDate || new Date(),
+        images: (post.Images || []).map(img => {
+          const buffer = Buffer.isBuffer(img) ? img : img.buffer ? Buffer.from(img.buffer) : Buffer.from([]);
+          return `data:image/jpeg;base64,${buffer.toString('base64')}`;
+        }),
+        gender: post.Gender || "Unisex",
+        style: post.Style || "Casual",
+      }))
+    );
+
+    allPosts.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));
+
+    const totalDocs = allPosts.length;
+    const totalPages = Math.ceil(totalDocs / limit);
+    const paginatedPosts = allPosts.slice(skip, skip + limit);
 
     res.status(200).json({
       success: true,
-      page, 
+      page,
       totalPages,
       totalDocs,
-      results: posts,
+      results: paginatedPosts,
     });
 
   } catch (error) {
