@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 
 import '../data/account_store.dart';
-import '../homepage-modules/create_post_module.dart';
+import '../homepage-modules/create_post_components/create_post_module.dart';
 import '../homepage-modules/expanded_post_page.dart';
 import '../data/post_store.dart';
 import '../data/user_actions_store.dart';
