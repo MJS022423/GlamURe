@@ -1,10 +1,14 @@
 import express from 'express';
-import Save from "./Bookmark.Add.js";
-import RemoveSave from "./Bookmark.Remove.js";
+import Save from "./Bookmark.Save.js";
+import Remove from "./Bookmark.Remove.js";
+import Display from './Bookmark.Display.js';
+import { authMiddleware } from '../../../middleware.js';
+
 
 const BookmarkRouter = express.Router();
 
-BookmarkRouter.post('/Save', Save);
-BookmarkRouter.post('/Removesave', RemoveSave);
+BookmarkRouter.post('/SaveBookmark', authMiddleware, Save);
+BookmarkRouter.post('/RemoveBookmark', authMiddleware, Remove);
+BookmarkRouter.get('/DisplayBookmark', Display);
 
 export default BookmarkRouter;
