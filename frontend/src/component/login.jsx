@@ -95,7 +95,15 @@ function Login({ onLoginSuccess }) {
       if (response.success) {
         console.log("✅ Registration success:", data);
         onLoginSuccess();
-        navigate("/setupAccount", { state: { username: registerData.username } });
+
+        navigate("./setupAccount", { state: { username: registerData.username } });
+
+        setRegisterData({
+          username: "",
+          email: "",
+          password: "",
+          agree: false,
+        });
       } else {
         alert(data.message || "Registration failed");
       }
@@ -142,22 +150,19 @@ function Login({ onLoginSuccess }) {
           {/* Toggle Buttons */}
           <div className="relative flex bg-[#f5f1f1] w-full border border-gray-700 rounded-full mb-10 shadow-sm">
             <div
-              className={`absolute top-0 left-0 w-1/2 h-full bg-black rounded-full transition-all duration-500 ${
-                isRegister ? "translate-x-full" : "translate-x-0"
-              }`}
+              className={`absolute top-0 left-0 w-1/2 h-full bg-black rounded-full transition-all duration-500 ${isRegister ? "translate-x-full" : "translate-x-0"
+                }`}
             ></div>
             <button
-              className={`relative z-10 w-1/2 py-2 text-sm font-semibold rounded-full ${
-                !isRegister ? "text-white" : "text-black"
-              }`}
+              className={`relative z-10 w-1/2 py-2 text-sm font-semibold rounded-full ${!isRegister ? "text-white" : "text-black"
+                }`}
               onClick={() => setIsRegister(false)}
             >
-              Login 
+              Login
             </button>
             <button
-              className={`relative z-10 w-1/2 py-2 text-sm font-semibold rounded-full ${
-                isRegister ? "text-white" : "text-black"
-              }`}
+              className={`relative z-10 w-1/2 py-2 text-sm font-semibold rounded-full ${isRegister ? "text-white" : "text-black"
+                }`}
               onClick={() => setIsRegister(true)}
             >
               Register
@@ -168,11 +173,10 @@ function Login({ onLoginSuccess }) {
           {!isRegister ? (
             <form
               onSubmit={handleLogin}
-              className={`transition-all duration-700 ${
-                isRegister
-                  ? "opacity-0 -translate-x-40 absolute"
-                  : "opacity-100 translate-x-0"
-              } w-full max-w-xs`}
+              className={`transition-all duration-700 ${isRegister
+                ? "opacity-0 -translate-x-40 absolute"
+                : "opacity-100 translate-x-0"
+                } w-full max-w-xs`}
             >
               {/* Username */}
               <div className="relative mb-6">
@@ -184,14 +188,13 @@ function Login({ onLoginSuccess }) {
                   }
                   className="peer w-full border-b border-gray-400 focus:border-black outline-none bg-transparent p-2 placeholder-transparent"
                   placeholder="Username"
-                  
+
                 />
                 <label
-                  className={`absolute left-2 text-gray-500 transition-all duration-300 bg-[#f9f9f9] px-1 ${
-                    loginData.username
-                      ? "-top-3 text-sm text-black"
-                      : "top-2 text-gray-400"
-                  } peer-focus:-top-3 peer-focus:text-sm peer-focus:text-black`}
+                  className={`absolute left-2 text-gray-500 transition-all duration-300 bg-[#f9f9f9] px-1 ${loginData.username
+                    ? "-top-3 text-sm text-black"
+                    : "top-2 text-gray-400"
+                    } peer-focus:-top-3 peer-focus:text-sm peer-focus:text-black`}
                 >
                   Username
                 </label>
@@ -209,11 +212,10 @@ function Login({ onLoginSuccess }) {
                   placeholder="Password"
                 />
                 <label
-                  className={`absolute left-2 text-gray-500 transition-all duration-300 bg-[#f9f9f9] px-1 ${
-                    loginData.password
-                      ? "-top-3 text-sm text-black"
-                      : "top-2 text-gray-400"
-                  } peer-focus:-top-3 peer-focus:text-sm peer-focus:text-black`}
+                  className={`absolute left-2 text-gray-500 transition-all duration-300 bg-[#f9f9f9] px-1 ${loginData.password
+                    ? "-top-3 text-sm text-black"
+                    : "top-2 text-gray-400"
+                    } peer-focus:-top-3 peer-focus:text-sm peer-focus:text-black`}
                 >
                   Password
                 </label>
@@ -258,11 +260,10 @@ function Login({ onLoginSuccess }) {
             // REGISTER FORM
             <form
               onSubmit={handleRegister}
-              className={`transition-all duration-700 ${
-                isRegister
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-40 absolute"
-              } w-full max-w-xs`}
+              className={`transition-all duration-700 ${isRegister
+                ? "opacity-100 translate-x-0"
+                : "opacity-0 translate-x-40 absolute"
+                } w-full max-w-xs`}
             >
               {/* Username */}
               <div className="relative mb-6">
@@ -276,11 +277,10 @@ function Login({ onLoginSuccess }) {
                   placeholder="Username"
                 />
                 <label
-                  className={`absolute left-2 text-gray-500 transition-all duration-300 bg-[#f9f9f9] px-1 ${
-                    registerData.username
-                      ? "-top-3 text-sm text-black"
-                      : "top-2 text-gray-400"
-                  } peer-focus:-top-3 peer-focus:text-sm peer-focus:text-black`}
+                  className={`absolute left-2 text-gray-500 transition-all duration-300 bg-[#f9f9f9] px-1 ${registerData.username
+                    ? "-top-3 text-sm text-black"
+                    : "top-2 text-gray-400"
+                    } peer-focus:-top-3 peer-focus:text-sm peer-focus:text-black`}
                 >
                   Username
                 </label>
@@ -298,11 +298,10 @@ function Login({ onLoginSuccess }) {
                   placeholder="Email"
                 />
                 <label
-                  className={`absolute left-2 text-gray-500 transition-all duration-300 bg-[#f9f9f9] px-1 ${
-                    registerData.email
-                      ? "-top-3 text-sm text-black"
-                      : "top-2 text-gray-400"
-                  } peer-focus:-top-3 peer-focus:text-sm peer-focus:text-black`}
+                  className={`absolute left-2 text-gray-500 transition-all duration-300 bg-[#f9f9f9] px-1 ${registerData.email
+                    ? "-top-3 text-sm text-black"
+                    : "top-2 text-gray-400"
+                    } peer-focus:-top-3 peer-focus:text-sm peer-focus:text-black`}
                 >
                   Email
                 </label>
@@ -320,11 +319,10 @@ function Login({ onLoginSuccess }) {
                   placeholder="Password"
                 />
                 <label
-                  className={`absolute left-2 text-gray-500 transition-all duration-300 bg-[#f9f9f9] px-1 ${
-                    registerData.password
-                      ? "-top-3 text-sm text-black"
-                      : "top-2 text-gray-400"
-                  } peer-focus:-top-3 peer-focus:text-sm peer-focus:text-black`}
+                  className={`absolute left-2 text-gray-500 transition-all duration-300 bg-[#f9f9f9] px-1 ${registerData.password
+                    ? "-top-3 text-sm text-black"
+                    : "top-2 text-gray-400"
+                    } peer-focus:-top-3 peer-focus:text-sm peer-focus:text-black`}
                 >
                   Password
                 </label>
