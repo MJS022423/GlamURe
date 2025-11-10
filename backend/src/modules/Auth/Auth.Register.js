@@ -19,15 +19,8 @@ async function userSchema(req) {
     Profile_pic: null,
     Profile_name: null,
 
-    Bookmark: {
-      save_post_id: [],
-      BookmarkLastupdate: new Date(),
-    },
-    notification: {
-      message: [],
-      NotifLastupdate: new Date(),
-    },
-
+    Bookmark: [],
+    notification: [],
     Post: [],
     Role: 'user',
     Createdat: new Date(),
