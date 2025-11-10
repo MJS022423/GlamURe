@@ -2,7 +2,7 @@ import Database from "../modules.connection.js";
 import { ConsoleLog, ConsoleError } from "../../utils/utils.logger.js";
 
 const db = new Database();
-const log = true;
+const log = false;
 
 async function RemovePost(req, res) {
   try {
@@ -23,7 +23,6 @@ async function RemovePost(req, res) {
     return { success: false, message: "Error Removing product"};
   } finally {
     db.Close();
-    ConsoleLog("[ CONNECTION CLOSED ]");
   }
 }
 

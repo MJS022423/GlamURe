@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import Database from "../modules.connection.js";
 
 const db = new Database();
-const log = true;
+const log = false;
 
 
 async function AddPost(req, res) {
@@ -57,7 +57,6 @@ async function AddPost(req, res) {
 
   } finally {
     db.Close();
-    ConsoleLog("[ CONNECTION CLOSED ]");
   }
 }
 

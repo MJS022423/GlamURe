@@ -2,7 +2,7 @@ import Database from "../modules.connection.js";
 import { ConsoleLog, ConsoleError } from "../../utils/utils.logger.js";
 
 const db = new Database();
-const log = true;
+const log = false;
 
 async function DisplayPost(req, res) {
   ConsoleLog("[ POST DISPLAY ROUTER ]", log);
