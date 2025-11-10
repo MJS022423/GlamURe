@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 
+const EXPRESS_API = import.meta.env.VITE_EXPRESS_API
+const token = localStorage.getItem('token');
+const userid = localStorage.getItem('userid');
 const FEED_DESC_LIMIT = 30; // characters to show in feed
 const MODAL_DESC_LIMIT = 100; // characters to show initially in modal
 
@@ -34,35 +37,65 @@ export default function PostFeed({ posts, variant = "default" }) {
 
   // initialize bookmark state from localStorage
   useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem("bookmarks") || "[]");
-      const map = saved.reduce((acc, item) => { acc[item.id] = true; return acc; }, {});
-      setBookmarksState(map);
-    } catch {}
-  }, []);
-
-  const toggleBookmark = (post) => {
-    const postId = post.id;
-    setBookmarksState(prev => {
-      const next = { ...prev, [postId]: !prev[postId] };
+    async function loadBookmarks() {
       try {
-        const current = JSON.parse(localStorage.getItem("bookmarks") || "[]");
-        if (next[postId]) {
-          const newItem = {
-            id: post.id,
-            image: post.images?.[0] || "",
-            title: post.style || "Design",
-            description: post.description || "",
-          };
-          const updated = [newItem, ...current.filter(b => b.id !== post.id)];
-          localStorage.setItem("bookmarks", JSON.stringify(updated));
-        } else {
-          const updated = current.filter(b => b.id !== post.id);
-          localStorage.setItem("bookmarks", JSON.stringify(updated));
+        const res = await fetch(`${EXPRESS_API}/bookmark/DisplayBookmark?userId=${userid}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        if (data.success) {
+          // convert array to lookup map for easy checking
+          const map = data.bookmarks.reduce((acc, item) => {
+            acc[item.id] = true;
+            return acc;
+          }, {});
+          setBookmarksState(map);
         }
-      } catch {}
-      return next;
-    });
+      } catch (err) {
+        console.error("Failed to load bookmarks:", err);
+      }
+    }
+
+    loadBookmarks();
+  }, []);
+  const toggleBookmark = async (post) => {
+    const postId = post.id;
+    const next = !bookmarksState[postId]; // toggle current bookmark
+    setBookmarksState(prev => ({ ...prev, [postId]: next }));
+
+    try {
+      if (next) {
+        const newItem = {
+          id: post.id,
+          image: post.images?.[0] || "",
+          title: post.style || "Design",
+          description: post.description || "",
+        };
+
+        await fetch(`${EXPRESS_API}/bookmark/SaveBookmark?userId=${userid}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ newItem }),
+        });
+      } else {
+        await fetch(`${EXPRESS_API}/bookmark/RemoveBookmark?userId=${userid}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ postId: post.id }),
+        });
+      }
+    } catch (err) {
+      console.error("Bookmark update failed:", err);
+      setBookmarksState(prev => ({ ...prev, [postId]: !next }));
+    }
   };
 
   const handleAddComment = (postId) => {
@@ -168,10 +201,10 @@ export default function PostFeed({ posts, variant = "default" }) {
               <div className="flex justify-between items-center w-full text-black text-sm">
                 {/* Heart / Like */}
                 <div className="flex items-center gap-1 cursor-pointer" onClick={e => { e.stopPropagation(); toggleLike(post.id); }}>
-                  <img 
-                    src={likesState[post.id] ? HEART_TRUE : HEART_FALSE} 
-                    alt="heart" 
-                    className="w-6 h-6" 
+                  <img
+                    src={likesState[post.id] ? HEART_TRUE : HEART_FALSE}
+                    alt="heart"
+                    className="w-6 h-6"
                   />
                   <span>{post.likes + (likesState[post.id] ? 1 : 0)}</span>
                 </div>

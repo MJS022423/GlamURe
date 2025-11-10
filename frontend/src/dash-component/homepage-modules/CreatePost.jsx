@@ -82,7 +82,7 @@ export default function CreatePost({ onClose, addPost }) {
 
       console.log("✅ Post uploaded successfully:", data);
       alert("Post uploaded successfully!");
-      
+      addPost(newPost);
       setDescription("");
       setSelectedImages([]);
       setSelectedTags([]);
@@ -91,23 +91,6 @@ export default function CreatePost({ onClose, addPost }) {
     } catch (error) {
       alert("Something went wrong please try again.");
     }
-
-    // const newPost = {
-    //   id: Date.now(),
-    //   username: "Jzar Alaba",
-    //   description,
-    //   images: selectedImages.map(img => img.preview),
-    //   tags: selectedTags,
-    //   gender: selectedTags.find(t => sampleTags.Gender.includes(t)) || "Unisex",
-    //   style: selectedTags.find(t => sampleTags.Style.includes(t)) || "Casual",
-    //   likes: 0,
-    //   comments: [],
-    //   createdAt: new Date().toISOString(),
-    // };
-
-    // addPost(newPost);
-
-    // reset state
   };
 
   return (
