@@ -12,11 +12,11 @@ class TagSearchBarModule extends StatefulWidget {
   final int maxSuggestions;
 
   const TagSearchBarModule({
-    Key? key,
+    super.key,
     required this.onSearch,
     this.availableTags,
     this.maxSuggestions = 6,
-  }) : super(key: key);
+  });
 
   @override
   State<TagSearchBarModule> createState() => _TagSearchBarModuleState();
@@ -32,7 +32,7 @@ class _TagSearchBarModuleState extends State<TagSearchBarModule> {
 
   OverlayEntry? _overlayEntry;
 
-  List<String> _selectedTags = [];
+  final List<String> _selectedTags = [];
   List<String> _allTags = []; // flattened from sampleTags or from availableTags
   List<String> _filteredSuggestions = [];
   Timer? _debounceTimer;
@@ -45,7 +45,9 @@ class _TagSearchBarModuleState extends State<TagSearchBarModule> {
     try {
       final flattened = <String>{};
       sampleTags.forEach((_, list) {
-        for (final t in list) flattened.add(t);
+        for (final t in list) {
+          flattened.add(t);
+        }
       });
 
       if (widget.availableTags != null && widget.availableTags!.isNotEmpty) {
@@ -189,7 +191,6 @@ class _TagSearchBarModuleState extends State<TagSearchBarModule> {
     }
 
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
 
     _overlayEntry = OverlayEntry(builder: (context) {
       // Determine size & position of the target widget to align dropdown width

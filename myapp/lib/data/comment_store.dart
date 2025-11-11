@@ -7,6 +7,8 @@
 ///   "createdAt": DateTime,
 ///   "authorUsername": String? // optional account username (used to lookup avatar)
 /// }
+library;
+
 
 class CommentStore {
   static final Map<int, List<Map<String, dynamic>>> _commentsByPost = {};

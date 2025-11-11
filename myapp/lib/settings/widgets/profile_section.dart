@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../data/account_store.dart';
-import 'avatar_picker.dart';
 import 'header_tile.dart';
 
 class ProfileSection extends StatefulWidget {

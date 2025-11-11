@@ -1,14 +1,12 @@
 // lib/profile/profile_page.dart
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:getwidget/getwidget.dart';
 
 import '../data/account_store.dart';
 import '../homepage-modules/create_post_components/create_post_module.dart';
 import '../homepage-modules/expanded_post_page.dart';
-import '../data/post_store.dart';
 import '../data/user_actions_store.dart';
 import '../login-register-setup/login_screen.dart';
+import '../utils/app_bar_builder.dart';
 
 import 'widgets/header_panel.dart';
 import 'widgets/top_designs.dart';
@@ -81,12 +79,9 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
       children: [
         Scaffold(
           backgroundColor: const Color(0xfffde2e4),
-          appBar: GFAppBar(
-            backgroundColor: const Color.fromARGB(255, 224, 224, 224),
-            title: const Text("PROFILE", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-            elevation: 0,
-          ),
+          appBar: buildCustomAppBar('Profile'),
           body: SafeArea(
+            top: true,
             child: SingleChildScrollView(
               child: Column(
                 children: [

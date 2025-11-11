@@ -61,7 +61,7 @@ class _AvatarPickerState extends State<AvatarPicker> {
     // Try calling updateProfile if exists; otherwise mutate currentUser
     try {
       // prefer explicit API if author implemented it
-      await AccountStore.updateProfile(updated);
+      AccountStore.updateProfile(updated);
     } catch (e) {
       // best-effort fallback if no method exists
       try {

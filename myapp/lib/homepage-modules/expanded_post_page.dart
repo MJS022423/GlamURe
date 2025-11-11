@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:getwidget/getwidget.dart';
 import '../data/post_store.dart';
 import '../data/user_actions_store.dart';
 import '../data/comment_store.dart';

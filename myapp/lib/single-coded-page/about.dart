@@ -1,8 +1,8 @@
 // myapp/lib/single-coded-page/about.dart
 import 'package:flutter/material.dart';
-import 'package:getwidget/getwidget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../utils/app_bar_builder.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -66,7 +66,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 80.0),
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 800),
               child: Column(
@@ -95,15 +95,7 @@ class _AboutPageState extends State<AboutPage> with SingleTickerProviderStateMix
   }
 
   // ✅ Removed the back button here
-  PreferredSizeWidget _buildAppBar() => GFAppBar(
-        backgroundColor: Colors.black,
-        title: const Text(
-          "About Us",
-          style: TextStyle(color: Color(0xFFFFC0CB)),
-        ),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-      );
+  PreferredSizeWidget _buildAppBar() => buildCustomAppBar("About Us");
 }
 
 /* -------------------------
