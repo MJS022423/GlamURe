@@ -98,22 +98,8 @@ export default function CreatePost({ onClose, addPost }) {
         throw new Error(errMsg);
       }
 
-      // Construct normalized post object for immediate UI update
-      const newPost = (data && data.success && data.post) ? (() => {
-        const p = data.post;
-        return {
-          id: p.id ?? p.Post_id ?? p._id ?? Date.now().toString(),
-          username: p.username ?? localStorage.getItem("profile_name") ?? "You",
-          description: p.caption ?? p.description ?? description,
-          images: p.images ?? p.Images ?? (selectedImages[0]?.preview ? [selectedImages[0].preview] : []),
-          tags: p.tags ?? p.Tags ?? selectedTags,
-          gender: p.gender ?? p.Gender,
-          style: p.style ?? p.Style,
-          likes: Number(p.likes ?? 0),
-          comments: p.comments ?? [],
-          createdAt: p.createdDate ?? p.createdAt ?? new Date().toISOString(),
-        };
-      })() : {
+      // Use server-returned post data if available, otherwise fallback
+      const newPost = data && data.success && data.post ? data.post : {
         id: Date.now().toString(),
         username: localStorage.getItem("profile_name") || "You",
         description,

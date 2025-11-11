@@ -33,6 +33,7 @@ export default function PostFeed({ posts, variant = "default" }) {
   const [modalDescExpanded, setModalDescExpanded] = useState(false);
   const [isSending, setIsSending] = useState(false);
 
+
   const toggleLike = (postId) => {
     setLikesState(prev => ({ ...prev, [postId]: !prev[postId] }));
   };

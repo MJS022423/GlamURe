@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import CreatePost from "./CreatePost";
 import PostFeed from "./PostFeed";
 import TagSearchBar from "./TagSearchBar";
@@ -11,37 +11,70 @@ export default function Homepage() {
   const [showPostModal, setShowPostModal] = useState(false);
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
-  const [showLeaderboard, setShowLeaderboard] = useState(false); // <-- new state
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const res = await fetch(`${EXPRESS_API}/post/Displaypost?page=1&limit=10`);
-        const data = await res.json();
+  const fetchPosts = useCallback(async (pageNum, append = false) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${EXPRESS_API}/post/Displaypost?page=${pageNum}&limit=30`);
+      const data = await res.json();
 
-        if (!data.success) throw new Error(data.error || "Failed to fetch posts");
+      if (!data.success) throw new Error(data.error || "Failed to fetch posts");
 
-        const formattedPosts = data.results.map(post => ({
-          id: post.id, // comes from backend Post_id
-          username: post.username || "Unknown User",
-          description: post.caption || "",
-          images: post.images || [],
-          tags: post.tags || [],
-          gender: post.gender || "Unisex",
-          style: post.style || "Casual", 
-          likes: post.likes || 0,
-        }));
+      const formattedPosts = data.results.map(post => ({
+        id: post.id,
+        username: post.username || "Unknown User",
+        description: post.caption || "",
+        images: post.images || [],
+        tags: post.tags || [],
+        gender: post.gender || "Unisex",
+        style: post.style || "Casual",
+        likes: post.likes || 0,
+      }));
 
+      if (append) {
+        setPosts(prev => [...prev, ...formattedPosts]);
+        setFilteredPosts(prev => [...prev, ...formattedPosts]);
+      } else {
         setPosts(formattedPosts);
         setFilteredPosts(formattedPosts);
-      } catch (err) {
-        console.error("Failed to load posts:", err);
       }
-    };
 
-    fetchPosts();
+      if (formattedPosts.length < 30) {
+        setHasMore(false);
+      }
+    } catch (err) {
+      console.error("Failed to load posts:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchPosts(1, false);
+  }, [fetchPosts]);
+
+  const loadMore = useCallback(() => {
+    if (!loading && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchPosts(nextPage, true);
+    }
+  }, [loading, hasMore, page, fetchPosts]);
+
+  const handleScroll = useCallback((e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    const threshold = 5; // Load more when within 5 posts of the bottom
+    const postHeight = 320; // Approximate height of each post card
+    const thresholdPixels = threshold * postHeight;
+
+    if (scrollTop + clientHeight >= scrollHeight - thresholdPixels) {
+      loadMore();
+    }
+  }, [loadMore]);
 
   const handleAddPost = (newPost) => {
     setPosts(prev => [newPost, ...prev]);
@@ -100,7 +133,7 @@ export default function Homepage() {
       </div>
 
       {/* Post feed */}
-      <div className="mt-30 overflow-y-auto no-scrollbar h-[100%]">
+      <div className="mt-30 overflow-y-auto no-scrollbar h-[100%]" onScroll={handleScroll}>
         <style jsx>{`
           .no-scrollbar::-webkit-scrollbar {
             display: none;
