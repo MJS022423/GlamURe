@@ -133,20 +133,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
             ),
 
-            // Search bar with Create Post icon
+            // Search bar (create-post icon moved to floating action button)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  IconButton(
-                    iconSize: 40,
-                    onPressed: openModal,
-                    icon: SvgPicture.asset(
-                      'assets/create-svgrepo-com.svg',
-                      width: 40,
-                      height: 40,
-                    ),
-                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TagSearchBarModule(onSearch: handleTagSearch),
@@ -207,7 +198,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             LeaderboardModule(goBack: () => setState(() => _selectedIndex = 0));
         break;
       case 2:
-        currentPage = AboutPage();
+        currentPage = BookmarkPage();
         break;
       case 3:
         currentPage = const ProfilePage();
@@ -216,7 +207,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         currentPage = SettingsPage();
         break;
       case 5:
-        currentPage = BookmarkPage();
+        currentPage = AboutPage();
         break;
       default:
         currentPage = _buildHomeContent();
@@ -225,11 +216,26 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 224, 224, 224),
       body: SafeArea(child: currentPage),
+      // Floating + button placed above bottom navigation (bottom-right)
+      // Show FAB only on Home (index 0)
+      floatingActionButton: _selectedIndex == 0
+          ? FloatingActionButton(
+              onPressed: openModal,
+              backgroundColor: Colors.white,
+              elevation: 6,
+              child: SvgPicture.asset(
+                'assets/create-svgrepo-com.svg',
+                width: 28,
+                height: 28,
+              ),
+            )
+          : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: _onNavTapped,
-        selectedItemColor: Colors.blue,
+        selectedItemColor: Colors.black,
         unselectedItemColor: Colors.grey,
         iconSize: 36,
         items: [
@@ -238,7 +244,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               'assets/home.svg',
               width: 36,
               height: 36,
-              color: _selectedIndex == 0 ? Colors.blue : Colors.grey,
+              color: _selectedIndex == 0 ? Colors.black : Colors.grey,
             ),
             label: 'Home',
           ),
@@ -247,25 +253,25 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               'assets/leaderboard.svg',
               width: 36,
               height: 36,
-              color: _selectedIndex == 1 ? Colors.blue : Colors.grey,
+              color: _selectedIndex == 1 ? Colors.black : Colors.grey,
             ),
             label: 'Leaderboard',
           ),
-          BottomNavigationBarItem(
+           BottomNavigationBarItem(
             icon: SvgPicture.asset(
-              'assets/info.svg',
+              'assets/bookmark.svg',
               width: 36,
               height: 36,
-              color: _selectedIndex == 2 ? Colors.blue : Colors.grey,
+              color: _selectedIndex == 2 ? Colors.black : Colors.grey,
             ),
-            label: 'About',
+            label: 'Bookmark',
           ),
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
               'assets/profile.svg',
               width: 36,
               height: 36,
-              color: _selectedIndex == 3 ? Colors.blue : Colors.grey,
+              color: _selectedIndex == 3 ? Colors.black : Colors.grey,
             ),
             label: 'Profile',
           ),
@@ -274,18 +280,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               'assets/settings.svg',
               width: 36,
               height: 36,
-              color: _selectedIndex == 4 ? Colors.blue : Colors.grey,
+              color: _selectedIndex == 4 ? Colors.black : Colors.grey,
             ),
             label: 'Settings',
           ),
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
-              'assets/bookmark.svg',
+              'assets/info.svg',
               width: 36,
               height: 36,
-              color: _selectedIndex == 5 ? Colors.blue : Colors.grey,
+              color: _selectedIndex == 5 ? Colors.black : Colors.grey,
             ),
-            label: 'Bookmark',
+            label: 'About',
           ),
         ],
       ),

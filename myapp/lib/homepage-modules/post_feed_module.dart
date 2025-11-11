@@ -65,7 +65,9 @@ class _PostFeedModuleState extends State<PostFeedModule> {
     addIfUnique(post['gender']);
     addIfUnique(post['style']);
     if (post['tags'] is Iterable) {
-      for (final t in post['tags']) addIfUnique(t?.toString());
+      for (final t in post['tags']) {
+        addIfUnique(t?.toString());
+      }
     }
     return result;
   }

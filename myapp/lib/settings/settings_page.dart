@@ -4,6 +4,7 @@ import 'widgets/profile_section.dart';
 import 'widgets/security_section.dart';
 import 'widgets/account_section.dart';
 import '../data/account_store.dart';
+import '../utils/app_bar_builder.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -34,13 +35,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xfffde2e4),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        title: const Text('Settings', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-        iconTheme: const IconThemeData(color: Colors.black),
-      ),
+      appBar: buildCustomAppBar('Settings'),
       body: SafeArea(
+        top: false,
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [

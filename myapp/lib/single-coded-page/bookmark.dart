@@ -7,6 +7,7 @@ import '../data/post_store.dart';
 import '../data/user_actions_store.dart';
 import '../data/account_store.dart';
 import '../homepage-modules/expanded_post_page.dart';
+import '../utils/app_bar_builder.dart';
 
 /// BookmarkPage - shows posts bookmarked by the currently signed-in user.
 /// Relies on:
@@ -207,13 +208,9 @@ class _BookmarkPageState extends State<BookmarkPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xfffde2e4),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        title: const Text('Bookmarks', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-        iconTheme: const IconThemeData(color: Colors.black),
-      ),
+      appBar: buildCustomAppBar('Bookmarks'),
       body: SafeArea(
+        top: false,
         child: posts.isEmpty
             ? _buildEmpty()
             : ListView.builder(

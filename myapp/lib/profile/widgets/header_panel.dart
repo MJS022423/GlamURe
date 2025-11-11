@@ -1,5 +1,4 @@
 // lib/profile/widgets/header_panel.dart
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../data/account_store.dart';
 import 'avatar_widget.dart';

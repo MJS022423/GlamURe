@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import '../data/post_store.dart';
 import '../homepage-modules/post_feed_module.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import '../utils/app_bar_builder.dart';
 
 
 class LeaderboardModule extends StatefulWidget {
@@ -115,7 +115,7 @@ class _LeaderboardModuleState extends State<LeaderboardModule> {
             const Padding(padding: EdgeInsets.all(16.0), child: Text("Select Tag Category", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18))),
             ListTile(
               title: const Text("All"),
-              trailing: selectedField == null ? const Icon(Icons.check_circle, color: Colors.amber) : null,
+              trailing: selectedField == null ? const Icon(Icons.check_circle, color: Color(0xFFFFC0CB)) : null,
               onTap: () {
                 Navigator.pop(context);
                 setState(() {
@@ -128,7 +128,7 @@ class _LeaderboardModuleState extends State<LeaderboardModule> {
             ...sampleTags.keys.map((field) {
               return ListTile(
                 title: Text(field),
-                trailing: selectedField == field ? const Icon(Icons.check_circle, color: Colors.amber) : null,
+                trailing: selectedField == field ? const Icon(Icons.check_circle, color: Color(0xFFFFC0CB)) : null,
                 onTap: () {
                   Navigator.pop(context);
                   setState(() {
@@ -158,7 +158,7 @@ class _LeaderboardModuleState extends State<LeaderboardModule> {
             Padding(padding: const EdgeInsets.all(16.0), child: Text("$field Tags", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18))),
             ListTile(
               title: const Text("All"),
-              trailing: selectedValue == null ? const Icon(Icons.check_circle, color: Colors.amber) : null,
+              trailing: selectedValue == null ? const Icon(Icons.check_circle, color: Color(0xFFFFC0CB)) : null,
               onTap: () {
                 Navigator.pop(context);
                 setState(() => selectedValue = null);
@@ -168,7 +168,7 @@ class _LeaderboardModuleState extends State<LeaderboardModule> {
             ...values.map((val) {
               return ListTile(
                 title: Text(val),
-                trailing: selectedValue == val ? const Icon(Icons.check_circle, color: Colors.amber) : null,
+                trailing: selectedValue == val ? const Icon(Icons.check_circle, color: Color(0xFFFFC0CB)) : null,
                 onTap: () {
                   Navigator.pop(context);
                   setState(() => selectedValue = val);
@@ -196,7 +196,7 @@ class _LeaderboardModuleState extends State<LeaderboardModule> {
             ...options.map((opt) {
               return ListTile(
                 title: Text(opt),
-                trailing: sortBy == opt ? const Icon(Icons.check_circle, color: Colors.amber) : null,
+                trailing: sortBy == opt ? const Icon(Icons.check_circle, color: Color(0xFFFFC0CB)) : null,
                 onTap: () {
                   Navigator.pop(context);
                   setState(() => sortBy = opt);
@@ -212,36 +212,13 @@ class _LeaderboardModuleState extends State<LeaderboardModule> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = Colors.amber[400];
-
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              'assets/leaderboard.svg',
-              width: 26,
-              height: 26,
-              colorFilter: const ColorFilter.mode(Colors.black, BlendMode.srcIn),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'Leaderboard',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        backgroundColor: accent,
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-      ),
+      appBar: buildCustomAppBar('Leaderboard'),
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(colors: [Color(0xFFF3E8FF), Color(0xFFF9E79F)], begin: Alignment.topCenter, end: Alignment.bottomCenter),
-        ),
+       color: const Color(0xFFFFC0CB),
         child: SafeArea(
+          top: false,
           child: Column(
             children: [
               // icons-only control row
@@ -253,8 +230,9 @@ class _LeaderboardModuleState extends State<LeaderboardModule> {
                     _iconOnlyButton(Icons.filter_list, _showFieldSelector, selectedField != null),
                     const SizedBox(width: 12),
                     _iconOnlyButton(Icons.label, () {
-                      if (selectedField != null) _showValueSelector(selectedField!);
-                      else {
+                      if (selectedField != null) {
+                        _showValueSelector(selectedField!);
+                      } else {
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Select a tag category first")));
                       }
                     }, selectedValue != null),
@@ -284,7 +262,7 @@ class _LeaderboardModuleState extends State<LeaderboardModule> {
       clipBehavior: Clip.none,
       children: [
         Material(
-          color: active ? Colors.amber[100] : Colors.white,
+          color: active ? const Color(0xFFFFB6C1) : Colors.white,
           shape: const CircleBorder(),
           elevation: 3,
           child: InkWell(
@@ -292,7 +270,7 @@ class _LeaderboardModuleState extends State<LeaderboardModule> {
             onTap: onTap,
             child: Padding(
               padding: const EdgeInsets.all(12),
-              child: Icon(icon, size: 22, color: active ? Colors.amber[800] : Colors.black54),
+              child: Icon(icon, size: 22, color: Colors.black),
             ),
           ),
         ),
@@ -304,7 +282,7 @@ class _LeaderboardModuleState extends State<LeaderboardModule> {
             child: Container(
               width: 10,
               height: 10,
-              decoration: BoxDecoration(color: Colors.amber[700], shape: BoxShape.circle, boxShadow: [
+              decoration: BoxDecoration(color: const Color(0xFFFFC0CB), shape: BoxShape.circle, boxShadow: const [
                 BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
               ]),
             ),
