@@ -91,3 +91,11 @@ main, section {
 #hero{
   padding: 4rem 3rem;
 }
+.ex{
+  width: 140px;
+  height: 30px;
+}
+.join{
+  width: 140px;
+  height: 30px;
+}
