@@ -16,27 +16,12 @@ export default function Web() {
 
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (token) {
-        await fetch(`${EXPRESS_API}/auth/Logout`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-        });
-      }
-    } catch (error) {
-      console.error("Logout error:", error);
-    } finally {
-      // Clear localStorage regardless
-      localStorage.removeItem("token");
-      localStorage.removeItem("userid");
-      localStorage.removeItem("profile_name");
-      localStorage.removeItem("userRole");
+      localStorage.clear();
       setIsLoggedIn(false);
       navigate("/login");
-    }
+    } catch (error) {
+      console.error("Logout error:", error);
+    } 
   };
   
   // Check server status on mount

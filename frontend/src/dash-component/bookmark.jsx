@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
+const EXPRESS_API = import.meta.env.VITE_EXPRESS_API;
+const token = localStorage.getItem('token');
+const userid = localStorage.getItem('userid');
+
 const FEED_DESC_LIMIT = 30;
 const MODAL_DESC_LIMIT = 100;
 
@@ -16,21 +20,55 @@ const GlamureBookmarks = () => {
   const [commentInputs, setCommentInputs] = useState({});
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [modalDescExpanded, setModalDescExpanded] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem("bookmarks") || "[]");
-      setSavedPosts(saved);
-      
-      // Initialize likes state from saved posts
-      const initialLikes = {};
-      saved.forEach(post => {
-        initialLikes[post.id] = true;
-      });
-      setLikesState(initialLikes);
-    } catch (error) {
-      console.error('Error loading bookmarks:', error);
+    async function loadBookmarks() {
+      try {
+        const res = await fetch(`${EXPRESS_API}/bookmark/DisplayBookmark?userId=${userid}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        if (data.success && data.bookmarks) {
+          setSavedPosts(data.bookmarks);
+          // Initialize likes state from saved posts
+          const initialLikes = {};
+          data.bookmarks.forEach(post => {
+            initialLikes[post.id] = true;
+          });
+          setLikesState(initialLikes);
+        } else {
+          // Fallback to localStorage if API fails
+          const saved = JSON.parse(localStorage.getItem("bookmarks") || "[]");
+          setSavedPosts(saved);
+          const initialLikes = {};
+          saved.forEach(post => {
+            initialLikes[post.id] = true;
+          });
+          setLikesState(initialLikes);
+        }
+      } catch (error) {
+        console.error('Error loading bookmarks from API:', error);
+        // Fallback to localStorage
+        try {
+          const saved = JSON.parse(localStorage.getItem("bookmarks") || "[]");
+          setSavedPosts(saved);
+          const initialLikes = {};
+          saved.forEach(post => {
+            initialLikes[post.id] = true;
+          });
+          setLikesState(initialLikes);
+        } catch (localError) {
+          console.error('Error loading bookmarks from localStorage:', localError);
+        }
+      } finally {
+        setLoading(false);
+      }
     }
+
+    loadBookmarks();
 
     const onStorage = (e) => {
       if (e.key === "bookmarks") {

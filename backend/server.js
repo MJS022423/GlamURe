@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 import Authrouter from './src/modules/Auth/Auth.Routes.js';
 import Postrouter from './src/modules/Post/Post.Routes.js';
 import BookmarkRouter from './src/modules/Bookmark/Bookmark.Routes.js'
+import CommentRouter from './src/modules/Comment/Comment.Route.js';
 import dotenv from 'dotenv';
 
 // Load environment variables
@@ -34,6 +35,7 @@ app.use(cors());
 app.use('/auth', Authrouter);
 app.use('/post', Postrouter);
 app.use('/bookmark', BookmarkRouter);
+app.use('/comment', CommentRouter);
 
 app.get('/status', (req, res) => {
   res.status(200).json({ status: 'ok', message: '[ EXPRESS SERVER IS RUNNING ]'});

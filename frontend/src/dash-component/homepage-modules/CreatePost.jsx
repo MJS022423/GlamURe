@@ -19,15 +19,12 @@ const sampleTags = {
 export default function CreatePost({ onClose, addPost }) {
   const fileInputRef = useRef(null);
   const [description, setDescription] = useState("");
-  // single image stored as [{ file, preview }]
   const [selectedImages, setSelectedImages] = useState([]);
   const [zoomedImage, setZoomedImage] = useState(null);
   const [showTags, setShowTags] = useState(false);
 
-  // default tags: Gender = Men (exclusive), Style default includes Casual (multiple allowed)
   const [selectedTags, setSelectedTags] = useState(["Men", "Casual"]);
 
-  // Replace image (single-file). If more than one selected somehow, alert and ignore extras.
   const handleImageSelect = (e) => {
     const fileList = e.target.files;
     if (!fileList || fileList.length === 0) return;
@@ -42,9 +39,6 @@ export default function CreatePost({ onClose, addPost }) {
 
   const removeImage = () => setSelectedImages([]);
 
-  // Tag toggling:
-  // - Gender category is exclusive (single choice).
-  // - Style category allows multiple selections (default includes "Casual").
   const toggleTag = (category, tag) => {
     setSelectedTags(prev => {
       const categoryTags = sampleTags[category] || [];
@@ -52,31 +46,23 @@ export default function CreatePost({ onClose, addPost }) {
       const isGender = category === "Gender";
       const isStyle = category === "Style";
 
-      // If tag already selected -> remove it (but ensure style still can have multiple)
       if (prev.includes(tag)) {
-        // For Gender: removing leaves none — we may want to default to "Men" if user removes; keep behavior simple: allow empty but prefer default
         const next = prev.filter(t => t !== tag);
-        // ensure at least one style remains? Not required. We'll leave user control.
-        // For Gender, if user removes and none left, put back "Men" as default
         if (isGender && !next.some(t => categoryTags.includes(t))) {
           return [...next, "Men"];
         }
         return next;
       }
 
-      // If selecting: for gender replace previous gender; for style append (allow multiple).
       if (isGender) {
-        // remove other gender tags and add this one
         const othersRemoved = prev.filter(t => !sampleTags.Gender.includes(t));
         return [...othersRemoved, tag];
       }
 
-      // For style: allow multiple, but ensure if tag added that default "Casual" can remain unless user toggled it off.
       if (isStyle) {
         return [...prev, tag];
       }
 
-      // For other categories: behave like multi-select (append)
       return [...prev, tag];
     });
   };
@@ -94,7 +80,6 @@ export default function CreatePost({ onClose, addPost }) {
     formData.append("userid", userId || "");
     formData.append("caption", description);
     formData.append("tags", JSON.stringify(selectedTags));
-    // single image appended under 'images' because backend expects that field
     formData.append("images", selectedImages[0].file);
 
     try {
