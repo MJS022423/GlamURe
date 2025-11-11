@@ -35,7 +35,6 @@ export default function PostFeed({ posts, variant = "default" }) {
     setLikesState(prev => ({ ...prev, [postId]: !prev[postId] }));
   };
 
-  // initialize bookmark state from localStorage
   useEffect(() => {
     async function loadBookmarks() {
       try {
@@ -46,23 +45,25 @@ export default function PostFeed({ posts, variant = "default" }) {
         });
         const data = await res.json();
         if (data.success) {
-          // convert array to lookup map for easy checking
           const map = data.bookmarks.reduce((acc, item) => {
             acc[item.id] = true;
             return acc;
           }, {});
           setBookmarksState(map);
         }
-      } catch (err) {
-        console.error("Failed to load bookmarks:", err);
-      }
+      } catch  { }
     }
 
     loadBookmarks();
   }, []);
+
+  //  ######################
+  //  Bookmark toggle button
+  //  ######################
+  
   const toggleBookmark = async (post) => {
     const postId = post.id;
-    const next = !bookmarksState[postId]; // toggle current bookmark
+    const next = !bookmarksState[postId];
     setBookmarksState(prev => ({ ...prev, [postId]: next }));
 
     try {
