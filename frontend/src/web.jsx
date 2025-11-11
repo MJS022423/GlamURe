@@ -16,15 +16,7 @@ export default function Web() {
 
   const handleLogout = async () => {
     try {
-<<<<<<< Updated upstream
       localStorage.clear();
-=======
-      // Clear localStorage regardless
-      localStorage.removeItem("token");
-      localStorage.removeItem("userid");
-      localStorage.removeItem("profile_name");
-      localStorage.removeItem("userRole");
->>>>>>> Stashed changes
       setIsLoggedIn(false);
       navigate("/login");
     } catch (error) {
