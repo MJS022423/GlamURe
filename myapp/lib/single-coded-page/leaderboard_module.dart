@@ -71,6 +71,9 @@ class _LeaderboardModuleState extends State<LeaderboardModule> {
   void _applyFiltersAndSort() {
     List<Map<String, dynamic>> filtered = List.from(allDesigns);
 
+    // Only include posts with at least 1 like
+    filtered = filtered.where((post) => _parseInt(post['likes']) > 0).toList();
+
     if (selectedField != null && selectedValue != null) {
       final key = selectedField!.toLowerCase();
       filtered = filtered.where((post) {

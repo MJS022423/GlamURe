@@ -1,23 +1,44 @@
 // homepage-modules/leaderboard-modules/Leaderboard.jsx
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 
 export default function Leaderboard({ goBack }) {
-  const leaderboardData = [
-    { name: "User A", likes: 500, category: "Casual" },
-    { name: "User B", likes: 450, category: "Formal" },
-    { name: "User C", likes: 400, category: "Streetwear" },
-    { name: "User D", likes: 370, category: "Casual" },
-    { name: "User E", likes: 350, category: "Luxury" },
-    { name: "User F", likes: 320, category: "Streetwear" },
-    { name: "User G", likes: 310, category: "Casual" },
-  ];
+  const [leaderboardData, setLeaderboardData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/Post/Displaypost?leaderboard=true&page=1&limit=50');
+        const data = await response.json();
+        if (data.success) {
+          // Transform posts to leaderboard format
+          const transformedData = data.results.map(post => ({
+            name: post.username,
+            likes: post.likes,
+            category: post.style || "Casual"
+          }));
+          setLeaderboardData(transformedData);
+        } else {
+          setError('Failed to load leaderboard');
+        }
+      } catch {
+        setError('Error loading leaderboard');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeaderboard();
+  }, []);
+
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(leaderboardData.map(({ category }) => category)))],
-    []
+    [leaderboardData]
   );
 
   const filteredLeaderboard = useMemo(() => {
@@ -75,7 +96,11 @@ export default function Leaderboard({ goBack }) {
 
       {/* Leaderboard Card */}
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl p-8 border border-pink-200">
-        {filteredLeaderboard.length === 0 ? (
+        {loading ? (
+          <p className="text-center text-gray-500">Loading leaderboard...</p>
+        ) : error ? (
+          <p className="text-center text-red-500">{error}</p>
+        ) : filteredLeaderboard.length === 0 ? (
           <p className="text-center text-gray-500">No designers match your filters.</p>
         ) : (
           filteredLeaderboard.map((user, index) => (

@@ -10,12 +10,13 @@ async function DisplayPost(req, res) {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
+    const leaderboard = req.query.leaderboard === 'true';
 
     const collection = await db.Collection();
 
     const users = await collection.find({ Post: { $exists: true, $ne: [] } }).toArray();
 
-    const allPosts = users.flatMap(user =>
+    let allPosts = users.flatMap(user =>
       (user.Post || []).map(post => ({
         id: post.Post_id,
         userId: user._id,
@@ -35,7 +36,13 @@ async function DisplayPost(req, res) {
       }))
     );
 
-    allPosts.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));
+    if (leaderboard) {
+      // Filter posts with at least 1 like for leaderboard
+      allPosts = allPosts.filter(post => post.likes > 0);
+      allPosts.sort((a, b) => b.likes - a.likes);
+    } else {
+      allPosts.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));
+    }
 
     const totalDocs = allPosts.length;
     const totalPages = Math.ceil(totalDocs / limit);
