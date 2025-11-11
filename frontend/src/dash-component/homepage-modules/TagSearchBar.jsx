@@ -65,11 +65,11 @@ export default function TagSearchBar({ onSearch }) {
 
   return (
     <div className="relative w-full max-w-lg">
-      <div className="flex flex-wrap items-center gap-2 border border-gray-800 rounded-lg px-2 py-1 focus-within:ring-2 focus-within:ring-blue-400">
+      <div className="flex flex-wrap items-center gap-2 border border-white-700 rounded-lg px-2 py-1 focus-within:ring-2 focus-within:ring-white-400">
         {selectedTags.map((tag, idx) => (
           <div
             key={idx}
-            className="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium cursor-pointer hover:bg-blue-200 transition-all duration-200 transform hover:scale-105"
+            className="flex items-center bg-white-100 px-3 py-1 rounded-full text-sm font-medium cursor-pointer hover:bg-red-200 hover:text-black transition-all duration-200 transform hover:scale-105"
             onClick={() => handleRemoveTag(tag)}
             title="Click to remove"
           >
@@ -82,10 +82,10 @@ export default function TagSearchBar({ onSearch }) {
           value={searchInput}
           onChange={handleChange}
           placeholder="Search tags..."
-          className="flex-1 min-w-[120px] px-2 py-1 text-black focus:outline-none"
+          className="flex-1 min-w-[120px] px-2 py-1 text-white focus:outline-none"
         />
         {searchInput && (
-          <button onClick={handleClearInput} className="ml-1 text-black text-xl">&#10006;</button>
+          <button onClick={handleClearInput} className="ml-1 text-pink text-xl">&#10006;</button>
         )}
       </div>
 
