@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 const EXPRESS_API = import.meta.env.VITE_EXPRESS_API
 const token = localStorage.getItem('token');
 const userid = localStorage.getItem('userid');
+const username = localStorage.getItem('username') || 'Anonymous';
 const FEED_DESC_LIMIT = 30; // characters to show in feed
 const MODAL_DESC_LIMIT = 100; // characters to show initially in modal
 
@@ -30,6 +31,8 @@ export default function PostFeed({ posts, variant = "default" }) {
   const [commentInputs, setCommentInputs] = useState({});
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [modalDescExpanded, setModalDescExpanded] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+
 
   const toggleLike = (postId) => {
     setLikesState(prev => ({ ...prev, [postId]: !prev[postId] }));
@@ -51,7 +54,9 @@ export default function PostFeed({ posts, variant = "default" }) {
           }, {});
           setBookmarksState(map);
         }
-      } catch  { }
+      } catch (err) {
+        console.error("Failed to load bookmarks:", err);
+      }
     }
 
     loadBookmarks();
@@ -99,22 +104,57 @@ export default function PostFeed({ posts, variant = "default" }) {
     }
   };
 
-  const handleAddComment = (postId) => {
+  const handleAddComment = async (postId) => {
     const input = commentInputs[postId]?.trim();
     if (!input) return;
 
-    setCommentsState(prev => ({
-      ...prev,
-      [postId]: [...(prev[postId] || []), { username: "Jzar Alaba", text: input }]
-    }));
-
-    setCommentInputs(prev => ({ ...prev, [postId]: "" }));
+    setIsSending(true);
+    try {
+      const res = await fetch(`${EXPRESS_API}/comment/Addcomment?Userid=${userid}&Postid=${postId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ comment: input, username }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Add to local state with username
+        setCommentsState(prev => ({
+          ...prev,
+          [postId]: [...(prev[postId] || []), { username, text: input }]
+        }));
+        setCommentInputs(prev => ({ ...prev, [postId]: "" }));
+      } else {
+        console.error("Failed to add comment:", data.error);
+      }
+    } catch (err) {
+      console.error("Error adding comment:", err);
+    } finally {
+      setIsSending(false);
+    }
   };
 
-  const openPost = (post) => {
+  const openPost = async (post) => {
     setExpandedPost(post);
     setCurrentImageIndex(0);
     setModalDescExpanded(false);
+
+    // Fetch comments for the post
+    try {
+      const res = await fetch(`${EXPRESS_API}/comment/Displaycomment?Postid=${post.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCommentsState(prev => ({ ...prev, [post.id]: data.comments }));
+      }
+    } catch (err) {
+      console.error("Failed to fetch comments:", err);
+    }
   };
 
   const closePost = () => setExpandedPost(null);
@@ -279,7 +319,17 @@ export default function PostFeed({ posts, variant = "default" }) {
                   onChange={e => setCommentInputs(prev => ({ ...prev, [expandedPost.id]: e.target.value }))}
                   onKeyDown={e => { if (e.key === "Enter") handleAddComment(expandedPost.id); }}
                 />
-                <button onClick={() => handleAddComment(expandedPost.id)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Send</button>
+                <button
+                  onClick={() => handleAddComment(expandedPost.id)}
+                  disabled={isSending}
+                  className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+                    isSending
+                      ? 'bg-gray-400 text-gray-200 cursor-not-allowed scale-95'
+                      : 'bg-black text-white hover:bg-red-200 hover:text-black hover:scale-105'
+                  }`}
+                >
+                  {isSending ? 'Sending...' : 'Send'}
+                </button>
               </div>
 
               <div className="flex-1 overflow-y-auto border-t pt-2">
@@ -287,7 +337,7 @@ export default function PostFeed({ posts, variant = "default" }) {
                   <div key={idx} className="flex items-start gap-2 mb-2">
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200 text-xs">👤</span>
                     <div className="text-sm text-black">
-                      <p className="font-semibold">{c.username}</p>
+                      <p className="font-semibold">{c.username || username}</p>
                       <p>{c.text}</p>
                     </div>
                   </div>

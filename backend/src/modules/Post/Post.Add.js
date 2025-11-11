@@ -48,7 +48,31 @@ async function AddPost(req, res) {
 
     if (result) {
       ConsoleLog("[ PRODUCT SUCCESSFULLY ADDED ]", log);
-      return { success: true, message: "Product has been added" };
+
+      // Fetch the updated user document to get the newly added post
+      const updatedUser = await collection.findOne({ _id: new ObjectId(userid) });
+      const addedPost = updatedUser.Post.find(p => p.Post_id === uniqueId);
+
+      // Format the post similar to DisplayPost
+      const formattedPost = {
+        id: addedPost.Post_id,
+        userId: updatedUser._id,
+        username: updatedUser.Username || "Unknown User",
+        profile_pic: updatedUser.Profile_pic || null,
+        caption: addedPost.Caption || "",
+        tags: addedPost.Tags || [],
+        likes: addedPost.likes || 0,
+        comments: addedPost.comments || [],
+        createdDate: addedPost.createdDate || new Date(),
+        images: (addedPost.Images || []).map(img => {
+          const buffer = Buffer.isBuffer(img) ? img : img.buffer ? Buffer.from(img.buffer) : Buffer.from([]);
+          return `data:image/jpeg;base64,${buffer.toString('base64')}`;
+        }),
+        gender: addedPost.Gender || "Unisex",
+        style: addedPost.Style || "Casual",
+      };
+
+      return { success: true, message: "Product has been added", post: formattedPost };
     }
 
   } catch (error) {

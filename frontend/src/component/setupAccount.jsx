@@ -82,7 +82,7 @@ const SetupAccount = () => {
 
             if (response.ok) {
                 console.log("✅ Account setup success:", data);
-                navigate("/dashboard");
+                navigate("/login");
             } else {
                 alert(data.error || data.message || "Setup failed");
             }

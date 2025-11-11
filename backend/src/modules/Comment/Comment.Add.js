@@ -10,7 +10,7 @@ async function Add(req, res) {
 
     const userid = req.query.Userid;
     const postid = req.query.Postid;
-    const { comment } = req.body;
+    const { comment, username } = req.body;
 
     if (!comment || !userid || !postid) {
       return res.status(400).json({ error: "Failed to add comment missing parameter" });
@@ -19,12 +19,13 @@ async function Add(req, res) {
     const commentDocs = {
       user_id: new ObjectId(userid),
       text: comment,
+      username: username || 'Anonymous',
     }
 
     const collection = await db.Collection();
     const result = await collection.updateOne(
       { _id: new ObjectId(postid)},
-      { $push: { "Post.$.comments":  commentDocs } },
+      { $push: { "comments":  commentDocs } },
     )
 
     ConsoleLog("[ SUCCESSFULLY ADDED COMMENT ]", log);
