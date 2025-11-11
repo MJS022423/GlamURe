@@ -7,9 +7,6 @@ const log = false;
 async function DisplayPost(req, res) {
   ConsoleLog("[ POST DISPLAY ROUTER ]", log);
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
     const leaderboard = req.query.leaderboard === 'true';
 
     const collection = await db.Collection();
@@ -45,15 +42,11 @@ async function DisplayPost(req, res) {
     }
 
     const totalDocs = allPosts.length;
-    const totalPages = Math.ceil(totalDocs / limit);
-    const paginatedPosts = allPosts.slice(skip, skip + limit);
 
     res.status(200).json({
       success: true,
-      page,
-      totalPages,
       totalDocs,
-      results: paginatedPosts,
+      results: allPosts,
     });
 
   } catch (error) {

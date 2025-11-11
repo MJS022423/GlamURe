@@ -98,6 +98,9 @@ export default function CreatePost({ onClose, addPost }) {
         throw new Error(errMsg);
       }
 
+      // Close modal immediately after successful upload
+      onClose?.();
+
       // Use server-returned post data if available, otherwise fallback
       const newPost = data && data.success && data.post ? data.post : {
         id: Date.now().toString(),
@@ -115,11 +118,10 @@ export default function CreatePost({ onClose, addPost }) {
       // Add post to parent feed
       addPost(newPost);
 
-      // Close UI and reset form
+      // Reset form
       setDescription("");
       setSelectedImages([]);
       setSelectedTags(["Men", "Casual"]);
-      onClose?.();
 
     } catch (error) {
       console.error("Upload failed:", error);

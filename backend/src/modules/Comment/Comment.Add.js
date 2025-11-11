@@ -32,7 +32,7 @@ async function Add(req, res) {
     res.status(200).json({ success: true, message: "successfully added comment in post" });
 
   } catch (error) {
-    ConsoleError("[ FAILED TO ADD COMMENT ]", log)
+    ConsoleError(`[ FAILED TO ADD COMMENT ]: ${error.message}`, log)
   } finally {
     await db.Close();
   }

@@ -23,35 +23,35 @@ const GlamureBookmarks = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadBookmarks() {
+    const fetchBookmarks = async () => {
       try {
-        const res = await fetch(`${EXPRESS_API}/bookmark/DisplayBookmark?userId=${userid}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetch(`${EXPRESS_API}/bookmark/DisplayBookmark?userId=${userid}`);
         const data = await res.json();
-        if (data.success && data.bookmarks) {
-          setSavedPosts(data.bookmarks);
-          // Initialize likes state from saved posts
-          const initialLikes = {};
-          data.bookmarks.forEach(post => {
-            initialLikes[post.id] = true;
-          });
-          setLikesState(initialLikes);
-        } else {
-          // Fallback to localStorage if API fails
-          const saved = JSON.parse(localStorage.getItem("bookmarks") || "[]");
-          setSavedPosts(saved);
-          const initialLikes = {};
-          saved.forEach(post => {
-            initialLikes[post.id] = true;
-          });
-          setLikesState(initialLikes);
-        }
-      } catch (error) {
-        console.error('Error loading bookmarks from API:', error);
-        // Fallback to localStorage
+        console.log(data);
+
+        if (!data.success) throw new Error(data.error || "Failed to fetch bookmarks");
+
+        const formattedBookmarks = data.bookmarks.map(bookmark => ({
+          id: bookmark.id,
+          username: bookmark.username || "Unknown User",
+          description: bookmark.caption || "",
+          images: bookmark.images || [],
+          tags: bookmark.tags || [],
+          gender: bookmark.gender || "Unisex",
+          style: bookmark.style || "Casual",
+          likes: bookmark.likes || 0,
+        }));
+
+        setSavedPosts(formattedBookmarks);
+        // Initialize likes state from saved posts
+        const initialLikes = {};
+        formattedBookmarks.forEach(post => {
+          initialLikes[post.id] = true;
+        });
+        setLikesState(initialLikes);
+      } catch (err) {
+        console.error("Failed to load bookmarks:", err);
+        // Fallback to localStorage if API fails
         try {
           const saved = JSON.parse(localStorage.getItem("bookmarks") || "[]");
           setSavedPosts(saved);
@@ -66,9 +66,9 @@ const GlamureBookmarks = () => {
       } finally {
         setLoading(false);
       }
-    }
+    };
 
-    loadBookmarks();
+    fetchBookmarks();
 
     const onStorage = (e) => {
       if (e.key === "bookmarks") {

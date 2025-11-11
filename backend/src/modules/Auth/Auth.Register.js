@@ -17,12 +17,11 @@ async function userSchema(req) {
     Email: `${email}`,
     Password: `${hashedpassword}`,
     Profile_pic: null,
-    Profile_name: null,
-    gender: null,
-
+    DisplayName: null,
+    Gender: null,
+    Role: 'user',
     Bookmark: [],
     Post: [],
-    Role: 'user',
     Createdat: new Date(),
   }
 };

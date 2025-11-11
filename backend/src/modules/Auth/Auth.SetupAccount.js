@@ -16,14 +16,14 @@ async function SetupAccount(req, res) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const collection = await db.Collection('Account');
-    
+    const collection = await db.Collection();
+
     // Update user account with setup information
     const updateData = {
       DisplayName: displayName,
       Gender: gender,
       Role: role,
-      ...(profileImage && { ProfileImage: profileImage })
+      ...(profileImage && { Profile_pic: profileImage })
     };
 
     const result = await collection.updateOne(

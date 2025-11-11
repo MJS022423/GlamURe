@@ -9,6 +9,6 @@ const BookmarkRouter = express.Router();
 
 BookmarkRouter.post('/SaveBookmark', authMiddleware, Save);
 BookmarkRouter.post('/RemoveBookmark', authMiddleware, Remove);
-BookmarkRouter.get('/DisplayBookmark', authMiddleware, Display);
+BookmarkRouter.get('/DisplayBookmark', Display);
 
 export default BookmarkRouter;
