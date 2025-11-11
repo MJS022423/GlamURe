@@ -42,7 +42,6 @@ export default function CreatePost({ onClose, addPost }) {
   const toggleTag = (category, tag) => {
     setSelectedTags(prev => {
       const categoryTags = sampleTags[category] || [];
-      const prevCategorySelected = prev.filter(t => categoryTags.includes(t));
       const isGender = category === "Gender";
       const isStyle = category === "Style";
 
@@ -92,7 +91,7 @@ export default function CreatePost({ onClose, addPost }) {
       });
 
       let data = null;
-      try { data = await res.json(); } catch (err) { /* ignore */ }
+      try { data = await res.json(); } catch { /* ignore */ }
 
       if (!res.ok) {
         const errMsg = (data && (data.error || data.message)) || `Failed to upload post (${res.status})`;
@@ -128,17 +127,13 @@ export default function CreatePost({ onClose, addPost }) {
       };
 
       // Add post to parent feed
-      try { addPost(newPost); } catch (err) { /* ignore if parent doesn't need it */ }
+      addPost(newPost);
 
-      // Close UI and refresh homepage to ensure canonical rendering
+      // Close UI and reset form
       setDescription("");
       setSelectedImages([]);
       setSelectedTags(["Men", "Casual"]);
       onClose?.();
-
-      // refresh page so post appears in homepage (you requested this behaviour)
-      // if you prefer not to reload, remove the next line
-      window.location.reload();
 
     } catch (error) {
       console.error("Upload failed:", error);

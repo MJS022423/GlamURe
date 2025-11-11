@@ -31,6 +31,7 @@ export default function PostFeed({ posts, variant = "default" }) {
   const [commentInputs, setCommentInputs] = useState({});
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [modalDescExpanded, setModalDescExpanded] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   const toggleLike = (postId) => {
     setLikesState(prev => ({ ...prev, [postId]: !prev[postId] }));
@@ -106,6 +107,7 @@ export default function PostFeed({ posts, variant = "default" }) {
     const input = commentInputs[postId]?.trim();
     if (!input) return;
 
+    setIsSending(true);
     try {
       const res = await fetch(`${EXPRESS_API}/comment/Addcomment?Userid=${userid}&Postid=${postId}`, {
         method: "POST",
@@ -113,7 +115,7 @@ export default function PostFeed({ posts, variant = "default" }) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ comment: input }),
+        body: JSON.stringify({ comment: input, username }),
       });
       const data = await res.json();
       if (data.success) {
@@ -128,6 +130,8 @@ export default function PostFeed({ posts, variant = "default" }) {
       }
     } catch (err) {
       console.error("Error adding comment:", err);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -306,7 +310,17 @@ export default function PostFeed({ posts, variant = "default" }) {
                   onChange={e => setCommentInputs(prev => ({ ...prev, [expandedPost.id]: e.target.value }))}
                   onKeyDown={e => { if (e.key === "Enter") handleAddComment(expandedPost.id); }}
                 />
-                <button onClick={() => handleAddComment(expandedPost.id)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Send</button>
+                <button
+                  onClick={() => handleAddComment(expandedPost.id)}
+                  disabled={isSending}
+                  className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+                    isSending
+                      ? 'bg-gray-400 text-gray-200 cursor-not-allowed scale-95'
+                      : 'bg-black text-white hover:bg-red-200 hover:text-black hover:scale-105'
+                  }`}
+                >
+                  {isSending ? 'Sending...' : 'Send'}
+                </button>
               </div>
 
               <div className="flex-1 overflow-y-auto border-t pt-2">
@@ -314,7 +328,7 @@ export default function PostFeed({ posts, variant = "default" }) {
                   <div key={idx} className="flex items-start gap-2 mb-2">
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200 text-xs">👤</span>
                     <div className="text-sm text-black">
-                      <p className="font-semibold">{c.username}</p>
+                      <p className="font-semibold">{c.username || username}</p>
                       <p>{c.text}</p>
                     </div>
                   </div>
