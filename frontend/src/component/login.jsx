@@ -92,11 +92,10 @@ function Login({ onLoginSuccess }) {
 
       const data = await response.json();
 
-      if (response.success) {
+      if (data.success) {
         console.log("✅ Registration success:", data);
-        onLoginSuccess();
 
-        navigate("./setupAccount", { state: { username: registerData.username } });
+        navigate("/setupAccount", { state: { username: registerData.username } });
 
         setRegisterData({
           username: "",
