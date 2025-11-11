@@ -13,6 +13,8 @@ async function Display(req, res) {
     const collection = await db.Collection();
     const user = await collection.findOne({ _id: new ObjectId(userId) });
 
+    const post = (user?.Post || []).find();
+
     const bookmarks = (user?.Bookmark || []).map(b => ({
       id: b.Post_id,
       savedAt: b.SavedAt || null,

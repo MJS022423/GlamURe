@@ -42,7 +42,6 @@ async function SetupAccount(req, res) {
     ConsoleError(`[ FAILED TO SETUP ACCOUNT ]: ${error.message}`, log);
     return res.status(500).json({ error: 'Internal Server Error' });
   } finally {
-    ConsoleLog('[ CLOSING SETUP ACCOUNT CONNECTION ]', log);
     await db.Close();
   }
 }

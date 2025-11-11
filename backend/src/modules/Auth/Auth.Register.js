@@ -18,9 +18,9 @@ async function userSchema(req) {
     Password: `${hashedpassword}`,
     Profile_pic: null,
     Profile_name: null,
+    gender: null,
 
     Bookmark: [],
-    notification: [],
     Post: [],
     Role: 'user',
     Createdat: new Date(),
