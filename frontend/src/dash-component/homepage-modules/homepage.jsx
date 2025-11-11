@@ -16,7 +16,7 @@ export default function Homepage() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await fetch(`${EXPRESS_API}/post/Displaypost?page=1&limit=10`);
+        const res = await fetch(`${EXPRESS_API}/post/Displaypost`);
         const data = await res.json();
 
         if (!data.success) throw new Error(data.error || "Failed to fetch posts");
@@ -28,7 +28,7 @@ export default function Homepage() {
           images: post.images || [],
           tags: post.tags || [],
           gender: post.gender || "Unisex",
-          style: post.style || "Casual", 
+          style: post.style || "Casual",
           likes: post.likes || 0,
         }));
 

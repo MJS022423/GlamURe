@@ -166,11 +166,21 @@ export default function PostFeed({ posts, variant = "default" }) {
     : "border border-gray-700 rounded-lg w-[240px] h-[320px] bg-white flex flex-col p-3 hover:scale-105 shadow-lg transition-transform duration-200 cursor-pointer";
 
   return (
-    <div className={containerClass}>
-      {posts.length === 0 ? (
-        <p className="text-center text-gray-500 text-xl mt-20">No posts yet</p>
-      ) : (
-        <div className={gridClass}>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      ` }} />
+      <div className={`${containerClass} overflow-y-auto max-h-screen scrollbar-hide`}>
+        {posts.length === 0 ? (
+          <p className="text-center text-gray-500 text-xl mt-20">No posts yet</p>
+        ) : (
+          <div className={gridClass}>
           {posts.map(post => (
             <div
               key={post.id}
@@ -212,7 +222,6 @@ export default function PostFeed({ posts, variant = "default" }) {
                 {/* Bookmark */}
                 <div className="flex items-center gap-1 cursor-pointer" onClick={e => { e.stopPropagation(); toggleBookmark(post); }}>
                   <img src={bookmarksState[post.id] ? BOOKMARK_TRUE : BOOKMARK_FALSE} alt="bookmark" className="w-6 h-6" />
-                  <span>{bookmarksState[post.id] ? 1 : 0}</span>
                 </div>
               </div>
             </div>
@@ -258,7 +267,6 @@ export default function PostFeed({ posts, variant = "default" }) {
                 </div>
                 <div className="flex items-center gap-1 cursor-pointer" onClick={() => toggleBookmark(expandedPost)}>
                   <img src={bookmarksState[expandedPost.id] ? BOOKMARK_TRUE : BOOKMARK_FALSE} alt="bookmark" className="w-6 h-6" />
-                  <span>{bookmarksState[expandedPost.id] ? 1 : 0}</span>
                 </div>
               </div>
 
@@ -291,5 +299,6 @@ export default function PostFeed({ posts, variant = "default" }) {
         </div>
       )}
     </div>
+    </>
   );
 }
