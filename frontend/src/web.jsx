@@ -13,6 +13,31 @@ export default function Web() {
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        await fetch(`${EXPRESS_API}/auth/Logout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      // Clear localStorage regardless
+      localStorage.removeItem("token");
+      localStorage.removeItem("userid");
+      localStorage.removeItem("profile_name");
+      localStorage.removeItem("userRole");
+      setIsLoggedIn(false);
+      navigate("/login");
+    }
+  };
   
   // Check server status on mount
   useEffect(() => {
@@ -102,7 +127,7 @@ export default function Web() {
         path="/dashboard/*"
         element={
           isLoggedIn ? (
-            <Dashboard goLogout={() => setIsLoggedIn(false)} />
+            <Dashboard goLogout={handleLogout} />
           ) : (
             <Navigate to="/login" />
           )

@@ -82,7 +82,7 @@ export default function Homepage() {
             <img
               src="https://www.svgrepo.com/show/521942/add-ellipse.svg"
               alt="Add Post"
-              className="w-10 h-10 object-cover rounded mb-2 transition-transform duration-200 hover:scale-105"
+              className="w-10 h-10 object-cover rounded mb-2 transition-transform duration-200 hover:scale-105 filter invert"
             />
           </button>
 
@@ -94,7 +94,7 @@ export default function Homepage() {
             <img
               src="https://www.svgrepo.com/show/487506/leaderboard.svg"
               alt="Leaderboard"
-              className="w-10 h-10 object-cover rounded mb-2 transition-transform duration-200 hover:scale-105"
+              className="w-10 h-10 object-cover rounded mb-2 transition-transform duration-200 hover:scale-105 filter invert"
             />
           </button>
         </div>

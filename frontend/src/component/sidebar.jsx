@@ -10,6 +10,7 @@ import logout from "../assets/logout.svg";
 
 const Sidebar = ({ onLogout, onExpand = () => {} }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
   const location = useLocation();
 
   // Read profile values from localStorage inside the component so they update when changed.
@@ -129,7 +130,7 @@ const Sidebar = ({ onLogout, onExpand = () => {} }) => {
       {/* Logout Button */}
       <div className="flex-shrink-0 pb-3">
         <button
-          onClick={onLogout}
+          onClick={() => setShowLogoutPopup(true)}
           className={`flex items-center w-full py-3 rounded-xl hover:bg-gray-700 transition-all duration-200 ${
             isExpanded ? "justify-start gap-4 px-4" : "justify-center"
           }`}
@@ -138,6 +139,32 @@ const Sidebar = ({ onLogout, onExpand = () => {} }) => {
           {isExpanded && <span className="text-base font-semibold">Logout</span>}
         </button>
       </div>
+
+      {/* Logout Confirmation Popup */}
+      {showLogoutPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h2 className="text-lg font-semibold mb-4">Are you sure you want to logout?</h2>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => {
+                  setShowLogoutPopup(false);
+                  onLogout();
+                }}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                Yes, Logout
+              </button>
+              <button
+                onClick={() => setShowLogoutPopup(false)}
+                className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Hide scrollbar but keep scrollable */}
       <style jsx>{`
