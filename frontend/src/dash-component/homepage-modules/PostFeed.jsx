@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 const EXPRESS_API = import.meta.env.VITE_EXPRESS_API
 const token = localStorage.getItem('token');
 const userid = localStorage.getItem('userid');
+const username = localStorage.getItem('username') || 'Anonymous';
 const FEED_DESC_LIMIT = 30; // characters to show in feed
 const MODAL_DESC_LIMIT = 100; // characters to show initially in modal
 
@@ -51,7 +52,9 @@ export default function PostFeed({ posts, variant = "default" }) {
           }, {});
           setBookmarksState(map);
         }
-      } catch  { }
+      } catch (err) {
+        console.error("Failed to load bookmarks:", err);
+      }
     }
 
     loadBookmarks();
@@ -99,22 +102,54 @@ export default function PostFeed({ posts, variant = "default" }) {
     }
   };
 
-  const handleAddComment = (postId) => {
+  const handleAddComment = async (postId) => {
     const input = commentInputs[postId]?.trim();
     if (!input) return;
 
-    setCommentsState(prev => ({
-      ...prev,
-      [postId]: [...(prev[postId] || []), { username: "Jzar Alaba", text: input }]
-    }));
-
-    setCommentInputs(prev => ({ ...prev, [postId]: "" }));
+    try {
+      const res = await fetch(`${EXPRESS_API}/comment/Addcomment?Userid=${userid}&Postid=${postId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ comment: input }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Add to local state with username
+        setCommentsState(prev => ({
+          ...prev,
+          [postId]: [...(prev[postId] || []), { username, text: input }]
+        }));
+        setCommentInputs(prev => ({ ...prev, [postId]: "" }));
+      } else {
+        console.error("Failed to add comment:", data.error);
+      }
+    } catch (err) {
+      console.error("Error adding comment:", err);
+    }
   };
 
-  const openPost = (post) => {
+  const openPost = async (post) => {
     setExpandedPost(post);
     setCurrentImageIndex(0);
     setModalDescExpanded(false);
+
+    // Fetch comments for the post
+    try {
+      const res = await fetch(`${EXPRESS_API}/comment/Displaycomment?Postid=${post.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCommentsState(prev => ({ ...prev, [post.id]: data.comments }));
+      }
+    } catch (err) {
+      console.error("Failed to fetch comments:", err);
+    }
   };
 
   const closePost = () => setExpandedPost(null);
