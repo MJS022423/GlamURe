@@ -46,7 +46,6 @@ export default function Homepage() {
   const handleAddPost = (newPost) => {
     setPosts(prev => [newPost, ...prev]);
     setFilteredPosts(prev => [newPost, ...prev]);
-    setShowPostModal(true);
   };
 
   const handleTagSearch = (selectedTags) => {
@@ -101,7 +100,18 @@ export default function Homepage() {
       </div>
 
       {/* Post feed */}
-      <PostFeed posts={filteredPosts.length ? filteredPosts : posts} />
+      <div className="mt-30 overflow-y-auto no-scrollbar h-[100%]">
+        <style jsx>{`
+          .no-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+          .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+        `}</style>
+        <PostFeed posts={filteredPosts.length ? filteredPosts : posts} />
+      </div>
 
       {/* CreatePost modal */}
       {showPostModal && (
