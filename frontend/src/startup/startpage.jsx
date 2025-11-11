@@ -188,13 +188,13 @@ const Startpage = () => {
             </p>
             <div className="flex flex-col md:flex-row gap-5 justify-center md:justify-start mt-4">
               <button
-                className="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-6 rounded-full shadow-md transition duration-300"
+                className="ex bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-6 rounded-full shadow-md transition duration-300"
                 onClick={() => scrollToSection("category")}
               >
                 Explore Designs
               </button>
               <button
-                className="border-2 border-pink-600 text-pink-600 hover:bg-pink-50 font-semibold py-3 px-6 rounded-full shadow-md transition duration-300 bg-white/10 backdrop-blur"
+                className="join border-2 border-pink-600 text-pink-600 hover:bg-pink-50 font-semibold py-3 px-6 rounded-full shadow-md transition duration-300 bg-white/10 backdrop-blur"
                 onClick={() =>
                   navigate("/login", { state: { register: true } })
                 }
