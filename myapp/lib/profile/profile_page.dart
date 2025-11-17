@@ -13,13 +13,18 @@ import 'widgets/top_designs.dart';
 import 'widgets/recent_posts.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  /// If [user] is provided, this page will show that user's profile.
+  /// If null, it will show the currently signed-in user's profile (the "own" profile).
+  final Map<String, dynamic>? user;
+
+  const ProfilePage({super.key, this.user});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStateMixin {
+class _ProfilePageState extends State<ProfilePage>
+    with SingleTickerProviderStateMixin {
   bool showPostModal = false;
   late final AnimationController _fadeController;
   late final Animation<double> _fadeAnimation;
@@ -27,8 +32,10 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    _fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
-    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
+    _fadeController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 600));
+    _fadeAnimation =
+        CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
     _fadeController.forward();
   }
 
@@ -36,6 +43,30 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
   void dispose() {
     _fadeController.dispose();
     super.dispose();
+  }
+
+  /// Resolve which user this page should display.
+  /// Priority: widget.user -> AccountStore.currentUser -> empty map
+  Map<String, dynamic> get _profileOwner {
+    if (widget.user != null) return widget.user!;
+    try {
+      final current = AccountStore.currentUser;
+      if (current is Map<String, dynamic>) return current;
+    } catch (_) {}
+    return <String, dynamic>{};
+  }
+
+  /// Returns true if the page is showing the signed-in user's own profile.
+  bool get _isOwnProfile {
+    final owner = _profileOwner;
+    final ownerUsername =
+        (owner['username'] ?? owner['handle'] ?? owner['authorUsername'])?.toString();
+    final currentUsername = AccountStore.currentUsername;
+    if (ownerUsername == null || currentUsername == null) {
+      // if we can't tell, assume own profile when widget.user == null
+      return widget.user == null;
+    }
+    return ownerUsername == currentUsername;
   }
 
   Future<void> _confirmLogout() async {
@@ -52,47 +83,69 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     );
 
     if (confirm == true) {
-      // Clear the current user's transient actions (matches your UserActionsStore API)
-      // NOTE: your user_actions_store.dart defines clearCurrentUser(), not clearCurrentUserActions()
       try {
         UserActionsStore.clearCurrentUser();
-      } catch (e) {
-        // Defensive: if API name changes again, don't crash logout flow.
-        debugPrint('Warning while clearing user actions: $e');
-      }
+      } catch (_) {}
 
       AccountStore.logout();
       if (!mounted) return;
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginScreen()), (r) => false);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (r) => false,
+      );
     }
   }
 
   void _openCreatePost() => setState(() => showPostModal = true);
   void _closeCreatePost() => setState(() => showPostModal = false);
-
-  // force rebuild (child widgets read canonical stores)
   void _refresh() => setState(() {});
+
+  /// Builds an AppBar that shows a back button when viewing another user's profile.
+  PreferredSizeWidget _buildAppBar(String title) {
+    // If viewing a specific user (pushed via Navigator.push with user), show default AppBar with back button.
+    if (widget.user != null) {
+      return AppBar(
+        backgroundColor: Colors.white,
+        elevation: 2,
+        title: Text(title, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        iconTheme: const IconThemeData(color: Colors.black),
+      );
+    }
+
+    // Otherwise (own profile used from bottom nav), use the custom app bar.
+    return buildCustomAppBar(title);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final owner = _profileOwner;
+    final title = (owner['displayName'] ?? owner['name'] ?? owner['username'] ?? 'Profile').toString();
+    final isOwn = _isOwnProfile;
+
     return Stack(
       children: [
         Scaffold(
           backgroundColor: const Color(0xfffde2e4),
-          appBar: buildCustomAppBar('Profile'),
+          appBar: _buildAppBar(title),
           body: SafeArea(
-            top: true,
             child: SingleChildScrollView(
               child: Column(
                 children: [
                   const SizedBox(height: 8),
+
+                  // HeaderPanel: show but disable create/logout when viewing another user
                   HeaderPanel(
                     fadeAnimation: _fadeAnimation,
-                    onLogout: _confirmLogout,
-                    onCreatePost: _openCreatePost,
+                    onLogout: isOwn ? _confirmLogout : () {},
+                    onCreatePost: isOwn ? _openCreatePost : () {},
                   ),
+
                   const SizedBox(height: 18),
+
+                  // Top designs for the owner (filtered inside TopDesigns)
                   TopDesigns(
+                    owner: owner,
                     onOpenPost: (post) {
                       Navigator.push(context, MaterialPageRoute(builder: (_) {
                         return ExpandedPostPage(
@@ -108,7 +161,10 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                       }));
                     },
                   ),
+
+                  // Recent posts for the owner (filtered inside RecentPosts)
                   RecentPosts(
+                    owner: owner,
                     onOpenPost: (post) {
                       Navigator.push(context, MaterialPageRoute(builder: (_) {
                         return ExpandedPostPage(
@@ -125,6 +181,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                     },
                     onChanged: _refresh,
                   ),
+
                   const SizedBox(height: 24),
                 ],
               ),
@@ -132,11 +189,11 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
           ),
         ),
 
-        if (showPostModal)
+        // Create post modal only when viewing own profile
+        if (showPostModal && isOwn)
           CreatePostModule(
             onClose: _closeCreatePost,
             addPost: (p) {
-              // new post is already added in PostStore by CreatePostModule
               _closeCreatePost();
               _refresh();
             },

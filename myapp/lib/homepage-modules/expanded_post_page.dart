@@ -8,6 +8,7 @@ import '../data/post_store.dart';
 import '../data/user_actions_store.dart';
 import '../data/comment_store.dart';
 import '../data/account_store.dart'; // to fetch avatars/public profiles
+import '../profile/profile_page.dart'; // <- new import for navigating to profile
 
 class ExpandedPostPage extends StatefulWidget {
   final Map<String, dynamic> post;
@@ -186,6 +187,135 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
     );
   }
 
+  /// Build an author header with avatar + name which navigates to ProfilePage when tapped.
+  Widget _buildAuthorHeader(BuildContext context) {
+    // Try a few conventions to find author info inside the post map:
+    Map<String, dynamic>? authorMap;
+    String? authorUsername;
+
+    if (post['user'] is Map<String, dynamic>) {
+      authorMap = Map<String, dynamic>.from(post['user']);
+      authorUsername = (authorMap['username'] ?? authorMap['handle'] ?? authorMap['authorUsername'])?.toString();
+    } else if (post['author'] is Map<String, dynamic>) {
+      authorMap = Map<String, dynamic>.from(post['author']);
+      authorUsername = (authorMap['username'] ?? authorMap['handle'] ?? authorMap['authorUsername'])?.toString();
+    } else if (post['authorUsername'] != null) {
+      authorUsername = post['authorUsername'].toString();
+    } else if (post['username'] != null) {
+      authorUsername = post['username'].toString();
+    } else if (post['authorId'] != null) {
+      authorUsername = post['authorId'].toString();
+    }
+
+    // If we don't already have a map, try to load a public profile by username.
+    if (authorMap == null && authorUsername != null) {
+      try {
+        final publicProfile = AccountStore.getPublicProfile(authorUsername);
+        if (publicProfile != null) authorMap = Map<String, dynamic>.from(publicProfile);
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    // Fallback minimal map so UI still shows something
+    final displayName = (authorMap != null
+            ? (authorMap['displayName'] ?? authorMap['name'] ?? authorMap['username'])
+            : authorUsername) ??
+        'Unknown';
+
+    final avatarSource = authorMap != null
+        ? (authorMap['profileImage'] ?? authorMap['avatar'] ?? authorMap['photo'])
+        : null;
+
+    ImageProvider? avatarImageProvider;
+    if (avatarSource is Uint8List) {
+      avatarImageProvider = MemoryImage(avatarSource);
+    } else if (avatarSource is String && avatarSource.isNotEmpty) {
+      // If the profile image looks like base64, decode it; otherwise treat it as a URL
+      final maybeBase64 = avatarSource;
+      if (maybeBase64.contains(RegExp(r'^[A-Za-z0-9+/=]+\$'))) {
+        try {
+          final bytes = base64Decode(maybeBase64);
+          avatarImageProvider = MemoryImage(bytes);
+        } catch (_) {
+          avatarImageProvider = NetworkImage(maybeBase64);
+        }
+      } else if (maybeBase64.startsWith('http') || maybeBase64.startsWith('data:')) {
+        // data: URIs with base64 are handled by MemoryImage above when decoded; treat http as network
+        if (maybeBase64.startsWith('data:')) {
+          // strip prefix if it's a data uri like "data:image/png;base64,...."
+          final parts = maybeBase64.split(',');
+          if (parts.length == 2) {
+            try {
+              final bytes = base64Decode(parts[1]);
+              avatarImageProvider = MemoryImage(bytes);
+            } catch (_) {
+              avatarImageProvider = null;
+            }
+          }
+        } else {
+          avatarImageProvider = NetworkImage(maybeBase64);
+        }
+      } else {
+        // last resort, attempt network image
+        avatarImageProvider = NetworkImage(maybeBase64);
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      child: Row(
+        children: [
+          InkWell(
+            onTap: () {
+              // When tapped open ProfilePage for this author.
+              // If we have a full authorMap, pass it. Otherwise, pass a minimal map with username.
+              final toPass = authorMap ?? <String, dynamic>{'username': authorUsername};
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => ProfilePage(user: toPass)),
+              );
+            },
+            borderRadius: BorderRadius.circular(28),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 22,
+                  backgroundColor: Colors.grey[200],
+                  backgroundImage: avatarImageProvider,
+                  child: avatarImageProvider == null
+                      ? Text(
+                          displayName.toString().isNotEmpty ? displayName.toString()[0].toUpperCase() : 'U',
+                          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      displayName.toString(),
+                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                    ),
+                    if ((authorMap != null && (authorMap['username'] ?? authorMap['handle'] ?? '').toString().isNotEmpty) ||
+                        (authorUsername != null && authorUsername.isNotEmpty))
+                      Text(
+                        '@${(authorMap != null ? (authorMap['username'] ?? authorMap['handle']) : authorUsername) ?? ''}',
+                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const Spacer(),
+          // you can keep other header actions here (e.g., more menu)
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final images = List<dynamic>.from(post['images'] ?? []);
@@ -216,6 +346,9 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Author header added here:
+              _buildAuthorHeader(context),
+
               if (images.isNotEmpty)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),
