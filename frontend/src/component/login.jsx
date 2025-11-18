@@ -57,7 +57,9 @@ function Login({ onLoginSuccess }) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("userid", data.userid);
         localStorage.setItem("profile_name", data.name);
+        localStorage.setItem("username", data.username);
         localStorage.setItem("userRole", data.role);
+        localStorage.setItem("profile_avatar", data.profileImage);
         onLoginSuccess();
         navigate("/dashboard");
       } else {

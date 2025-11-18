@@ -2,7 +2,7 @@ import Database from "../modules.connection.js";
 import { ConsoleLog, ConsoleError } from "../../utils/utils.logger.js";
 import { ObjectId } from "mongodb";
 
-const db = new Database();
+const db = new Database(false);
 const log = true;
 
 async function Display(req, res) {
@@ -21,7 +21,8 @@ async function Display(req, res) {
     }
 
     ConsoleLog("[ SUCCESSFULLY RETRIEVE COMMENT ]", log);
-    return res.status(200).json({ comments: post.comments || [] });
+    const comments = (post.comments || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return res.status(200).json({ success: true, comments });
 
   } catch (error) {
     ConsoleError(`[ FAILED TO RETRIEVE COMMENTS ]: ${error.message}`);

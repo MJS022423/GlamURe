@@ -23,7 +23,7 @@ const GRID_VARIANTS = {
   profile: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full",
 };
 
-export default function PostFeed({ posts, variant = "default" }) {
+export default function PostFeed({ posts, variant = "default", updatePostLikes }) {
   const [expandedPost, setExpandedPost] = useState(null);
   const [likesState, setLikesState] = useState({});
   const [bookmarksState, setBookmarksState] = useState({});
@@ -34,8 +34,37 @@ export default function PostFeed({ posts, variant = "default" }) {
   const [isSending, setIsSending] = useState(false);
 
 
-  const toggleLike = (postId) => {
-    setLikesState(prev => ({ ...prev, [postId]: !prev[postId] }));
+  const toggleLike = async (postId) => {
+    const currentLiked = likesState[postId] || false;
+    const newLiked = !currentLiked;
+
+    // Optimistically update UI
+    setLikesState(prev => ({ ...prev, [postId]: newLiked }));
+
+    try {
+      const res = await fetch(`${EXPRESS_API}/like/ToggleLike?postId=${postId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Update the post's likes in the parent component for immediate feedback
+        if (updatePostLikes) {
+          updatePostLikes(postId, data.likes);
+        }
+      } else {
+        // Revert on failure
+        setLikesState(prev => ({ ...prev, [postId]: currentLiked }));
+        console.error("Failed to toggle like:", data.error);
+      }
+    } catch (err) {
+      // Revert on error
+      setLikesState(prev => ({ ...prev, [postId]: currentLiked }));
+      console.error("Error toggling like:", err);
+    }
   };
 
   useEffect(() => {
@@ -110,7 +139,7 @@ export default function PostFeed({ posts, variant = "default" }) {
 
     setIsSending(true);
     try {
-      const res = await fetch(`${EXPRESS_API}/comment/Addcomment?Userid=${userid}&Postid=${postId}`, {
+      const res = await fetch(`${EXPRESS_API}/comment/Addcomment?Userid=${userid}&postid=${postId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -143,14 +172,20 @@ export default function PostFeed({ posts, variant = "default" }) {
 
     // Fetch comments for the post
     try {
-      const res = await fetch(`${EXPRESS_API}/comment/Displaycomment?Postid=${post.id}`, {
+      const res = await fetch(`${EXPRESS_API}/comment/Displaycomment?postid=${post.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       const data = await res.json();
       if (data.success) {
-        setCommentsState(prev => ({ ...prev, [post.id]: data.comments }));
+        setCommentsState(prev => ({
+          ...prev,
+          [post.id]: (data.comments || []).map(c => ({
+            username: c.username,
+            text: c.text || c.comment   // support both keys
+          }))
+        }));
       }
     } catch (err) {
       console.error("Failed to fetch comments:", err);
@@ -170,7 +205,7 @@ export default function PostFeed({ posts, variant = "default" }) {
   };
 
   const renderFeedDescription = (desc, post) => {
-    if (desc.length <= FEED_DESC_LIMIT) return desc;
+    if (!desc || desc.length <= FEED_DESC_LIMIT) return desc || "";
     return (
       <>
         {desc.slice(0, FEED_DESC_LIMIT)}...
@@ -185,7 +220,7 @@ export default function PostFeed({ posts, variant = "default" }) {
   };
 
   const renderModalDescription = (desc) => {
-    if (desc.length <= MODAL_DESC_LIMIT) return desc;
+    if (!desc || desc.length <= MODAL_DESC_LIMIT) return desc || "";
     return (
       <>
         {modalDescExpanded ? desc : desc.slice(0, MODAL_DESC_LIMIT) + "... "}
@@ -315,7 +350,7 @@ export default function PostFeed({ posts, variant = "default" }) {
                   type="text"
                   className="w-full border rounded-lg px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-gray-400"
                   placeholder="Write a comment..."
-                  value={commentInputs[expandedPost.id] || ""}
+                  value={commentInputs[expandedPost.id]}
                   onChange={e => setCommentInputs(prev => ({ ...prev, [expandedPost.id]: e.target.value }))}
                   onKeyDown={e => { if (e.key === "Enter") handleAddComment(expandedPost.id); }}
                 />
@@ -331,8 +366,9 @@ export default function PostFeed({ posts, variant = "default" }) {
                   {isSending ? 'Sending...' : 'Send'}
                 </button>
               </div>
-
-              <div className="flex-1 overflow-y-auto border-t pt-2">
+              
+              {/* Comments section*/}
+              <div className="flex-1 overflow-y-auto border-t pt-2 bg-red-100">
                 {(commentsState[expandedPost.id] || []).map((c, idx) => (
                   <div key={idx} className="flex items-start gap-2 mb-2">
                     <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-200 text-xs">👤</span>

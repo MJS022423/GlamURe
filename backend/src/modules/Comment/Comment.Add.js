@@ -2,14 +2,14 @@ import Database from "../modules.connection.js";
 import { ConsoleLog, ConsoleError } from "../../utils/utils.logger.js";
 import { ObjectId } from "mongodb";
 
-const db = new Database();
+const db = new Database(false);
 const log = true
 
 async function Add(req, res) {
   try {
 
     const userid = req.query.Userid;
-    const postid = req.query.Postid;
+    const postid = req.query.postid;
     const { comment, username } = req.body;
 
     if (!comment || !userid || !postid) {
@@ -20,6 +20,7 @@ async function Add(req, res) {
       user_id: new ObjectId(userid),
       text: comment,
       username: username || 'Anonymous',
+      createdAt: new Date(),
     }
 
     const collection = await db.Collection();
