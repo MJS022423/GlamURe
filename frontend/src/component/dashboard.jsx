@@ -35,13 +35,13 @@ function Dashboard({ goLogout }) {
         }}
       >
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard/home" replace />} />
-          <Route path="/home" element={<Homepage />} />
-          <Route path="/bookmark" element={<Bookmark />} />
-          <Route path="/profile" element={<Profilepage />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="*" element={<Navigate to="/dashboard/home" replace />} />
+          <Route index element={<Navigate to="home" replace />} />
+          <Route path="home" element={<Homepage />} />
+          <Route path="bookmark" element={<Bookmark />} />
+          <Route path="profile" element={<Profilepage />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="about" element={<AboutPage />} />
+          <Route path="*" element={<Navigate to="home" replace />} />
         </Routes>
         <style jsx>{`
         .no-scrollbar::-webkit-scrollbar {

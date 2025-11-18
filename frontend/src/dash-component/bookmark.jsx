@@ -3,7 +3,6 @@ import { X } from "lucide-react";
 
 const EXPRESS_API = import.meta.env.VITE_EXPRESS_API;
 const token = localStorage.getItem('token');
-const userid = localStorage.getItem('userid');
 
 const FEED_DESC_LIMIT = 30;
 const MODAL_DESC_LIMIT = 100;
@@ -25,7 +24,11 @@ const GlamureBookmarks = () => {
   useEffect(() => {
     const fetchBookmarks = async () => {
       try {
-        const res = await fetch(`${EXPRESS_API}/bookmark/DisplayBookmark?userId=${userid}`);
+        const res = await fetch(`${EXPRESS_API}/bookmark/DisplayBookmark`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         const data = await res.json();
         console.log(data);
 
@@ -179,7 +182,11 @@ const GlamureBookmarks = () => {
 
       {/* Main Content */}
   <div className="mt-20 mb-5 w-full max-w-[95%] mx-auto px-5 py-5">
-        {savedPosts.length === 0 ? (
+        {loading ? (
+          <div className="text-center text-gray-500 py-12">
+            Loading bookmarks...
+          </div>
+        ) : savedPosts.length === 0 ? (
           <div className="text-center text-gray-500 py-12">
             No bookmarks yet. Save posts using the bookmark icon.
           </div>

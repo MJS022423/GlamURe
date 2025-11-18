@@ -8,7 +8,7 @@ const log = false;
 async function Display(req, res) {
   ConsoleLog("[ BOOKMARK DISPLAY ROUTER ]", log);
   try {
-    const { userId } = req.query;
+    const userId = req.user.id; // Get userId from authenticated token
 
     if (!userId || !ObjectId.isValid(userId)) {
       return res.status(400).json({

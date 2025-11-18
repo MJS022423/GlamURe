@@ -41,6 +41,35 @@ export async function UpdateProfile(req, res) {
   }
 }
 
+export async function UpdateDesignerInfo(req, res) {
+  ConsoleLog("[ UPDATE DESIGNER INFO ROUTER ]", log);
+
+  if (!req.body || !req.body.socialMedia || !req.body.contact) {
+    return res.status(400).json({ error: "Update Request Failed Parameter is Empty" });
+  }
+  const { socialMedia, contact } = req.body;
+
+  try {
+    const collection = await db.Collection();
+    const userDoc = {
+      $set: {
+        SocialMedia: socialMedia,
+        Contact: contact,
+      }
+    };
+    await collection.updateOne({ _id: req.user.id }, userDoc);
+
+    ConsoleLog('[ SUCCESSFULLY UPDATE DESIGNER INFO ]', log);
+    return res.status(200).json({ success: true });
+
+  } catch (error) {
+    ConsoleError(`[ FAILED TO UPDATE DESIGNER INFO ]: ${error.message}`, log);
+    res.status(500).json({ error: error.message });
+  } finally {
+    db.Close();
+  }
+}
+
 export async function UpdatePassword(req, res) {
   ConsoleLog("[ UPDATE PASSWORD ROUTER ]", log);
 

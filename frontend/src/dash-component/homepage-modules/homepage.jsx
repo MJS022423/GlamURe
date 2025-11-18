@@ -19,7 +19,12 @@ export default function Homepage() {
   const fetchPosts = useCallback(async (pageNum = 1, append = false) => {
     try {
       setLoading(true);
-      const res = await fetch(`${EXPRESS_API}/post/Displaypost`);
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${EXPRESS_API}/post/Displaypost`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const data = await res.json();
 
       if (!data.success) throw new Error(data.error || "Failed to fetch posts");

@@ -11,6 +11,6 @@ const upload = multer({ storage });
 
 Postrouter.post('/Addpost', authMiddleware, upload.array("images"), AddPost);
 Postrouter.post('/Removepost', authMiddleware, RemovePost);
-Postrouter.get('/Displaypost', DisplayPost);
+Postrouter.get('/Displaypost', authMiddleware, DisplayPost);
 
 export default Postrouter;

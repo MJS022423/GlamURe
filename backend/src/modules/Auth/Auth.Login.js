@@ -4,7 +4,7 @@ import { generateKey } from './Auth.js';
 import Database from '../modules.connection.js';
 import bcrypt from 'bcrypt';
 
-const db = new Database();
+const db = new Database(false);
 const log = false;
 
 async function Login(req, res) {
@@ -36,7 +36,9 @@ async function Login(req, res) {
         token,
         userid: user._id.toString(),
         name: user.Profile_name || user.Username,
+        username: user.Username,
         role: user.Role,
+        profileImage: user.Profile_pic,
       }
     );
 

@@ -63,6 +63,15 @@ export default function Web() {
     checkServer();
   }, []);
 
+  // Check if user is logged in on mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userid = localStorage.getItem('userid');
+    if (token && userid) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
   // Handle navigation when not logged in and on root path
   useEffect(() => {
     if (!loading && !isLoggedIn && window.location.pathname === '/') {
@@ -98,16 +107,6 @@ export default function Web() {
       />
 
       {/* Dashboard (Protected Route) */}
-      <Route
-        path="/dashboard"
-        element={
-          isLoggedIn ? (
-            <Navigate to="/dashboard/home" replace />
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
       <Route
         path="/dashboard/*"
         element={
