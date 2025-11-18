@@ -478,9 +478,11 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
                                 return SvgPicture.asset(
                                   asset,
                                   width: 26,
-                                  // if the svg is monochrome and you want to tint it, use colorFilter:
+                                  height: 26,
+                                  // If you'd like to tint the heart based on like-state, uncomment:
                                   // colorFilter: ColorFilter.mode(isLiked ? Colors.pinkAccent : Colors.black54, BlendMode.srcIn),
                                   placeholderBuilder: (c) => const SizedBox(width: 26, height: 26),
+                                  semanticsLabel: isLiked ? 'Liked' : 'Like',
                                 );
                               } catch (_) {
                                 return Icon(isLiked ? Icons.favorite : Icons.favorite_border, size: 26, color: isLiked ? Colors.pinkAccent : Colors.black54);
@@ -508,15 +510,23 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
                             duration: const Duration(milliseconds: 200),
                             curve: Curves.easeOut,
                             scale: isBookmarked ? 1.2 : 1.0,
-                            child: SvgPicture.asset(
-                              'assets/bookmark.svg',
-                              width: 26,
-                              colorFilter: ColorFilter.mode(
-                                isBookmarked ? Colors.pinkAccent : Colors.black54,
-                                BlendMode.srcIn,
-                              ),
-                              placeholderBuilder: (c) => const SizedBox(width: 26, height: 26),
-                            ),
+                            child: Builder(builder: (context) {
+                              try {
+                                return SvgPicture.asset(
+                                  'assets/bookmark.svg',
+                                  width: 26,
+                                  height: 26,
+                                  colorFilter: ColorFilter.mode(
+                                    isBookmarked ? Colors.pinkAccent : Colors.black54,
+                                    BlendMode.srcIn,
+                                  ),
+                                  placeholderBuilder: (c) => const SizedBox(width: 26, height: 26),
+                                  semanticsLabel: 'Bookmark',
+                                );
+                              } catch (_) {
+                                return Icon(isBookmarked ? Icons.bookmark : Icons.bookmark_border, size: 26, color: isBookmarked ? Colors.pinkAccent : Colors.black54);
+                              }
+                            }),
                           ),
                           const SizedBox(width: 6),
                           AnimatedSwitcher(
