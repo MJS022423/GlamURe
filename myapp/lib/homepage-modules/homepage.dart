@@ -18,7 +18,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   bool showPostModal = false;
 
   List<Map<String, dynamic>> posts = [];
@@ -99,10 +100,41 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         return;
       }
       filteredPosts = posts
-          .where((post) =>
-              post['tags'].any((tag) => selectedTags.contains(tag)))
+          .where((post) => post['tags'].any((tag) => selectedTags.contains(tag)))
           .toList();
     });
+  }
+
+  void _onNavTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      if (index == 0) _loadPosts(); // ✅ Refresh when returning to Home
+    });
+  }
+
+  // Helper to create a tintable SVG icon consistently
+  Widget _svgIcon(String assetPath, {double size = 36, required bool selected, String? semanticLabel}) {
+    final color = selected ? Colors.black : Colors.grey;
+    return SizedBox(
+      width: size,
+      height: size,
+      child: SvgPicture.asset(
+        assetPath,
+        width: size,
+        height: size,
+        // Use colorFilter to tint the svg reliably
+        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+        // A small widget shown while SVG is loading
+        placeholderBuilder: (context) => Center(
+          child: SizedBox(
+            width: size * 0.5,
+            height: size * 0.5,
+            child: const CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+        semanticsLabel: semanticLabel ?? assetPath.split('/').last,
+      ),
+    );
   }
 
   Widget _buildHomeContent() {
@@ -120,6 +152,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     'assets/Web-logo.svg',
                     width: 48,
                     height: 48,
+                    // logo might be multi-colored; don't force a color here
+                    placeholderBuilder: (context) => const SizedBox(
+                      width: 48,
+                      height: 48,
+                    ),
+                    semanticsLabel: 'Glamure logo',
                   ),
                   const SizedBox(width: 8),
                   const Text(
@@ -178,13 +216,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  void _onNavTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-      if (index == 0) _loadPosts(); // ✅ Refresh when returning to Home
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     Widget currentPage;
@@ -227,6 +258,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 'assets/create-svgrepo-com.svg',
                 width: 28,
                 height: 28,
+                colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                placeholderBuilder: (context) => const SizedBox(
+                  width: 28,
+                  height: 28,
+                ),
+                semanticsLabel: 'Create post',
               ),
             )
           : null,
@@ -240,57 +277,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         iconSize: 36,
         items: [
           BottomNavigationBarItem(
-            icon: SvgPicture.asset(
-              'assets/home.svg',
-              width: 36,
-              height: 36,
-              color: _selectedIndex == 0 ? Colors.black : Colors.grey,
-            ),
+            icon: _svgIcon('assets/home.svg', size: 36, selected: _selectedIndex == 0, semanticLabel: 'Home'),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: SvgPicture.asset(
-              'assets/leaderboard.svg',
-              width: 36,
-              height: 36,
-              color: _selectedIndex == 1 ? Colors.black : Colors.grey,
-            ),
+            icon: _svgIcon('assets/leaderboard.svg', size: 36, selected: _selectedIndex == 1, semanticLabel: 'Leaderboard'),
             label: 'Leaderboard',
           ),
-           BottomNavigationBarItem(
-            icon: SvgPicture.asset(
-              'assets/bookmark.svg',
-              width: 36,
-              height: 36,
-              color: _selectedIndex == 2 ? Colors.black : Colors.grey,
-            ),
+          BottomNavigationBarItem(
+            icon: _svgIcon('assets/bookmark.svg', size: 36, selected: _selectedIndex == 2, semanticLabel: 'Bookmark'),
             label: 'Bookmark',
           ),
           BottomNavigationBarItem(
-            icon: SvgPicture.asset(
-              'assets/profile.svg',
-              width: 36,
-              height: 36,
-              color: _selectedIndex == 3 ? Colors.black : Colors.grey,
-            ),
+            icon: _svgIcon('assets/profile.svg', size: 36, selected: _selectedIndex == 3, semanticLabel: 'Profile'),
             label: 'Profile',
           ),
           BottomNavigationBarItem(
-            icon: SvgPicture.asset(
-              'assets/settings.svg',
-              width: 36,
-              height: 36,
-              color: _selectedIndex == 4 ? Colors.black : Colors.grey,
-            ),
+            icon: _svgIcon('assets/settings.svg', size: 36, selected: _selectedIndex == 4, semanticLabel: 'Settings'),
             label: 'Settings',
           ),
           BottomNavigationBarItem(
-            icon: SvgPicture.asset(
-              'assets/info.svg',
-              width: 36,
-              height: 36,
-              color: _selectedIndex == 5 ? Colors.black : Colors.grey,
-            ),
+            icon: _svgIcon('assets/info.svg', size: 36, selected: _selectedIndex == 5, semanticLabel: 'About'),
             label: 'About',
           ),
         ],
