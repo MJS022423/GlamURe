@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/services.dart'; // <-- needed for rootBundle
 import '../data/post_store.dart';
 import '../data/user_actions_store.dart';
 import 'expanded_post_page.dart';
@@ -19,7 +20,7 @@ class _PostFeedModuleState extends State<PostFeedModule> {
   // canonical list (falls back to PostStore)
   List<Map<String, dynamic>> get _posts => widget.posts ?? PostStore.getAllPosts();
 
-    void _toggleLike(int postId) {
+  void _toggleLike(int postId) {
     final currentlyLiked = UserActionsStore.isLiked(postId);
     final newState = !currentlyLiked;
 
@@ -45,7 +46,6 @@ class _PostFeedModuleState extends State<PostFeedModule> {
 
     setState(() {});
   }
-
 
   List<String> _buildDisplayTags(Map<String, dynamic> post) {
     final seen = <String>{};
@@ -179,7 +179,15 @@ class _PostFeedModuleState extends State<PostFeedModule> {
                               child: SizedBox(
                                 width: 22,
                                 height: 22,
-                                child: SvgPicture.asset(isLiked ? 'assets/likediconheart.svg' : 'assets/unlikeiconheart.svg', width: 22),
+                                child: _SvgAssetOrIcon(
+                                  assetPath: isLiked ? 'assets/likediconheart.svg' : 'assets/unlikeiconheart.svg',
+                                  fallbackIcon: isLiked ? Icons.favorite : Icons.favorite_border,
+                                  iconColor: isLiked ? Colors.pinkAccent : Colors.black54,
+                                  width: 22,
+                                  height: 22,
+                                  // hearts usually don't need tinting; uncomment to enable:
+                                  // colorFilter: ColorFilter.mode(isLiked ? Colors.pinkAccent : Colors.black54, BlendMode.srcIn),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 6),
@@ -201,10 +209,17 @@ class _PostFeedModuleState extends State<PostFeedModule> {
                               duration: const Duration(milliseconds: 220),
                               curve: Curves.elasticOut,
                               scale: isBookmarked ? 1.2 : 1.0,
-                              child: SvgPicture.asset(
-                                'assets/bookmark.svg',
+                              child: SizedBox(
                                 width: 22,
-                                colorFilter: ColorFilter.mode(isBookmarked ? Colors.pinkAccent : Colors.black54, BlendMode.srcIn),
+                                height: 22,
+                                child: _SvgAssetOrIcon(
+                                  assetPath: 'assets/bookmark.svg',
+                                  fallbackIcon: isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                                  iconColor: isBookmarked ? Colors.pinkAccent : Colors.black54,
+                                  width: 22,
+                                  height: 22,
+                                  colorFilter: ColorFilter.mode(isBookmarked ? Colors.pinkAccent : Colors.black54, BlendMode.srcIn),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 6),
@@ -221,6 +236,62 @@ class _PostFeedModuleState extends State<PostFeedModule> {
               ],
             ),
           ),
+        );
+      },
+    );
+  }
+}
+
+/// Helper widget: attempts to load an SVG asset; if unavailable or loading fails,
+/// falls back to a Material Icon. Uses rootBundle.load to check asset existence.
+class _SvgAssetOrIcon extends StatelessWidget {
+  final String assetPath;
+  final IconData fallbackIcon;
+  final Color iconColor;
+  final double width;
+  final double height;
+  final ColorFilter? colorFilter;
+
+  const _SvgAssetOrIcon({
+    required this.assetPath,
+    required this.fallbackIcon,
+    required this.iconColor,
+    required this.width,
+    required this.height,
+    this.colorFilter,
+  });
+
+  Future<bool> _assetExists() async {
+    try {
+      await rootBundle.load(assetPath);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: _assetExists(),
+      builder: (context, snap) {
+        if (snap.connectionState == ConnectionState.waiting) {
+          // placeholder while we check
+          return SizedBox(width: width, height: height);
+        }
+        final exists = snap.data ?? false;
+        if (!exists) {
+          // fallback icon immediately
+          return Icon(fallbackIcon, size: width, color: iconColor);
+        }
+        // asset exists — render SVG (it may still contain inline fills that prevent tinting)
+        return SvgPicture.asset(
+          assetPath,
+          width: width,
+          height: height,
+          placeholderBuilder: (c) => SizedBox(width: width, height: height),
+          colorFilter: colorFilter,
+          semanticsLabel: assetPath.split('/').last,
         );
       },
     );

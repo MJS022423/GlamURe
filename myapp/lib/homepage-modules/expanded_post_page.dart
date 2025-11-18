@@ -8,7 +8,7 @@ import '../data/post_store.dart';
 import '../data/user_actions_store.dart';
 import '../data/comment_store.dart';
 import '../data/account_store.dart'; // to fetch avatars/public profiles
-import '../profile/profile_page.dart'; // <- new import for navigating to profile
+import '../profile/profile_page.dart'; // <- profile
 
 class ExpandedPostPage extends StatefulWidget {
   final Map<String, dynamic> post;
@@ -46,10 +46,6 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
 
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
-
-  // network icons (same URLs)
-  static const _heartUnlikedUrl = 'https://www.svgrepo.com/show/532473/heart.svg';
-  static const _heartLikedUrl = 'https://www.svgrepo.com/show/369346/heart.svg';
 
   @override
   void initState() {
@@ -95,6 +91,11 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
       post['likes'] = likes;
       PostStore.updatePost(postId, {'likes': likes});
     });
+
+    // notify parent (if needed)
+    try {
+      widget.setLike(postId, isLiked);
+    } catch (_) {}
   }
 
   void _toggleBookmark() {
@@ -110,6 +111,11 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
       post['bookmarks'] = bookmarks;
       PostStore.updatePost(postId, {'bookmarks': bookmarks});
     });
+
+    // notify parent (if needed)
+    try {
+      widget.setBookmark(postId, isBookmarked);
+    } catch (_) {}
   }
 
   void _addComment() {
@@ -127,6 +133,10 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
 
     commentController.clear();
     setState(() {});
+    // notify parent (if any)
+    try {
+      widget.addComment(postId);
+    } catch (_) {}
   }
 
   /// Returns a realtime human-friendly delta string:
@@ -148,6 +158,65 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
     return '${days}d ago';
   }
 
+  /// Build an ImageProvider from many possible sources:
+  /// - Uint8List
+  /// - base64 data: URI
+  /// - raw base64 (without prefix)
+  /// - http(s) URL
+  /// - returns null if none can be constructed
+  ImageProvider? _imageProviderFromSource(dynamic src) {
+    if (src == null) return null;
+
+    try {
+      if (src is Uint8List) {
+        return MemoryImage(src);
+      }
+
+      if (src is ImageProvider) {
+        return src;
+      }
+
+      if (src is String) {
+        final s = src.trim();
+
+        // data URI: data:image/png;base64,....
+        if (s.startsWith('data:')) {
+          final parts = s.split(',');
+          if (parts.length == 2) {
+            try {
+              final bytes = base64Decode(parts[1]);
+              return MemoryImage(bytes);
+            } catch (_) {
+              return null;
+            }
+          }
+        }
+
+        // http/https
+        if (s.startsWith('http://') || s.startsWith('https://')) {
+          return NetworkImage(s);
+        }
+
+        // Raw base64? detect with a sensible regex (no stray \$ anchor)
+        final base64Regex = RegExp(r'^[A-Za-z0-9+/=]+$');
+        if (base64Regex.hasMatch(s)) {
+          try {
+            final bytes = base64Decode(s);
+            return MemoryImage(bytes);
+          } catch (_) {
+            // not valid base64
+          }
+        }
+
+        // fallback: try network
+        return NetworkImage(s);
+      }
+    } catch (_) {
+      return null;
+    }
+    return null;
+  }
+
   Widget _buildCommentAvatar(Map<String, dynamic> comment) {
     final authorUsername = comment['authorUsername'] as String?;
     Map<String, dynamic>? profile;
@@ -158,11 +227,13 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
     final base64Img = profile != null ? (profile['profileImage'] as String?) : null;
     if (base64Img != null && base64Img.isNotEmpty) {
       try {
-        final bytes = base64Decode(base64Img);
-        return CircleAvatar(
-          radius: 18,
-          backgroundImage: MemoryImage(bytes),
-        );
+        final provider = _imageProviderFromSource(base64Img);
+        if (provider != null) {
+          return CircleAvatar(
+            radius: 18,
+            backgroundImage: provider,
+          );
+        }
       } catch (e) {
         // fall through
       }
@@ -227,40 +298,7 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
         ? (authorMap['profileImage'] ?? authorMap['avatar'] ?? authorMap['photo'])
         : null;
 
-    ImageProvider? avatarImageProvider;
-    if (avatarSource is Uint8List) {
-      avatarImageProvider = MemoryImage(avatarSource);
-    } else if (avatarSource is String && avatarSource.isNotEmpty) {
-      // If the profile image looks like base64, decode it; otherwise treat it as a URL
-      final maybeBase64 = avatarSource;
-      if (maybeBase64.contains(RegExp(r'^[A-Za-z0-9+/=]+\$'))) {
-        try {
-          final bytes = base64Decode(maybeBase64);
-          avatarImageProvider = MemoryImage(bytes);
-        } catch (_) {
-          avatarImageProvider = NetworkImage(maybeBase64);
-        }
-      } else if (maybeBase64.startsWith('http') || maybeBase64.startsWith('data:')) {
-        // data: URIs with base64 are handled by MemoryImage above when decoded; treat http as network
-        if (maybeBase64.startsWith('data:')) {
-          // strip prefix if it's a data uri like "data:image/png;base64,...."
-          final parts = maybeBase64.split(',');
-          if (parts.length == 2) {
-            try {
-              final bytes = base64Decode(parts[1]);
-              avatarImageProvider = MemoryImage(bytes);
-            } catch (_) {
-              avatarImageProvider = null;
-            }
-          }
-        } else {
-          avatarImageProvider = NetworkImage(maybeBase64);
-        }
-      } else {
-        // last resort, attempt network image
-        avatarImageProvider = NetworkImage(maybeBase64);
-      }
-    }
+    final avatarImageProvider = _imageProviderFromSource(avatarSource);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
@@ -270,11 +308,37 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
             onTap: () {
               // When tapped open ProfilePage for this author.
               // If we have a full authorMap, pass it. Otherwise, pass a minimal map with username.
-              final toPass = authorMap ?? <String, dynamic>{'username': authorUsername};
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => ProfilePage(user: toPass)),
+              final toPass = authorMap ?? <String, dynamic>{'username': authorUsername ?? ''};
+
+              // --- Use a modal bottom sheet to show profile so bottom nav stays visible ---
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (ctx) {
+                  return DraggableScrollableSheet(
+                    expand: false,
+                    initialChildSize: 0.9,
+                    minChildSize: 0.4,
+                    maxChildSize: 0.95,
+                    builder: (_, controller) {
+                      return Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                          child: ProfilePage(user: toPass),
+                        ),
+                      );
+                    },
+                  );
+                },
               );
+
+              // --- Alternative (full screen push) if you prefer:
+              // Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage(user: toPass)));
             },
             borderRadius: BorderRadius.circular(28),
             child: Row(
@@ -326,8 +390,6 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
     final postId = post['id'] as int;
     final comments = CommentStore.getComments(postId);
 
-    final heartUrl = isLiked ? _heartLikedUrl : _heartUnlikedUrl;
-
     return Scaffold(
       backgroundColor: const Color(0xfffde2e4),
       appBar: AppBar(
@@ -353,15 +415,14 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: Container(
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     height: 320,
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
                       image: DecorationImage(
                         image: images[0] is Uint8List
                             ? MemoryImage(images[0])
-                            : NetworkImage(images[0]) as ImageProvider,
+                            : (_imageProviderFromSource(images[0]) ?? const AssetImage('assets/file.svg') as ImageProvider),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -374,24 +435,20 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
                   alignment: Alignment.centerLeft,
                   child: Text(
                     desc,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w500),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                 ),
               ),
 
               if (tags.isNotEmpty)
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   child: Wrap(
                     spacing: 6,
                     runSpacing: 4,
                     children: tags
                         .map((t) => Chip(
-                              label: Text(t,
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.black)),
+                              label: Text(t, style: const TextStyle(fontSize: 12, color: Colors.black)),
                               backgroundColor: Colors.pink.shade50,
                             ))
                         .toList(),
@@ -401,8 +458,7 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
               const SizedBox(height: 10),
 
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -415,12 +471,23 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
                             duration: const Duration(milliseconds: 200),
                             curve: Curves.easeOut,
                             scale: isLiked ? 1.2 : 1.0,
-                            child: SvgPicture.asset(
-                              isLiked
-                                  ? 'assets/likediconheart.svg'
-                                  : 'assets/unlikeiconheart.svg',
-                              width: 26,
-                            ),
+                            child: Builder(builder: (context) {
+                              // Choose asset if available, otherwise fall back to an icon
+                              final asset = isLiked ? 'assets/likediconheart.svg' : 'assets/unlikeiconheart.svg';
+                              try {
+                                return SvgPicture.asset(
+                                  asset,
+                                  width: 26,
+                                  height: 26,
+                                  // If you'd like to tint the heart based on like-state, uncomment:
+                                  // colorFilter: ColorFilter.mode(isLiked ? Colors.pinkAccent : Colors.black54, BlendMode.srcIn),
+                                  placeholderBuilder: (c) => const SizedBox(width: 26, height: 26),
+                                  semanticsLabel: isLiked ? 'Liked' : 'Like',
+                                );
+                              } catch (_) {
+                                return Icon(isLiked ? Icons.favorite : Icons.favorite_border, size: 26, color: isLiked ? Colors.pinkAccent : Colors.black54);
+                              }
+                            }),
                           ),
                           const SizedBox(width: 6),
                           AnimatedSwitcher(
@@ -443,16 +510,23 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
                             duration: const Duration(milliseconds: 200),
                             curve: Curves.easeOut,
                             scale: isBookmarked ? 1.2 : 1.0,
-                            child: SvgPicture.asset(
-                              'assets/bookmark.svg',
-                              width: 26,
-                              colorFilter: ColorFilter.mode(
-                                isBookmarked
-                                    ? Colors.pinkAccent
-                                    : Colors.black54,
-                                BlendMode.srcIn,
-                              ),
-                            ),
+                            child: Builder(builder: (context) {
+                              try {
+                                return SvgPicture.asset(
+                                  'assets/bookmark.svg',
+                                  width: 26,
+                                  height: 26,
+                                  colorFilter: ColorFilter.mode(
+                                    isBookmarked ? Colors.pinkAccent : Colors.black54,
+                                    BlendMode.srcIn,
+                                  ),
+                                  placeholderBuilder: (c) => const SizedBox(width: 26, height: 26),
+                                  semanticsLabel: 'Bookmark',
+                                );
+                              } catch (_) {
+                                return Icon(isBookmarked ? Icons.bookmark : Icons.bookmark_border, size: 26, color: isBookmarked ? Colors.pinkAccent : Colors.black54);
+                              }
+                            }),
                           ),
                           const SizedBox(width: 6),
                           AnimatedSwitcher(
@@ -486,8 +560,7 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
                             decoration: InputDecoration(
                               hintText: "Add a comment...",
                               counterText: "",
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 10),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
@@ -496,8 +569,7 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
                         ),
                         const SizedBox(width: 6),
                         IconButton(
-                          icon: const Icon(Icons.send,
-                              color: Colors.pinkAccent, size: 24),
+                          icon: const Icon(Icons.send, color: Colors.pinkAccent, size: 24),
                           onPressed: _addComment,
                         ),
                       ],
@@ -509,8 +581,7 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
                             padding: EdgeInsets.symmetric(vertical: 12),
                             child: Text(
                               "No comments yet. Be the first!",
-                              style:
-                                  TextStyle(color: Colors.black54, fontSize: 13),
+                              style: TextStyle(color: Colors.black54, fontSize: 13),
                             ),
                           )
                         : ListView.builder(
@@ -526,9 +597,7 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
                                 leading: _buildCommentAvatar(c),
                                 title: Text(
                                   commenterName,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black),
+                                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
                                 ),
                                 subtitle: Text(
                                   c['text'] as String? ?? '',
@@ -536,8 +605,7 @@ class _ExpandedPostPageState extends State<ExpandedPostPage>
                                 ),
                                 trailing: Text(
                                   _timeAgo(createdAt),
-                                  style: const TextStyle(
-                                      color: Colors.black45, fontSize: 12),
+                                  style: const TextStyle(color: Colors.black45, fontSize: 12),
                                 ),
                               );
                             },
